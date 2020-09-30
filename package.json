@@ -1,0 +1,27 @@
+{
+  "name": "roktion",
+  "version": "1.0.0",
+  "description": "project for osamhack2020",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --watch src --delay 3 --exec 'ts-node' src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Merseong/WEB_ROKTION_Yeonghon-s-Matdai.git"
+  },
+  "author": "Yeonghon-s-Matdai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Merseong/WEB_ROKTION_Yeonghon-s-Matdai/issues"
+  },
+  "homepage": "https://github.com/Merseong/WEB_ROKTION_Yeonghon-s-Matdai#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "ts-node": "^9.0.0"
+  },
+  "dependencies": {
+    "typescript": "^4.0.3"
+  }
+}
