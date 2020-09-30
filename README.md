@@ -24,7 +24,7 @@
 
 ```bash
 $ npm install
-$ npm start 
+$ npm run start:dev
 ```
 
 # 프로젝트 사용법 (Getting Started)
