@@ -1,10 +1,16 @@
 import express, {Request, Response, NextFunction} from 'express';
+import { ppid } from 'process';
 import router from './router/router';
 
 const app = express();
 
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
+app.use('/public', express.static(__dirname + '/public'));
+
 app.get('/', (req:Request, res:Response, next:NextFunction) => {
-    res.send("hello express + typescript");
+    res.render('index.html')
 })
 
 app.use('/router', router);
