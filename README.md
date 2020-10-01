@@ -23,6 +23,9 @@
 # 설치 안내 (Installation Process)
 
 ```bash
+$ cd ROKTION-client && npm install
+$ cd ../ROKTION-server && npm install
+$ npm run dev
 ```
 
 # 프로젝트 사용법 (Getting Started)
