@@ -1,4 +1,5 @@
 import express, {Request, Response, NextFunction} from "express";
+import logger from 'morgan';
 
 class App {
     public application : express.Application;
@@ -10,6 +11,9 @@ class App {
 
 const app = new App().application;
 const PORT = 5000;
+
+// middleware
+app.use(logger('dev'));
 
 app.get('/data', (req:Request, res:Response, next:NextFunction) => {
     const data = {
