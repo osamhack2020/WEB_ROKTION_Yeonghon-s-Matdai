@@ -24,7 +24,10 @@
 
 ```bash
 $ npm install
-$ npm run start:dev
+$ npm run dev
+
+$ npm run build
+$ npm start
 ```
 
 # 프로젝트 사용법 (Getting Started)
