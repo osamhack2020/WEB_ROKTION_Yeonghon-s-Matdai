@@ -1,27 +1,14 @@
 import express, {Request, Response, NextFunction} from "express";
 import logger from 'morgan';
+import dataRouter from './dataRouter';
 
-class App {
-    public application : express.Application;
-
-    constructor() {
-        this.application = express();
-    }
-}
-
-const app = new App().application;
+const app = express();
 const PORT = 5000;
 
 // middleware
 app.use(logger('dev'));
 
-app.get('/data', (req:Request, res:Response, next:NextFunction) => {
-    const data = {
-        lastname : "Done",
-        firstname : "Test"
-    };
-    res.json(data);
-});
+app.use(dataRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on PORT ${PORT}`);

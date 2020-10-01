@@ -11,7 +11,7 @@ function App() {
         <p>
           React
         </p>
-        <Data/>
+        <Data />
       </header>
     </div>
   );
