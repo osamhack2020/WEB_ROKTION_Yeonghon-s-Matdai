@@ -5,6 +5,7 @@
 # 기능 설계
 
 <!--목업 프레임워크 : 카카오 오븐-->
+[Kakao Oven](https://ovenapp.io/project/Oe2RQMVa1IWS8jOmZ4S615D2xeDnUJKu#MZCzh)
 
 # 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)
 
@@ -15,10 +16,15 @@
 ## Server (back-end)
 
 <!--사용된 언어, 프레임워크 등-->
+- Typescript
+- Express
 
 ## Client (front-end)
 
 <!--프레임워크, 라이브러리 등-->
+- Typescript
+- React
+    - Create-React-App
 
 # 설치 안내 (Installation Process)
 
@@ -26,12 +32,15 @@
 $ npm i -g typescript
 $ cd ROKTION-client && npm install
 $ cd ../ROKTION-server && npm install
-$ npm run dev
 ```
 
 # 프로젝트 사용법 (Getting Started)
 
 <!--아무거나 적당히 사용법 작성-->
+```bash
+$ npm run dev
+```
+이후 http://(ServerIP):3000/ 으로 접속하면 사용 가능합니다.
 
 # 팀 정보 (Team Infomation)
 
