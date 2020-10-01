@@ -23,11 +23,6 @@
 # 설치 안내 (Installation Process)
 
 ```bash
-$ npm install
-$ npm run dev
-
-$ npm run build
-$ npm start
 ```
 
 # 프로젝트 사용법 (Getting Started)
