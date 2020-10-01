@@ -13,8 +13,8 @@ const PORT = 5000;
 
 app.get('/data', (req:Request, res:Response, next:NextFunction) => {
     const data = {
-        lastname : "dl",
-        firstname : "wlrma"
+        lastname : "Done",
+        firstname : "Test"
     };
     res.json(data);
 });

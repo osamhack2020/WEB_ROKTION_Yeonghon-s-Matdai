@@ -23,6 +23,7 @@
 # 설치 안내 (Installation Process)
 
 ```bash
+$ npm i -g typescript
 $ cd ROKTION-client && npm install
 $ cd ../ROKTION-server && npm install
 $ npm run dev
