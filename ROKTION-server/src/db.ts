@@ -1,12 +1,14 @@
 import mongoose from 'mongoose';
 import { User, UserModel } from './schemas/user';
 
+const url = 'mongodb://localhost:27017/roktion_dev';
+
 export class DB {
     constructor() {}
 
     initalConnect() {
         const connect = () => {
-            mongoose.connect('mongodb://localhost:27017/roktion_dev', (err) => {
+            mongoose.connect(url, (err) => {
                 if (err) {
                     console.error('DB connection error', err);
                 } else {
