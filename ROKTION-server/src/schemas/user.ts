@@ -3,7 +3,7 @@ import { Document, Schema, model } from "mongoose";
 export interface User extends Document {
     name: string;
     tagId: number;
-    permision: boolean;
+    permission: boolean;
 }
 
 const userSchema = new Schema({

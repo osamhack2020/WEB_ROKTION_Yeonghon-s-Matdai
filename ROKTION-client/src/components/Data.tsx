@@ -1,4 +1,5 @@
 import React from 'react';
+import { User } from '../types';
 
 interface DataState {
   outputData: string,
@@ -12,12 +13,11 @@ interface DataProps {
 class Data extends React.Component<DataProps, DataState> {
   
   api<T>(url: string, option: Object): Promise<T> {
-    return fetch(url)
+    return fetch(url, option)
       .then(response => {
         if (!response.ok) {
           throw new Error(response.statusText)
         }
-        console.log(response.body);
         return response.json() as Promise<T>
       })
   }
@@ -32,22 +32,27 @@ class Data extends React.Component<DataProps, DataState> {
   };
 
   getData(id: string) {
-    this.api<{name: string}>(`/data/${id}`, {
+    this.api<{data: User}>(`/data/${id}`, {
       method: 'GET'
-    }).then(({name}) => {
-      this.setState({ outputData: `${this.state.outputData}, ${name} `});
+    }).then(({data}) => {
+      if (data !== undefined) {
+        this.setState({ outputData: `${this.state.outputData}, ${data.name} `});
+      } else {
+        throw new Error(`no such user with id ${id}`);
+      }
     })
     .catch(err => {
       console.error(err);
     });
   };
 
-  clickedPost() {
+  postData() {
+    let tagId = Math.floor(Math.random() * 10000000) + 1;
     fetch('/data', {
       method: 'POST',
       body: JSON.stringify({
         name: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5),
-        tagId: Math.floor(Math.random() * 10000000) + 1,
+        tagId: tagId,
         permission: false,
       }),
       headers: {
@@ -55,7 +60,7 @@ class Data extends React.Component<DataProps, DataState> {
       }
     })
     .then(res => {
-      console.log(res.status);
+      console.log(res.status, tagId);
     })
     .catch(err => {
       console.error(err);
@@ -66,7 +71,7 @@ class Data extends React.Component<DataProps, DataState> {
     return (
       <div>
         <p>Hello {this.state.outputData}</p>
-        <button onClick={this.clickedPost}>Click to POST</button>
+        <button onClick={this.postData}>Click to POST</button>
         <input
           value={this.state.id}
           onChange={
