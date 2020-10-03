@@ -12,6 +12,7 @@ db.initalConnect();
 
 // middlewares
 app.use(logger('dev'));
+app.use(express.json());
 
 // routers
 app.use('/data', dataRouter);

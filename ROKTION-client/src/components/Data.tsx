@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface DataState {
-  _name: string;
-  _id: string;
+  outputData: string,
+  id: string
 }
 
 interface DataProps {
@@ -11,7 +11,7 @@ interface DataProps {
  
 class Data extends React.Component<DataProps, DataState> {
   
-  api<T>(url: string): Promise<T> {
+  api<T>(url: string, option: Object): Promise<T> {
     return fetch(url)
       .then(response => {
         if (!response.ok) {
@@ -26,30 +26,55 @@ class Data extends React.Component<DataProps, DataState> {
     super(props);
 
     this.state = {
-      _name: '',
-      _id: ''
+      outputData: '',
+      id: ''
     }
-
-    this.api<{ name: string }>('/data')
-    .then(({ name }) => {
-      this.setState({_name: name});
-    })
-    .catch(error => {
-      console.error(error);
-    })
-
-    this.api<{ name: string }>('/data/2076023051')
-    .then(({ name }) => {
-      this.setState({_id: name});
-    })
-    .catch(error => {
-      console.error(error);
-    })
   };
+
+  getData(id: string) {
+    this.api<{name: string}>(`/data/${id}`, {
+      method: 'GET'
+    }).then(({name}) => {
+      this.setState({ outputData: `${this.state.outputData}, ${name} `});
+    })
+    .catch(err => {
+      console.error(err);
+    });
+  };
+
+  clickedPost() {
+    fetch('/data', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5),
+        tagId: Math.floor(Math.random() * 10000000) + 1,
+        permission: false,
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      console.log(res.status);
+    })
+    .catch(err => {
+      console.error(err);
+    }) 
+  }
 
   render() {
     return (
-      <p>Hello, {this.state._name}, {this.state._id}</p>
+      <div>
+        <p>Hello {this.state.outputData}</p>
+        <button onClick={this.clickedPost}>Click to POST</button>
+        <input
+          value={this.state.id}
+          onChange={
+            (e) => this.setState({ id: e.target.value })
+          }
+        />
+        <button onClick={() => this.getData(this.state.id)}>Click to GET</button>
+      </div>
     );
   }
 };

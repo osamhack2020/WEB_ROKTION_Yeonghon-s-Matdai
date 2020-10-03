@@ -1,14 +1,19 @@
 import mongoose from 'mongoose';
 import { User, UserModel } from './schemas/user';
 
-const url = 'mongodb://localhost:27017/roktion_dev';
+const uri = 'mongodb://localhost:27017/roktion_dev';
 
 export class DB {
-    constructor() {}
+    constructor() {
+        mongoose.set('useCreateIndex', true);
+    }
 
     initalConnect() {
         const connect = () => {
-            mongoose.connect(url, (err) => {
+            mongoose.connect(uri, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            }, (err) => {
                 if (err) {
                     console.error('DB connection error', err);
                 } else {
