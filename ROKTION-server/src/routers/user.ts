@@ -66,7 +66,11 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
 function getTagId(id: string) : Promise<number> {
     const pr = new Promise<number>((resolve, reject) => {
         try {
-            resolve(Number(id));
+            if (Number(id) > 0) {
+                resolve(Number(id));
+            } else {
+                throw new Error(Number.NaN.toString());
+            }
         } catch (e) {
             reject(Error(e));
         }

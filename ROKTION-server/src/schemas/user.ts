@@ -1,25 +1,33 @@
 import { Document, Schema, model } from "mongoose";
 
 export interface User extends Document {
-    name: string;
     tagId: number;
-    permission: boolean;
+    passwd: string;
+    name: string;
+    belongs: string;
+    isOfficer: boolean;
+    relatedDocs: object;
+    recentLogin: Date;
 }
 
 const userSchema = new Schema({
-    name: {
-        type: String,
-        required: true,
-    },
     tagId: {
         type: Number,
         required: true,
         unique: true,
     },
-    permission: {
-        type: Boolean,
-        default: false,
-    }
+    passwd: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    belongs: String,
+    isOfficer: Boolean,
+    relatedDocs: Object,
+    recentLogin: Date,
 });
 
 export const UserModel = model<User>('User', userSchema);

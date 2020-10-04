@@ -1,8 +1,10 @@
-import express, {Request, Response, NextFunction} from "express";
+import express from "express";
 import logger from 'morgan';
 import { DB } from "./db";
 
-import dataRouter from './routers/data';
+import userRouter from './routers/user';
+import docsRouter from './routers/docs';
+import docsInfoRouter from './routers/docsInfo';
 import errorHandle from './routers/errorHandle';
 
 const app = express();
@@ -12,11 +14,14 @@ db.initalConnect();
 
 // middlewares
 app.use(logger('dev'));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // routers
-app.use('/data', dataRouter);
-app.use(errorHandle);
+app.use('/api/user', userRouter);
+app.use('/api/docs', docsRouter);
+app.use('/api/docsInfo', docsInfoRouter);
+app.use('/api', errorHandle);
 
 app.listen(PORT, () => {
     console.log(`Server running on PORT ${PORT}`);
