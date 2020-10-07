@@ -1,27 +1,27 @@
-import express, {Request, Response, NextFunction} from "express";
+import express from "express";
 import logger from 'morgan';
+import { DB } from "./db";
 
-class App {
-    public application : express.Application;
+import userRouter from './routers/user';
+import docsRouter from './routers/docs';
+import docsInfoRouter from './routers/docsInfo';
+import errorHandle from './routers/errorHandle';
 
-    constructor() {
-        this.application = express();
-    }
-}
-
-const app = new App().application;
+const app = express();
 const PORT = 5000;
+const db = new DB();
+db.initalConnect();
 
-// middleware
+// middlewares
 app.use(logger('dev'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.get('/data', (req:Request, res:Response, next:NextFunction) => {
-    const data = {
-        lastname : "Done",
-        firstname : "Test"
-    };
-    res.json(data);
-});
+// routers
+app.use('/api/user', userRouter);
+app.use('/api/docs', docsRouter);
+app.use('/api/docsInfo', docsInfoRouter);
+app.use('/api', errorHandle);
 
 app.listen(PORT, () => {
     console.log(`Server running on PORT ${PORT}`);

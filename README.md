@@ -18,6 +18,8 @@
 <!--사용된 언어, 프레임워크 등-->
 - Typescript
 - Express
+- MongoDB
+    - mongoose
 
 ## Client (front-end)
 
@@ -27,6 +29,12 @@
     - Create-React-App
 
 # 설치 안내 (Installation Process)
+
+우선 MongoDB를 설치해야 합니다. - [link](https://docs.mongodb.com/manual/administration/install-community/)
+```bash
+$ sudo mongod
+```
+MongoDB가 정상적으로 작동되면, ROKTION-server/src/db.ts의 uri 프로퍼티를 작동중인 DB 서버에 맞게 수정합니다.
 
 ```bash
 $ npm i -g typescript
@@ -50,3 +58,4 @@ $ npm run dev
 
 ## 저작권 및 사용권 정보 (Copyleft / End User License)
  * [MIT](https://github.com/Merseong/WEB_ROKTION_Yeonghon-s-Matdai/blob/master/LICENSE)
+ 
