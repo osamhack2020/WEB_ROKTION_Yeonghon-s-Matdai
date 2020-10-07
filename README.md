@@ -58,5 +58,4 @@ $ npm run dev
 
 ## 저작권 및 사용권 정보 (Copyleft / End User License)
  * [MIT](https://github.com/Merseong/WEB_ROKTION_Yeonghon-s-Matdai/blob/master/LICENSE)
-
-test
+ 
