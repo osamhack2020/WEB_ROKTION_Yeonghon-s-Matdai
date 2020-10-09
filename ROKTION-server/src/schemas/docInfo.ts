@@ -1,6 +1,6 @@
 import { Document, Schema, model } from "mongoose";
 
-export interface DocsInfo extends Document {
+export interface DocInfo extends Document {
     title: string;
     author: number;
     contents: Array<string>;
@@ -8,7 +8,7 @@ export interface DocsInfo extends Document {
     edited: [Date, number];
 }
 
-const docsInfoSchema = new Schema({
+const docInfoSchema = new Schema({
     title: String,
     author: Number,
     contents: Array,
@@ -16,4 +16,4 @@ const docsInfoSchema = new Schema({
     edited: [Date, Number]
 });
 
-export const DocsInfoModel = model<DocsInfo>('DocsInfo', docsInfoSchema);
+export const DocInfoModel = model<DocInfo>('DocInfo', docInfoSchema);
