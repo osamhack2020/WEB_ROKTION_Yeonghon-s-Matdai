@@ -3,8 +3,8 @@ import logger from 'morgan';
 import { DB } from "./db";
 
 import userRouter from './routers/user';
-import docsRouter from './routers/docs';
-import docsInfoRouter from './routers/docsInfo';
+import docsRouter from './routers/doc';
+import docsInfoRouter from './routers/docInfo';
 import errorHandle from './routers/errorHandle';
 
 const app = express();

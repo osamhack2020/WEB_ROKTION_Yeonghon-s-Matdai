@@ -18,8 +18,7 @@
 <!--사용된 언어, 프레임워크 등-->
 - Typescript
 - Express
-- MongoDB
-    - mongoose
+- Mongoose
 
 ## Client (front-end)
 
@@ -35,6 +34,8 @@
 $ sudo mongod
 ```
 MongoDB가 정상적으로 작동되면, ROKTION-server/src/db.ts의 uri 프로퍼티를 작동중인 DB 서버에 맞게 수정합니다.
+
+개발중에는 MongoDB Atlas를 사용합니다.
 
 ```bash
 $ npm i -g typescript

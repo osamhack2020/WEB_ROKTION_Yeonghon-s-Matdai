@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Data from './components/Data';
+import API_test from './components/api_test';
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <p>
           React
         </p>
-        <Data />
+        <API_test />
       </header>
     </div>
   );

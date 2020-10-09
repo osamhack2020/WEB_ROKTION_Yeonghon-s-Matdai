@@ -1,10 +1,9 @@
 import mongoose from 'mongoose';
 
-const uri = 'mongodb://localhost:27017/roktion_dev';
+const uri = 'mongodb+srv://new-user-1:akTMqbpSzJYOjZTP@roktion.do4pn.gcp.mongodb.net/roktion?retryWrites=true&w=majority';
 
 export class DB {
     constructor() {
-        mongoose.set('useCreateIndex', true);
     }
 
     initalConnect() {
@@ -12,6 +11,7 @@ export class DB {
             mongoose.connect(uri, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
+                useCreateIndex: true,
             }, (err) => {
                 if (err) {
                     console.error('DB connection error', err);
@@ -24,7 +24,7 @@ export class DB {
         mongoose.connection.on('disconnected', connect);
     
         require('./schemas/user');
-        require('./schemas/docs');
-        require('./schemas/docsInfo');
+        require('./schemas/doc');
+        require('./schemas/docInfo');
     }
 }

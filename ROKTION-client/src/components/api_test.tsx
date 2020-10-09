@@ -32,7 +32,7 @@ class Data extends React.Component<DataProps, DataState> {
   };
 
   getData(id: string) {
-    this.api<{data: User}>(`/data/${id}`, {
+    this.api<{data: User}>(`/api/user/${id}`, {
       method: 'GET'
     }).then(({data}) => {
       if (data !== undefined) {
@@ -48,7 +48,7 @@ class Data extends React.Component<DataProps, DataState> {
 
   postData() {
     let tagId = Math.floor(Math.random() * 10000000) + 1;
-    fetch('/data', {
+    fetch('/api/user', {
       method: 'POST',
       body: JSON.stringify({
         name: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5),
