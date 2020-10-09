@@ -1,9 +1,9 @@
-import { Document, Schema, model } from "mongoose";
+import { Document, Schema, model, Types } from "mongoose";
 
 export interface DocInfo extends Document {
     title: string;
     author: number;
-    contents: Array<string>;
+    contents: Array<Types.ObjectId>;
     shareOption: object;
     edited: [Date, number];
 }

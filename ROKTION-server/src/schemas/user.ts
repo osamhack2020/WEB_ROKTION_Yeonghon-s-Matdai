@@ -1,4 +1,4 @@
-import { Document, Schema, model } from "mongoose";
+import { Document, Schema, model, Types } from "mongoose";
 
 export interface User extends Document {
     tagId: number;
@@ -6,7 +6,10 @@ export interface User extends Document {
     name: string;
     belongs: string;
     isOfficer: boolean;
-    relatedDocs: object;
+    relatedDocs: {
+        created: Array<Types.ObjectId>,
+        shared: Array<Types.ObjectId>,
+    };
     recentLogin: Date;
 }
 
@@ -26,7 +29,10 @@ const userSchema = new Schema({
     },
     belongs: String,
     isOfficer: Boolean,
-    relatedDocs: Object,
+    relatedDocs: {
+        created: Array,
+        shared: Array,
+    },
     recentLogin: Date,
 });
 
