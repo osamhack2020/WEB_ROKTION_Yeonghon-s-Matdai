@@ -1,23 +1,30 @@
 import mongoose from 'mongoose';
+import fs from 'fs';
 
-const uri = 'mongodb+srv://new-user-1:akTMqbpSzJYOjZTP@roktion.do4pn.gcp.mongodb.net/roktion?retryWrites=true&w=majority';
+let uri = '@roktion.do4pn.gcp.mongodb.net/roktion?retryWrites=true&w=majority';
 
 export class DB {
-    constructor() {
-    }
-
     initalConnect() {
         const connect = () => {
-            mongoose.connect(uri, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-                useCreateIndex: true,
-            }, (err) => {
-                if (err) {
-                    console.error('DB connection error', err);
-                } else {
-                    console.log('DB connected');
-                }
+            fs.promises.readFile( __dirname + '/../DBAUTH')
+            .then(data => {
+                return 'mongodb+srv://' + data + uri;
+            })
+            .then(uri => {
+                mongoose.connect(uri, {
+                    useNewUrlParser: true,
+                    useUnifiedTopology: true,
+                    useCreateIndex: true,
+                }, (err) => {
+                    if (err) {
+                        console.error('DB connection error', err);
+                    } else {
+                        console.log('DB connected');
+                    }
+                });
+            })
+            .catch(err => {
+                console.error(err);
             });
         }
         connect();
