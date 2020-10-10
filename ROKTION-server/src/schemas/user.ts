@@ -3,6 +3,7 @@ import { Document, Schema, model, Types } from "mongoose";
 export interface User extends Document {
     tagId: number;
     passwd: string;
+    passwdSalt: string;
     name: string;
     belongs: string;
     isOfficer: boolean;
@@ -23,12 +24,19 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    passwdSalt: {
+        type: String,
+        required: true,
+    },
     name: {
         type: String,
         required: true,
     },
     belongs: String,
-    isOfficer: Boolean,
+    isOfficer: {
+        type: Boolean,
+        default: false,
+    },
     relatedDocs: {
         created: Array,
         shared: Array,

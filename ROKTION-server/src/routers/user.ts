@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { User, UserModel } from "../schemas/user";
+import crypto from 'crypto';
 
 const router = express.Router();
 
@@ -25,11 +26,58 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     
 });
 
+// 로그인
+// in: 아이디(=군번, id), 비밀번호(pw)
+router.post('/login', (req: Request, res: Response) => {
+    // 아이디가 존재하는지 확인
+    getTagId(req.params.id)
+    .then(id => {
+        return UserModel.findOne({ tagId: id })
+    })
+    .then(usr => {
+        if (usr !== null) {
+            // 비밀번호를 암호화해 서버의 값과 비교
+            crypto.pbkdf2(req.params.pw, usr.passwdSalt, 1231, 64, 'sha512', (err, key) => {
+                if (key.toString('base64') === usr.passwd) {
+                    // 맞으면 세션 생성, _id와 tagId를 저장해둔다.
+                    req.session!.id = usr._id;
+                    req.session!.tagId = usr.tagId;
+                    res.status(200).end();
+                } else {
+                    throw new Error(`Wrong password for ${usr.tagId}`);
+                }
+            })
+        } else {
+            throw new Error(`No user id with ${req.params.id}`);
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        res.status(400).end();
+    })
+})
+
 router.post('/', (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body);
-    let newU = new UserModel(req.body);
-    newU.save()
-    .then(() => res.status(201).end())
+    let newU = new UserModel({
+        name: req.body.name,
+        belongs: req.body.belongs,
+        recentLogin: new Date(),
+    });
+    getTagId(req.body.tagId)
+    .then(tagId => {
+        newU.tagId = tagId;
+        crypto.randomBytes(64, (err, buf) => {
+            crypto.pbkdf2(req.body.passwd, buf.toString('base64'), 1231, 64, 'sha512', (err, key) => {
+                newU.passwd = key.toString('base64');
+            });
+            newU.passwdSalt = buf.toString('base64');
+        });
+    })
+    .then(() => { 
+        return newU.save() 
+    })
+    .then(usr => res.status(201).end())
     .catch(e => {
         console.error(e);
         res.status(400).end();
