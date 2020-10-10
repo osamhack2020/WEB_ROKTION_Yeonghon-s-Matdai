@@ -4,7 +4,6 @@ import { DB } from "./db";
 
 import userRouter from './routers/user';
 import docsRouter from './routers/doc';
-import docsInfoRouter from './routers/docInfo';
 import errorHandle from './routers/errorHandle';
 
 const app = express();
@@ -20,7 +19,6 @@ app.use(express.json());
 // routers
 app.use('/api/user', userRouter);
 app.use('/api/docs', docsRouter);
-app.use('/api/docsInfo', docsInfoRouter);
 app.use('/api', errorHandle);
 
 app.listen(PORT, () => {

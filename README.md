@@ -30,12 +30,10 @@
 # 설치 안내 (Installation Process)
 
 우선 MongoDB를 설치해야 합니다. - [link](https://docs.mongodb.com/manual/administration/install-community/)
-```bash
-$ sudo mongod
-```
+
 MongoDB가 정상적으로 작동되면, ROKTION-server/src/db.ts의 uri 프로퍼티를 작동중인 DB 서버에 맞게 수정합니다.
 
-개발중에는 MongoDB Atlas를 사용합니다.
+개발중에는 MongoDB Atlas를 사용합니다. 관련 이슈로 #12 를 참고해주시기 바랍니다.
 
 ```bash
 $ npm i -g typescript
