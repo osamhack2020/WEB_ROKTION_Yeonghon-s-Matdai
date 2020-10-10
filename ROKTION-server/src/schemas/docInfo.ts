@@ -3,7 +3,10 @@ import { Document, Schema, model, Types } from "mongoose";
 export interface DocInfo extends Document {
     title: string;
     author: number;
-    contents: Array<Types.ObjectId>;
+    contents: Array<{
+        title: string,
+        pageId: Types.ObjectId
+    }>;
     shareOption: object;
     edited: [Date, number];
 }

@@ -7,7 +7,7 @@ import { UserModel } from "../schemas/user";
 const router = express.Router();
 
 // id의 문서에 페이지를 추가
-// body: 몇페이지의 뒤에 오는지(afterIdx)
+// in: 몇페이지의 뒤에 오는지(afterIdx)
 router.post('/:id', async (req: Request, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -28,10 +28,14 @@ router.post('/:id', async (req: Request, res: Response) => {
             }});
         } else {
             session.abortTransaction();
+            session.endSession();
+            res.status(400).end();
         }
     } catch (e) {
         console.error(e);
         session.abortTransaction();
+        session.endSession();
+        res.status(400).end();
     }
 
     // 완료
@@ -41,7 +45,7 @@ router.post('/:id', async (req: Request, res: Response) => {
 });
 
 // 새로운 문서를 추가
-// body: 문서 제목(newTitle), 생성자(authorId)
+// in: 문서 제목(newTitle), 생성자(authorId)
 router.post('/', async (req: Request, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -64,25 +68,59 @@ router.post('/', async (req: Request, res: Response) => {
         content: '',
         linkedFiles: []
     });
-    newDocInfo.contents.push(newDoc._id);
+    newDocInfo.contents.push({
+        title: newDoc.pageTitle,
+        pageId: newDoc._id
+    });
     // 생성자의 db에서 relatedDocs에 새로운 DocInfo 추가
     const author = await UserModel.findById(authorId);
-    author?.relatedDocs.created.push(newDocInfo._id);
-    await author?.save();
+    try {
+        author?.relatedDocs.created.push(newDocInfo._id);
+        await newDoc.save();
+        await newDocInfo.save();
+        await author?.save();
+    } catch (e) {
+        console.error(e);
+        session.abortTransaction();
+        session.endSession();
+        res.status(400).end();
+    }
 
     // 완료
     await session.commitTransaction();
     session.endSession();
+    res.status(201).end();
 });
 
 // id의 문서의 pg 가져오기
+// out: pg의 내용
 router.get('/:id/:pg', (req: Request, res: Response) => {
-
+    DocInfoModel.findById(req.params.id)
+    .then(docInfo => {
+        // 여기서 문서의 접근 권한을 체크해야됨
+        let pgId = docInfo?.contents[parseInt(req.params.pg)];
+        return DocModel.findById(pgId);
+    })
+    .then(doc => {
+        res.json(doc);
+    })
+    .catch(e => {
+        console.error(e);
+        res.status(400).end();
+    })
 });
 
 // id의 문서의 정보(docinfo) 가져오기
 router.get('/:id', (req: Request, res: Response) => {
-
+    DocInfoModel.findById(req.params.id)
+    .then(docInfo => {
+        // 문서 접근 권한 체크
+        res.json(docInfo);
+    })
+    .catch(e => {
+        console.error(e);
+        res.status(400).end();
+    })
 });
 
 // id의 문서의 pg 갱신하기
