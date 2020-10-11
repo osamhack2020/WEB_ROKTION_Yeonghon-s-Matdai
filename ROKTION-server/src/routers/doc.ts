@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import { Doc, DocModel } from "../schemas/doc";
 import { DocInfo, DocInfoModel } from "../schemas/docInfo";
 import { UserModel } from "../schemas/user";
@@ -20,23 +20,25 @@ router.post('/:id', async (req: Request, res: Response) => {
     });
     await newDoc.save();
     // id의 DocInfo를 찾아 contents의 올바른 위치에 삽입
-    try {
-        const docInfoById = await DocInfoModel.findById(req.params.id);
-        if (docInfoById !== undefined) {
-            await docInfoById?.update({ $set: {
+    const docInfoById = await DocInfoModel.findById(req.params.id);
+    checkPermission(req.session?.dbId, docInfoById)
+    .then(perm => {
+        if (docInfoById === undefined && docInfoById === null) {
+            throw new Error('No document');
+        } else if (perm.permissionLevel >= 2) {
+            docInfoById?.update({ $set: {
                 contents: docInfoById.contents.splice(req.body.afterIdx, 0, newDoc._id)
             }});
         } else {
-            session.abortTransaction();
-            session.endSession();
-            res.status(400).end();
+            throw new Error('Permission denied');
         }
-    } catch (e) {
+    })
+    .catch(e => {
         console.error(e);
         session.abortTransaction();
         session.endSession();
         res.status(400).end();
-    }
+    });
 
     // 완료
     await session.commitTransaction();
@@ -56,10 +58,11 @@ router.post('/', async (req: Request, res: Response) => {
         title: req.body.newTitle,
         author: authorId,
         contents: [],
-        shareOption: {},
+        shareOption: {
+            owner: req.session!.dbId,
+        },
         edited: {
-            editor: authorId,
-            editTime: new Date()
+            editor: authorId
         }
     });
     // 새로운 Doc 생성 -> DocInfo의 contents에 추가
@@ -97,11 +100,15 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id/:pg', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(docInfo);
+        return checkPermission(req.session?.dbId, docInfo);
     })
-    .then(docInfo => {
-        let pgId = docInfo.contents[parseInt(req.params.pg)];
-        return DocModel.findById(pgId);
+    .then(perm => {
+        if (perm.permissionLevel >= 1) {
+            let pgId = perm.docInfo.contents[parseInt(req.params.pg)];
+            return DocModel.findById(pgId);
+        } else {
+            throw new Error('Permission denied');
+        }
     })
     .then(doc => {
         res.json(doc);
@@ -116,10 +123,14 @@ router.get('/:id/:pg', (req: Request, res: Response) => {
 router.get('/:id', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)    
     .then(docInfo => {
-        return checkPermission(docInfo);
+        return checkPermission(req.session?.dbId, docInfo);
     })
-    .then(docInfo => {
-        res.json(docInfo);
+    .then(perm => {
+        if (perm.permissionLevel >= 1) { 
+            res.json(perm.docInfo);
+        } else {
+            throw new Error('Permission denied');
+        }
     })
     .catch(e => {
         console.error(e);
@@ -132,11 +143,15 @@ router.get('/:id', (req: Request, res: Response) => {
 router.put('/:id/:pg', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(docInfo);
+        return checkPermission(req.session?.dbId, docInfo);
     })
-    .then(docInfo => {
-        let pgId = docInfo.contents[parseInt(req.params.pg)].pageId;
-        return DocModel.findById(pgId).update({...req.body});
+    .then(perm => {
+        if (perm.permissionLevel >= 2) {
+            let pgId = perm.docInfo.contents[parseInt(req.params.pg)].pageId;
+            return DocModel.findById(pgId).update({...req.body});
+        } else {
+            throw new Error('Permission denied');
+        }
     })
     .then(() => res.status(200).end())
     .catch(e => {
@@ -145,17 +160,56 @@ router.put('/:id/:pg', (req: Request, res: Response) => {
     })
 });
 
+// id의 문서의 옵션을 갱신하기
+// in: 갱신 내용들
+router.put('/:id', (req: Request, res: Response) => {
+    DocInfoModel.findById(req.params.id)
+    .then(docInfo => {
+        return checkPermission(req.session?.dbId, docInfo);
+    })
+    .then(perm => {
+        if (perm.permissionLevel >= 3) {
+            let toUpdate: any = {}
+            if (req.body.author && perm.permissionLevel >= 4) {
+                toUpdate.author = req.body.author;
+            }
+            if (req.body.title) {
+                toUpdate.title = req.body.title;
+            }
+            if (req.body.shareOption) {
+                toUpdate.shareOption = req.body.shareOption;
+            }
+            return perm.docInfo.update({
+                $set: toUpdate
+            });
+        } else {
+            throw new Error('Permission denied');
+        }
+    })
+    .then(() => {
+        res.status(200).end();
+    })
+    .catch(e => {
+        console.error(e);
+        res.status(400).end();
+    })
+})
+
 // pg 삭제하기
 router.delete('/:id/:pg', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(docInfo);
+        return checkPermission(req.session?.dbId, docInfo);
     })
-    .then(docInfo => {
-        let pgId = docInfo.contents[parseInt(req.params.pg)].pageId;
-        DocModel.findById(pgId).remove();
-        docInfo.contents.splice(parseInt(req.params.pg), 1);
-        return docInfo.save();
+    .then(perm => {
+        if (perm.permissionLevel >= 4) {
+            let pgId = perm.docInfo.contents[parseInt(req.params.pg)].pageId;
+            DocModel.findById(pgId).remove();
+            perm.docInfo.contents.splice(parseInt(req.params.pg), 1);
+            return perm.docInfo.save();
+        } else {
+            throw new Error('Permission denied');
+        }
     })
     .then(() => res.status(200).end())
     .catch(e => {
@@ -168,14 +222,18 @@ router.delete('/:id/:pg', (req: Request, res: Response) => {
 router.delete('/:id', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(docInfo);
+        return checkPermission(req.session?.dbId, docInfo);
     })
-    .then(docInfo => {
-        // 하위 페이지 삭제
-        for (let i = 0; i < docInfo.contents.length; ++i) {
-            DocModel.findById(docInfo.contents[i].pageId).remove();
+    .then(perm => {
+        if (perm.permissionLevel >= 4) {
+            // 하위 페이지 삭제
+            for (let i = 0; i < perm.docInfo.contents.length; ++i) {
+                DocModel.findById(perm.docInfo.contents[i].pageId).remove();
+            }
+            return perm.docInfo.remove();
+        } else {
+            throw new Error('Permission denied');
         }
-        return docInfo.remove();
     })
     .then(() => res.status(200).end())
     .catch(e => {
@@ -185,14 +243,43 @@ router.delete('/:id', (req: Request, res: Response) => {
 });
 
 // 문서 접근 권한 체크 (WIP)
-function checkPermission(docInfo: DocInfo | null) : Promise<DocInfo> {
+function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null) : Promise<Permission> {
     return new Promise((resolve, reject) => {
-        if (docInfo !== undefined || docInfo !== null) {
-            resolve(docInfo!);
+        if (docInfo !== undefined && docInfo !== null && dbId !== undefined && dbId !== null) {
+            let pl: PermissionLevel = PermissionLevel.forbidden;
+            if (docInfo.author == dbId) {
+                pl = PermissionLevel.owner;
+            } else if (docInfo.shareOption.director.indexOf(dbId) > 0) {
+                pl = PermissionLevel.director;
+            } else if (docInfo.shareOption.editor.indexOf(dbId) > 0) {
+                pl = PermissionLevel.editor;
+            } else if (docInfo.shareOption.viewer.indexOf(dbId) > 0) { 
+                pl = PermissionLevel.viewer;
+            } else { 
+                pl = PermissionLevel.forbidden; 
+            }
+            resolve({
+                docInfo: docInfo!,
+                permissionLevel: pl,
+            });
         } else {
-            reject(new Error('Permission Denied'));
+            reject(new Error('Can\'t check permission'));
         }
     });
+}
+
+// 확인된 권한
+interface Permission {
+    docInfo: DocInfo,
+    permissionLevel: PermissionLevel
+}
+
+enum PermissionLevel {
+    forbidden = 0,
+    viewer,
+    editor,
+    director,
+    owner
 }
 
 export default router;
