@@ -21,26 +21,19 @@ router.get('/logoff', (req: Request, res: Response) => {
     }
 })
 
+// id=tagId인 유저 정보 찾기
 router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
-    const toSend = {
-        data: {}
-    };
     getTagId(req.params.id)
     .then(n => {
-        UserModel.findOne({ tagId: n }, {_id: 0, passwd: 0, passwdSalt: 0})
-        .then((user) => {
-            toSend.data = user!;
-            res.json(toSend);
-        })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).end();
-        });
+        return UserModel.findOne({ tagId: n }, {_id: 0, passwd: 0, passwdSalt: 0})
     })
-    .catch(e => {
+    .then((user) => {
+        res.json(user!);
+    })
+    .catch(err => {
+        console.error(err);
         res.status(400).end();
-    });  
-    
+    })    
 });
 
 // 로그인
@@ -74,6 +67,8 @@ router.post('/login', (req: Request, res: Response) => {
     })
 })
 
+// 새로운 유저 생성
+// in: name, belongs, tagId, 
 router.post('/', (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body);
     let newU = new UserModel({
@@ -92,19 +87,28 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
         });
     })
     .then(() => { 
-        return newU.save() 
+        return newU.save();
     })
-    .then(usr => res.status(201).end())
+    .then(() => res.status(201).end())
     .catch(e => {
         console.error(e);
         res.status(400).end();
     });
 });
 
+// 유저 정보 수정
 router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body);
     getTagId(req.params.id)
     .then(n => {
+        if (req.body.passwd) {
+            crypto.randomBytes(64, (err, buf) => {
+                crypto.pbkdf2(req.body.passwd, buf.toString('base64'), 1231, 64, 'sha512', (err, key) => {
+                    req.body.passwd = key.toString('base64');
+                });
+                req.body.passwdSalt = buf.toString('base64');
+            });
+        }
         return UserModel.update({ tagId: n }, {...req.body})
     })
     .then(() => res.status(200).end())
@@ -113,16 +117,16 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     });    
 });
 
+// 유저 정보 삭제
+// 연관된 문서도 삭제해야되는지는 고민중
 router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
     console.log(req.body);
     getTagId(req.params.id)
     .then(n => {
-        UserModel.remove({ tagId: n });
-        res.status(200).end();
+        UserModel.remove({ tagId: n })
     })
-    .catch(e => {
-        res.status(400).end();
-    });    
+    .then(() => res.status(200).end())
+    .catch(e => res.status(400).end());
 });
 
 function getTagId(id: string) : Promise<number> {
