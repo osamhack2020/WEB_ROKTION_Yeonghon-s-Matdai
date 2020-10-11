@@ -37,7 +37,7 @@ MongoDB가 정상적으로 작동되면, ROKTION-server/src/db.ts의 uri 프로�
 
 ```bash
 $ npm i -g typescript
-$ cd ROKTION-client && npm install
+$ cd ROKTION-client && yarn install
 $ cd ../ROKTION-server && npm install
 ```
 
