@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "server": "nodemon --exec ts-node src/server.ts",
-    "client": "cd ../ROKTION-client && npm start",
+    "client": "cd ../ROKTION-client && yarn start",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "",
