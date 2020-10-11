@@ -1,0 +1,7 @@
+.test {
+    color: 'red';
+}
+
+.ui.container.noLeftMargin{
+    margin-left: 0em!important;
+}
