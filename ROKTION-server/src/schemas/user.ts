@@ -5,7 +5,8 @@ export interface User extends Document {
     passwd: string;
     passwdSalt: string;
     name: string;
-    belongs: string;
+    rank: string;
+    regiment: string;
     isOfficer: boolean;
     relatedDocs: {
         created: Array<Types.ObjectId>,
@@ -32,7 +33,8 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
-    belongs: String,
+    rank: String,
+    regiment: String,
     isOfficer: {
         type: Boolean,
         default: false,

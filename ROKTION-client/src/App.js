@@ -89,7 +89,7 @@ class App extends Component {
         })
         .then(res => {
             if (res.status === 200) {
-                return fetch(`/api/user/${id}`, {
+                return fetch(`/api/user/${id}`, { 
                     method: 'GET',
                 })
             } else {
@@ -100,14 +100,10 @@ class App extends Component {
             return data.json();
         })
         .then(userData => {
-            //console.log(userData);
+            console.log(userData);
             this.setState({
                 logged:true,
-                userInfo:{
-                    regiment: userData.belongs || '소속불명',
-                    rank: "일병", // DB에 관련 정보가 없음. 나중에 넣을게
-                    name: userData.name || '이름없음',
-                },
+                userInfo: userData,
             });
         })
         .catch(e => {
