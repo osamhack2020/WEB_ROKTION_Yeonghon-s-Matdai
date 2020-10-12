@@ -79,28 +79,69 @@ class App extends Component {
           };
     }
 
-    onLogin = () => {
-        this.setState({
-            logged:true,
-            userInfo:{
-                regiment:"17사단 군사경찰대대 직할본부",
-                rank:"일병",
-                name:"김동후",
-            },
-        });
+    onLogin = (id, pw) => {
+        fetch('/api/user/login', {
+            method: 'POST',
+            body: JSON.stringify({
+                id: id,
+                pw: pw
+            })
+        })
+        .then(res => {
+            if (res.status === 200) {
+                return fetch(`/api/user/${id}`, {
+                    method: 'GET',
+                })
+            } else {
+                console.error(res.status);
+            }
+        })
+        .then(data => {
+            return data.json();
+        })
+        .then(userData => {
+            //console.log(userData);
+            this.setState({
+                logged:true,
+                userInfo:{
+                    regiment: userData.belongs || '소속불명',
+                    rank: "일병", // DB에 관련 정보가 없음. 나중에 넣을게
+                    name: userData.name || '이름없음',
+                },
+            });
+        })
+        .catch(e => {
+            console.error(e);
+        }) 
     }
 
     onLogout = () => {
-        // UserInfo null로 돌려놓기
-        this.setState({
-            logged:false,
-            selectedDocumentId:-1,
-            userInfo:{
-                regiment:null,
-                rank:null,
-                name:null,
-            },
-        });
+        // 서버에 로그오프 요청을 보낸다.
+        fetch('/api/user/logoff', {
+            method: 'GET'
+        })
+        .then(res => {
+            if (res.status === 200) {
+                console.log('Completely logoff');
+            } else {
+                console.error(res.status);
+            }
+        })
+        .then(() => {
+            // UserInfo null로 돌려놓기
+            this.setState({
+                logged:false,
+                selectedDocumentId:-1,
+                userInfo:{
+                    regiment:null,
+                    rank:null,
+                    name:null,
+                },
+            });
+        })
+        .catch(e => {
+            console.error(e);
+        })
     }
 
     render() {
@@ -124,9 +165,9 @@ class App extends Component {
                         <MainMenuLayout
                         handleLogout={this.onLogout}
                         userInfo={this.state.userInfo}
-                        documents={documents}/>
+                        documents={documents}
+                        tags={[]}/>
                     </Transition>
-                    
             );
         }
     }

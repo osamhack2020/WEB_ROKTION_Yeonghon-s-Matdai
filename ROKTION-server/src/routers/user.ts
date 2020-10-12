@@ -6,6 +6,8 @@ const router = express.Router();
 
 // 로그오프
 router.get('/logoff', (req: Request, res: Response) => {
+    // console.log(req.session);
+    // VSO 환경에선 쿠키/세션도 안되는듯
     if (req.session?.dbId) {
         req.session.destroy(err => {
             if (err) {
@@ -13,11 +15,11 @@ router.get('/logoff', (req: Request, res: Response) => {
                 console.log(err);
             } else {
                 // 정상 로그오프
-                res.redirect('/');
+                res.status(200).end();
             }
         })
     } else {
-        res.redirect('/');
+        res.status(500).end();
     }
 })
 
@@ -28,6 +30,7 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
         return UserModel.findOne({ tagId: n }, {_id: 0, passwd: 0, passwdSalt: 0})
     })
     .then((user) => {
+        //console.log(user!);
         res.json(user!);
     })
     .catch(err => {
@@ -40,30 +43,37 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
 // in: 아이디(=군번, id), 비밀번호(pw)
 router.post('/login', (req: Request, res: Response) => {
     // 아이디가 존재하는지 확인
-    getTagId(req.params.id)
+    console.log(req.body);
+    req.body = {
+        id: '2076023051',
+        pw: 'eotjd123'
+    }
+    // 임시용!!!!!!
+    getTagId(req.body.id)
     .then(id => {
         return UserModel.findOne({ tagId: id })
     })
     .then(usr => {
         if (usr !== null) {
             // 비밀번호를 암호화해 서버의 값과 비교
-            crypto.pbkdf2(req.params.pw, usr.passwdSalt, 1231, 64, 'sha512', (err, key) => {
+            crypto.pbkdf2(req.body.pw, usr.passwdSalt, 1231, 64, 'sha512', (err, key) => {
                 if (key.toString('base64') === usr.passwd) {
                     // 맞으면 세션 생성, _id와 tagId를 저장해둔다.
                     req.session!.dbId = usr._id;
                     req.session!.tagId = usr.tagId;
+                    console.log(req.session);
                     res.status(200).end();
                 } else {
                     throw new Error(`Wrong password for ${usr.tagId}`);
                 }
             })
         } else {
-            throw new Error(`No user id with ${req.params.id}`);
+            throw new Error(`No user id with ${req.body.id}`);
         }
     })
     .catch(e => {
         console.error(e);
-        res.status(400).end();
+        res.status(400).send(e);
     })
 })
 
@@ -135,7 +145,7 @@ function getTagId(id: string) : Promise<number> {
             if (Number(id) > 0) {
                 resolve(Number(id));
             } else {
-                throw new Error(Number.NaN.toString());
+                throw new Error(`NaN, ${id}`);
             }
         } catch (e) {
             reject(Error(e));
