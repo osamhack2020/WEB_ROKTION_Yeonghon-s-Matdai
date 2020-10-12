@@ -54,27 +54,13 @@ class App extends Component {
                     onClick: ()=>{this.setState({selectedDocumentId:3});},
                     documentContent: [<DocumentPageContent content="S OMEGALUL BAD"/>],
                 },
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")}},
-        
+                { 
+                    title:"PlaceHolder", 
+                    description:"Holding place :/", 
+                    alert:0, 
+                    id:4, 
+                    onClick:()=>{console.log("POGGERS")}
+                },
             ]
           };
     }
@@ -100,11 +86,12 @@ class App extends Component {
             return data.json();
         })
         .then(userData => {
-            console.log(userData);
+            //console.log(userData);
             this.setState({
-                logged:true,
+                logged: true,
                 userInfo: userData,
             });
+            this.getDocumentList();
         })
         .catch(e => {
             console.error(e);
@@ -138,6 +125,35 @@ class App extends Component {
         .catch(e => {
             console.error(e);
         })
+    }
+
+    
+    getDocumentList = () => {
+        const relatedDocs = this.state.userInfo.relatedDocs;
+        let i = 0;
+        for (let i = 0; i < relatedDocs.created.length; ++i) {
+            fetch(`/api/docs/${relatedDocs.created[i].docId}`, {
+                method: 'GET'
+            })
+            .then(res => {
+                return res.json();
+            })
+            .then(docInfo => {
+                console.log(docInfo);
+                this.state.documents.push({
+                    title: docInfo.title,
+                    admin: docInfo.author,
+                    description: '',
+                    alert: 10,
+                    id: 5,
+                    onClick: () => {this.setState({selectedDocumentId:5})},
+                    documentContent: [<DocumentPageContent content={docInfo.title}/>],
+                }); 
+            })
+            .catch(e => {
+                console.error(e);
+            })
+        }
     }
 
     render() {

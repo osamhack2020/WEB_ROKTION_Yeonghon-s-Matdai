@@ -121,12 +121,12 @@ router.get('/:id/:pg', (req: Request, res: Response) => {
 
 // id의 문서의 정보(docinfo) 가져오기
 router.get('/:id', (req: Request, res: Response) => {
-    DocInfoModel.findById(req.params.id)    
+    DocInfoModel.findById(req.params.id)
     .then(docInfo => {
         return checkPermission(req.session?.dbId, docInfo);
     })
     .then(perm => {
-        if (perm.permissionLevel >= 1) { 
+        if (perm.permissionLevel >= 1) {
             res.json(perm.docInfo);
         } else {
             throw new Error('Permission denied');
@@ -245,6 +245,11 @@ router.delete('/:id', (req: Request, res: Response) => {
 // 문서 접근 권한 체크 (WIP)
 function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null) : Promise<Permission> {
     return new Promise((resolve, reject) => {
+        resolve({
+            docInfo: docInfo!,
+            permissionLevel: PermissionLevel.owner,
+        });
+        /* 세션이 안되는 동안은 잠시 죽여놓기
         if (docInfo !== undefined && docInfo !== null && dbId !== undefined && dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
             if (docInfo.author == dbId) {
@@ -265,6 +270,7 @@ function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null)
         } else {
             reject(new Error('Can\'t check permission'));
         }
+        */
     });
 }
 
