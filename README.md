@@ -26,6 +26,8 @@
 - Typescript
 - React
     - Create-React-App
+- Semantic ui
+    - semantic-ui-react
 
 # 설치 안내 (Installation Process)
 
