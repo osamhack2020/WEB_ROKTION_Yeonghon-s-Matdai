@@ -43,12 +43,13 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
 // in: 아이디(=군번, id), 비밀번호(pw)
 router.post('/login', (req: Request, res: Response) => {
     // 아이디가 존재하는지 확인
+    // 임시용!!!!!!시작
     console.log(req.body);
     req.body = {
         id: '2076023051',
         pw: 'eotjd123'
     }
-    // 임시용!!!!!!
+    // 임시용!!!!!!끝
     getTagId(req.body.id)
     .then(id => {
         return UserModel.findOne({ tagId: id })
@@ -61,8 +62,10 @@ router.post('/login', (req: Request, res: Response) => {
                     // 맞으면 세션 생성, _id와 tagId를 저장해둔다.
                     req.session!.dbId = usr._id;
                     req.session!.tagId = usr.tagId;
-                    console.log(req.session);
-                    res.status(200).end();
+                    //console.log(req.session);
+                    console.log(usr.tagId, usr._id);
+                    usr.recentLogin = new Date();
+                    return usr.save();
                 } else {
                     throw new Error(`Wrong password for ${usr.tagId}`);
                 }
@@ -70,6 +73,9 @@ router.post('/login', (req: Request, res: Response) => {
         } else {
             throw new Error(`No user id with ${req.body.id}`);
         }
+    })
+    .then(() => {
+        res.status(200).end();
     })
     .catch(e => {
         console.error(e);
