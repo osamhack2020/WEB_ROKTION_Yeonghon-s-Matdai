@@ -71,7 +71,8 @@ class MainMenuLayout extends Component {
     render(){
         const tagFilteredList = this.props.documents.filter(
             document => (
-                document.tags.some(tag=>(this.state.tags.find(l=>l.id===tag)).filter) && document
+                document && document // 임시용
+                // document.tags.some(tag=>(this.state.tags.find(l=>l.id===tag)).filter) && document
             )
         );
         
