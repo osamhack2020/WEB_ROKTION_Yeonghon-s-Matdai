@@ -48,7 +48,7 @@ class LoginPage extends Component {
                         placeholder='Password'
                         type='password'
                         onChange={this.handleChange}/>
-                    <Button type='submit' onClick={this.props.handleLogin}>Login</Button>
+                    <Button type='submit' onClick={() => this.props.handleLogin(this.state.id, this.state.password)}>Login</Button>
                     <Button type='submit'>Forgot password?</Button>
                     </Form>
                 </Segment>
