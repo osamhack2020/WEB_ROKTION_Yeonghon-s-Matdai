@@ -1,5 +1,15 @@
 import { Document, Schema, model, Types } from "mongoose";
 
+export interface Tag {
+    name: string;
+    color: string;
+}
+
+export interface DocView {
+    docId: Types.ObjectId;
+    docTags: Array<Number>;
+}
+
 export interface User extends Document {
     tagId: number;
     passwd: string;
@@ -8,9 +18,10 @@ export interface User extends Document {
     rank: string;
     regiment: string;
     isOfficer: boolean;
+    tags: Array<Tag>;
     relatedDocs: {
-        created: Array<Types.ObjectId>,
-        shared: Array<Types.ObjectId>,
+        created: Array<DocView>,
+        shared: Array<DocView>,
     };
     recentLogin: Date;
 }
@@ -39,9 +50,20 @@ const userSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    tags: {
+        type: Array,
+        default: []
+    },
     relatedDocs: {
-        created: Array,
-        shared: Array,
+        type: Object,
+        created: {
+            type: Array,
+            default: []
+        },
+        shared: {
+            type: Array,
+            default: []
+        },
     },
     recentLogin: Date,
 });

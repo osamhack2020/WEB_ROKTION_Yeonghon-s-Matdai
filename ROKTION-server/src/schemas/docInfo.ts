@@ -1,8 +1,16 @@
 import { Document, Schema, model, Types } from "mongoose";
 
+export enum DocStatus {
+    doing,
+    document,
+    todo,
+    done
+}
+
 export interface DocInfo extends Document {
     title: string;
     author: Types.ObjectId;
+    status: DocStatus;
     contents: Array<{
         title: string,
         pageId: Types.ObjectId
@@ -18,6 +26,10 @@ export interface DocInfo extends Document {
 const docInfoSchema = new Schema({
     title: String,
     author: Types.ObjectId,
+    status: {
+        type: DocStatus,
+        default: DocStatus.doing
+    },
     contents: Array,
     shareOption: {
         type: Object,
