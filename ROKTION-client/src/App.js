@@ -91,6 +91,7 @@ class App extends Component {
                 logged: true,
                 userInfo: userData,
             });
+            // this.getUserTags();
             this.getDocumentList();
         })
         .catch(e => {
@@ -111,7 +112,7 @@ class App extends Component {
             }
         })
         .then(() => {
-            // UserInfo null로 돌려놓기
+            // UserInfo null로 돌려놓기, Document나 Tag들도 리셋해야됨.
             this.setState({
                 logged:false,
                 selectedDocumentId:-1,
@@ -120,13 +121,13 @@ class App extends Component {
                     rank:null,
                     name:null,
                 },
+                documents: [],
             });
         })
         .catch(e => {
             console.error(e);
         })
     }
-
     
     getDocumentList = () => {
         const relatedDocs = this.state.userInfo.relatedDocs;
@@ -139,21 +140,49 @@ class App extends Component {
                 return res.json();
             })
             .then(docInfo => {
-                console.log(docInfo);
-                this.state.documents.push({
-                    title: docInfo.title,
-                    admin: docInfo.author,
-                    description: '',
-                    alert: 10,
-                    id: 5,
-                    onClick: () => {this.setState({selectedDocumentId:5})},
-                    documentContent: [<DocumentPageContent content={docInfo.title}/>],
+                //console.log(docInfo);
+                this.setState({
+                    documents: this.state.documents.concat({
+                        title: docInfo.title,
+                        admin: docInfo.author,
+                        description: '',
+                        alert: 10,
+                        id: 5,
+                        dbId: docInfo._id,
+                        onClick: () => {this.setState({selectedDocumentId: this.state.documents.length})},
+                        documentContent: [],
+                        pagesLength: docInfo.contents.length,
+                        // tags: relatedDocs.created[i].docTags,
+                    })
                 }); 
             })
             .catch(e => {
                 console.error(e);
             })
         }
+    }
+
+    getPageContents = (document, idx) => {
+        for (let i = 0; i < document.pagesLength; ++i) {
+            fetch(`/api/docs/${document.dbId}/${i}`, {
+                method: 'GET'
+            })
+            .then(res => {
+                return res.json();
+            })
+            .then(page => {
+                console.log(page);
+                let docs = [...this.state.documents];
+                docs[idx].documentContent[i] = <DocumentPageContent content={page.content}/>;
+                this.setState({
+                    documents: docs,
+                })
+            })
+            .catch(e => {
+                console.error(e);
+            })
+        }
+        
     }
 
     render() {
@@ -165,6 +194,9 @@ class App extends Component {
         else{
             let {selectedDocumentId, documents} = this.state;
             let selectedDocument = documents.find(doc => (doc.id === selectedDocumentId));
+            if (selectedDocument !== undefined && selectedDocument.documentContent.length == 0) {
+                this.getPageContents(selectedDocument, selectedDocumentId - 1);
+            }
             return (
                 selectedDocument !== undefined ?
                     <Transition onShow={()=>{console.log("mounted")}} transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
