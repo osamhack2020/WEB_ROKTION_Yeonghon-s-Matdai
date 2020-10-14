@@ -23,7 +23,8 @@ class MainMenuLayout extends Component {
             newTagColor: "",
             filterAllTags:false,
             showAllTags:false,
-            tags:props.tags.map(
+            tags:null,
+            tagFilter:props.tags.map(
                 tag=>(
                     {id:tag.id, filter:true}
                     )
@@ -31,10 +32,27 @@ class MainMenuLayout extends Component {
         };
     }
 
+    static getDerivedStateFromProps(nextProps, prevState){
+        const prevTags = prevState.tags;
+        const tagFilter = prevState.tagFilter;
+        const nextTags = nextProps.tags;
+        if (nextTags !== prevTags){
+            return({
+                tags: nextTags,
+                tagFilter:nextTags.map(
+                    tag=>{
+                            let t = tagFilter.find(l=>l.id===tag);
+                            return t !== undefined ? t : {id:tag.id, filter:true};
+                        }
+                    ),
+            })
+        }
+    }
+
     handleTagFilterChange = (id) => {
-        const tags = this.state.tags;
+        const tags = this.state.tagFilter;
         this.setState({
-            tags: tags.map(
+            tagFilter: tags.map(
                 tag => {
                     if (tag.id === id) { return {...tag, filter:!tag.filter}; }
                     else return tag;
@@ -51,10 +69,10 @@ class MainMenuLayout extends Component {
 
     toggleFilterAllTags = () => {
         const val = this.state.filterAllTags;
-        const tags = this.state.tags;
+        const tags = this.state.tagFilter;
         this.setState({
             filterAllTags:!val,
-            tags: tags.map(
+            tagFilter: tags.map(
                 tag => ({...tag, filter:val})
             )
         })
@@ -67,13 +85,25 @@ class MainMenuLayout extends Component {
         });
     }
 
+    addNewTag = () => {
+        const name = this.state.newTagName;
+        const color = this.state.newTagColor;
+        this.props.addNewTag(name,color);
+        this.setState({
+            newTagName:"",
+            newTagColor:"",
+        })
+    }
+
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render(){
+        console.log(this.state.tagFilter, this.props.documents);
         const tagFilteredList = this.props.documents.filter(
-            document => (
-                document && document // 임시용
-                // document.tags.some(tag=>(this.state.tags.find(l=>l.id===tag)).filter) && document
-            )
+            document => {
+                //tag property가 없을 경우 패스
+                if(document.tags === undefined) return document;
+                else return document.tags.some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document;
+            }
         );
         
         const keywordFilteredList = tagFilteredList.filter(
@@ -101,8 +131,10 @@ class MainMenuLayout extends Component {
                                     <Button
                                         as={Label}
                                         key={"Tag"+tag.id}
-                                        color={tag.color}
-                                        style={{opacity:this.state.tags.find(l=>l.id===tag.id).filter?1:0.2,}}
+                                        style={{
+                                            opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
+                                            backgroundColor:tag.color,
+                                            color:"white"}}
                                         onClick={()=>{console.log("LABEL")}}>
                                         {tag.name}
                                     </Button>
@@ -178,11 +210,12 @@ class MainMenuLayout extends Component {
                                     as={Label}
                                     key={"Tag"+tag.id}
                                     name={tag.id}
-                                    color={tag.color}
                                     onClick={(_,data)=>{this.handleTagFilterChange(data.name);}}
                                     style={{
-                                        opacity:this.state.tags.find(l=>l.id===tag.id).filter?1:0.2,
-                                        margin:"0px 0.285714em 5px 0px",}}>
+                                        opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
+                                        margin:"0px 0.285714em 5px 0px",
+                                        backgroundColor:tag.color,
+                                        color:"white",}}>
                                     {tag.name}
                                 </Button>
                             )
@@ -207,15 +240,23 @@ class MainMenuLayout extends Component {
                                         name='newTagName'
                                         label='이름'
                                         placeholder='태그 이름'
+                                        value={this.state.newTagName}
                                         onChange={this.handleInputChange}
-                                        error={!/^[0-9A-Z]$/.test(this.state.newTagName)}/>
+                                        autoComplete='off'
+                                        error={!/^[\S\s]+$/.test(this.state.newTagName)}/>
                                     <Form.Input 
                                         name='newTagColor'
                                         label='색상'
                                         placeholder='#FFFFFF'
+                                        autoComplete='off'
+                                        value={this.state.newTagColor}
                                         onChange={this.handleInputChange}
                                         error={!/^#[0-9A-F]{6}$/.test(this.state.newTagColor)}/>
-                                    <Button size='small' type='submit'>Submit</Button>
+                                    <Button
+                                        size='small'
+                                        type='submit'
+                                        content="Submit"
+                                        onClick={this.addNewTag}/>
                                     </Form>
                             </Popup>
                             <Popup
@@ -230,7 +271,7 @@ class MainMenuLayout extends Component {
                                             style={{
                                                 textAlign:"center",
                                                 margin:"0px 0.285714em 5px 0px",}}>
-                                            <Icon name='plus'/>태그삭제
+                                            <Icon name='minus'/>태그삭제
                                         </Button>}>
                                     <Form>
                                     <Form.Input 
