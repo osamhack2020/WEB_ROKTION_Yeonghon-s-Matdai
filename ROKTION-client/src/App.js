@@ -183,6 +183,19 @@ class App extends Component {
         })
     }
 
+    addNewTag = (name, color) => {
+        const tags = this.state.tags;
+        const tagsId = this.state.tagsId;
+        this.setState({
+            tags: tags.concat({
+                name: name,
+                id: this.state.tagsId,
+                color: color,
+            }),
+            tagsId: tagsId+1,
+        })
+    }
+
     render() {
         if (!this.state.logged){
             return(

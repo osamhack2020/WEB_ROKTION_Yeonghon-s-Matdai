@@ -210,7 +210,7 @@ class MainMenuLayout extends Component {
                                     as={Label}
                                     key={"Tag"+tag.id}
                                     name={tag.id}
-                                    onClick={(_,data)=>{console.log(data.name); this.handleTagFilterChange(data.name);}}
+                                    onClick={(_,data)=>{this.handleTagFilterChange(data.name);}}
                                     style={{
                                         opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
                                         margin:"0px 0.285714em 5px 0px",
