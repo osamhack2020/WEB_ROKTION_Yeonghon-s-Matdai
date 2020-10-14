@@ -11,7 +11,6 @@ import {
     Button,
     Popup,
     Form,
-    Dropdown,
 } from 'semantic-ui-react';
 
 class MainMenuLayout extends Component {
@@ -47,6 +46,7 @@ class MainMenuLayout extends Component {
                     ),
             })
         }
+        return null;
     }
 
     handleTagFilterChange = (id) => {
@@ -97,13 +97,10 @@ class MainMenuLayout extends Component {
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render(){
-        console.log(this.state.tagFilter, this.props.documents);
         const tagFilteredList = this.props.documents.filter(
-            document => {
-                //tag property가 없을 경우 패스
-                if(document.tags === undefined) return document;
-                else return document.tags.some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document;
-            }
+            document => (
+                document.tags.some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document
+            )
         );
         
         const keywordFilteredList = tagFilteredList.filter(
@@ -112,7 +109,7 @@ class MainMenuLayout extends Component {
         
         const documentList = keywordFilteredList.map(
             document => (
-                <Menu.Item onClick={document.onClick}>
+                <Menu.Item onClick={document.onClick} key={"Doc"+document.id}>
                 <Grid columns={2}>
                     <Grid.Row columns='equal'>
                         <Grid.Column style={{minWidth:"140px", maxWidth:"140px"}}>

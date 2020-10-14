@@ -4,16 +4,13 @@ import DocumentPageLayout from './DocumentPageLayout';
 import {Sidebar,} from 'semantic-ui-react'
 
 // TODO: document id 없을경우 예외처리
+///* if (documentContent === undefined) do something */
 
 class DocumentPage extends Component {
-    constructor(props){
-        super(props);
-    }
 
     render() {
         let info = this.props.information
         let selectedDocument= info.documents.find(doc=>doc.id===info.selectedDocumentId);
-        {/* if (documentContent === undefined) do something */}
         return (
             <Sidebar.Pushable className="DocumentPage" style={{overflow:'visible'}}>
                 <DocumentPageSidebar documents = {info.documents} toMainMenu={this.props.toMainMenu}/>

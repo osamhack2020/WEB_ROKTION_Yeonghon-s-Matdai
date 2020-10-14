@@ -73,7 +73,7 @@ class App extends Component {
                     tags:[2,7,8],
                 },
                 { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")},tags:[11],},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")},tags:[11],},
+                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:6, onClick:()=>{console.log("POGGERS")},tags:[11],},
             ]
           };
     }
@@ -143,7 +143,6 @@ class App extends Component {
     
     getDocumentList = () => {
         const relatedDocs = this.state.userInfo.relatedDocs;
-        let i = 0;
         for (let i = 0; i < relatedDocs.created.length; ++i) {
             fetch(`/api/docs/${relatedDocs.created[i].docId}`, {
                 method: 'GET'
@@ -168,19 +167,6 @@ class App extends Component {
                 console.error(e);
             })
         }
-    }
-
-    addNewTag = (name, color) => {
-        const tags = this.state.tags;
-        const tagsId = this.state.tagsId;
-        this.setState({
-            tags: tags.concat({
-                name: name,
-                id: this.state.tagsId,
-                color: color,
-            }),
-            tagsId: tagsId+1,
-        })
     }
 
     addNewTag = (name, color) => {

@@ -1,8 +1,4 @@
 import React, { Component } from 'react';
-import {
-    Container,
-  } from 'semantic-ui-react'
-
 class Clock extends Component {
 
     constructor(props){
