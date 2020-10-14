@@ -5,12 +5,13 @@ import {
     Icon,
     Container,
     Divider,
-    Menu,
     Input,
     Label,
     Button,
     Popup,
     Form,
+    List,
+    Dropdown,
 } from 'semantic-ui-react';
 
 class MainMenuLayout extends Component {
@@ -22,6 +23,7 @@ class MainMenuLayout extends Component {
             newTagColor: "",
             filterAllTags:false,
             showAllTags:false,
+            showSearchTab:false,
             tags:null,
             tagFilter:props.tags.map(
                 tag=>(
@@ -77,6 +79,13 @@ class MainMenuLayout extends Component {
             )
         })
     }
+    
+    toggleShowSearchTab = () => {
+        const val = this.state.showSearchTab;
+        this.setState({
+            showSearchTab:!val,
+        })
+    }
 
     toggleShowAllTags = () => {
         const val = this.state.showAllTags;
@@ -109,19 +118,29 @@ class MainMenuLayout extends Component {
         
         const documentList = keywordFilteredList.map(
             document => (
-                <Menu.Item onClick={document.onClick} key={"Doc"+document.id}>
+                <List.Item key={"Doc"+document.id}>
                 <Grid columns={2}>
                     <Grid.Row columns='equal'>
                         <Grid.Column style={{minWidth:"140px", maxWidth:"140px"}}>
                             <Container textAlign='center'>
-                                <Icon name='square' size='massive' color='blue'/>
+                                <Icon
+                                    onClick={document.onClick}
+                                    name='square'
+                                    size='massive'
+                                    color='blue'
+                                    style={{cursor:"pointer"}}/>
                             </Container>
                         </Grid.Column>
                         <Grid.Column>
-                            <div style={{paddingTop:"10px", fontSize:"30px"}}>
+                            <div
+                                onClick={document.onClick}
+                                style={{
+                                    paddingTop:"15px",
+                                    fontSize:"30px",
+                                    cursor:"pointer",}}>
                                 {document.title}
                             </div>
-                            <div style={{paddingTop:"10px"}}>
+                            <div style={{paddingTop:"20px"}}>
                             {this.props.tags.map(
                                 tag => (
                                     (document.tags.includes(tag.id)) &&
@@ -141,36 +160,29 @@ class MainMenuLayout extends Component {
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
-                </Menu.Item>
+                </List.Item>
             )
         )
-        return(
+
+        // showSearchTab이 true일때만 렌더
+        const searchTab = this.state.showSearchTab ? (
             <>
-            <div style={{padding:'10px 0px 0px 20px',
-                                width:"90%",
-                                minWidth:"500px",
-                                maxWidth:"1000px"}}>
-            <Grid>
-                <Grid.Row columns='equal'>
-                    <Container
-                        as={Grid.Column}
-                        textAlign='left'>
-                        <div style={{fontSize:"25px"}}>ROKTION</div>
-                        <div style={{fontSize:"15px"}}>국군정보공유체계</div>
-                    </Container>
-                    <Container as={Grid.Column}
-                                textAlign='right'>
-                        <div>{this.props.userInfo.regiment}</div>
-                        <div>{this.props.userInfo.rank} {this.props.userInfo.name}</div>
-                    </Container>
-                    <Grid.Column style={{paddingLeft:"0px", minWidth:"45px", maxWidth:"45px"}}>
-                        <UserIcon handleLogout={this.props.handleLogout}/>
+            <Grid.Row columns='equal'>
+                    <Grid.Column
+                        verticalAlign='center'
+                        style={{
+                            minWidth:"100px",
+                            maxWidth:"100px",
+                            paddingRight:"0px"}}>
+                        <Dropdown
+                            text='문서제목'
+                            style={{marginTop:"7px"}}>
+                        <Dropdown.Menu>
+                            <Dropdown.Item>문서제목</Dropdown.Item>
+                            <Dropdown.Item>작성자</Dropdown.Item>
+                        </Dropdown.Menu>
+                        </Dropdown>
                     </Grid.Column>
-                </Grid.Row>
-                <Grid.Row style={{paddingTop:"0px", paddingBottom:"0px"}}>
-                    <Divider as={Grid.Column} style={{marginLeft:"20px", marginRight:"20px"}}/>
-                </Grid.Row>
-                <Grid.Row>
                     <Grid.Column>
                     <Input
                         fluid
@@ -302,10 +314,72 @@ class MainMenuLayout extends Component {
                             <Icon color='black' size='big' name={this.state.showAllTags?'angle up':'angle down'}/>
                     </Button>
                 </Grid.Row>
+                </>) :
+                (<></>);
+
+        return(
+            <>
+            <div style={{padding:'10px 0px 0px 20px',
+                                width:"90%",
+                                minWidth:"500px",
+                                maxWidth:"1000px"}}>
+            <Grid>
+                <Grid.Row
+                    columns='equal'
+                    style={{paddingBottom:"5px"}}>
+                    <Container
+                        as={Grid.Column}
+                        verticalAlign='middle'
+                        textAlign='left'>
+                        <div style={{fontSize:"25px"}}>ROKTION</div>
+                        <div style={{fontSize:"15px"}}>국군정보공유체계</div>
+                    </Container>
+                    <Container
+                        as={Grid.Column}
+                        textAlign='right'
+                        style={{paddingRight:"5px"}}>
+                        <div>
+                            {this.props.userInfo.regiment}
+                        </div>
+                        <div>
+                            {this.props.userInfo.rank}
+                            {this.props.userInfo.name}
+                        </div>
+                        <div style={{paddingTop:"5px"}}>
+                            <Icon
+                                name='search'
+                                size='large'
+                                targetVar='showSearchTab'
+                                onClick={this.toggleShowSearchTab}
+                                style={{
+                                    opacity:.8,
+                                    cursor:"pointer"}}/>
+                            <Icon
+                                name='ellipsis horizontal'
+                                size='large'
+                                onClick={()=>{console.log("Ellipsis horizontal")}}
+                                style={{
+                                    opacity:.5,
+                                    cursor:"pointer"}}/>
+                        </div>
+                    </Container>
+                    <Grid.Column
+                        style={{
+                            paddingLeft:"0px",
+                            marginRight:"30px",
+                            minWidth:"45px",
+                            maxWidth:"45px"}}>
+                        <UserIcon handleLogout={this.props.handleLogout}/>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row style={{paddingTop:"0px", paddingBottom:"0px"}}>
+                    <Divider as={Grid.Column} style={{marginLeft:"20px", marginRight:"20px"}}/>
+                </Grid.Row>
+                {searchTab}
                 <Container
                     as={Grid.Row}
                     style={{overflow:'auto', maxHeight:"550px", paddingTop:"0px"}}>
-                    <Menu vertical secondary fluid>{documentList}</Menu>
+                    <List>{documentList}</List>
                 </Container>
             </Grid>
             </div>
