@@ -3,7 +3,6 @@ import {
     Segment,
     Form,
     Button,
-    Container,
   } from 'semantic-ui-react'
 
 class LoginPage extends Component {
