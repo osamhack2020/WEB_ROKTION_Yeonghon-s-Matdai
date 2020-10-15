@@ -18,6 +18,7 @@ class MainMenuLayout extends Component {
     constructor(props){
         super(props);
         this.state = {
+            searchMode: "문서제목",
             searchKeyword: "",
             newTagName: "",
             newTagColor: "",
@@ -175,11 +176,17 @@ class MainMenuLayout extends Component {
                             maxWidth:"100px",
                             paddingRight:"0px"}}>
                         <Dropdown
-                            text='문서제목'
+                            text={this.state.searchMode}
                             style={{marginTop:"7px"}}>
                         <Dropdown.Menu>
-                            <Dropdown.Item>문서제목</Dropdown.Item>
-                            <Dropdown.Item>작성자</Dropdown.Item>
+                            <Dropdown.Item
+                                onClick={()=>{this.setState({searchMode:"문서제목"})}}>
+                                문서제목
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                                onClick={()=>{this.setState({searchMode:"작성자"})}}>
+                                작성자
+                            </Dropdown.Item>
                         </Dropdown.Menu>
                         </Dropdown>
                     </Grid.Column>
@@ -188,7 +195,7 @@ class MainMenuLayout extends Component {
                         fluid
                         name="searchKeyword" 
                         onChange={this.handleInputChange}
-                        placeholder="문서제목으로 검색"/>
+                        placeholder={this.state.searchMode + "(으)로 검색"}/>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row style={{paddingTop:"0px"}} columns='equal'>
