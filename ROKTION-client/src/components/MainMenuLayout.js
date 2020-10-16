@@ -25,7 +25,7 @@ class MainMenuLayout extends Component {
             filterAllTags:false,
             showAllTags:false,
             showSearchTab:false,
-            tags:null,
+            tagDeleteMode:false,
             tagFilter:props.tags.map(
                 tag=>(
                     {id:tag.id, filter:true}
@@ -35,21 +35,17 @@ class MainMenuLayout extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState){
-        const prevTags = prevState.tags;
-        const tagFilter = prevState.tagFilter;
-        const nextTags = nextProps.tags;
-        if (nextTags !== prevTags){
-            return({
-                tags: nextTags,
-                tagFilter:nextTags.map(
-                    tag=>{
-                            let t = tagFilter.find(l=>l.id===tag);
-                            return t !== undefined ? t : {id:tag.id, filter:true};
-                        }
-                    ),
-            })
-        }
-        return null;
+        const prevTagFilter = prevState.tagFilter;
+        const nextTagFilter = nextProps.tags.map(
+            tag=>{
+                    let t = prevTagFilter.find(l=>l.id===tag.id);
+                    return t !== undefined ? t : {id:tag.id, filter:true};
+                }
+            )
+
+        return({
+            tagFilter:nextTagFilter,
+        })
     }
 
     handleTagFilterChange = (id) => {
@@ -71,6 +67,8 @@ class MainMenuLayout extends Component {
     }
 
     toggleFilterAllTags = () => {
+        //삭제하는 모드엔 태그 필터링 꺼야함
+        if (this.state.tagDeleteMode) return;
         const val = this.state.filterAllTags;
         const tags = this.state.tagFilter;
         this.setState({
@@ -95,15 +93,40 @@ class MainMenuLayout extends Component {
         });
     }
 
+    toggleTagDeleteMode = () => {
+        const val = this.state.tagDeleteMode;
+        const tags = this.state.tagFilter
+        this.setState({
+            tagDeleteMode:!val,
+            // Tag필터링 전부 리셋
+            filterAllTags:false,
+            tagFilter: tags.map(
+                tag => ({...tag, filter:true})
+            )
+        })
+    }
+
     addNewTag = () => {
         const name = this.state.newTagName;
         const color = this.state.newTagColor;
-        this.props.addNewTag(name,color);
-        this.setState({
-            newTagName:"",
-            newTagColor:"",
-        })
+        if (/^[\S\s]+$/.test(name) && 
+            /^#[0-9A-F]{6}$/.test(color)){
+            this.props.addNewTag(name,color);
+            this.setState({
+                newTagName:"",
+                newTagColor:"",
+            })
+        }
     }
+
+    deleteTag = (id) => {
+        if(this.props.documents.every((doc) => (
+            doc.tags.includes(id) ? false : true   
+        ))){
+            this.props.deleteTag(id);
+        }
+    }
+
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render(){
@@ -170,14 +193,13 @@ class MainMenuLayout extends Component {
             <>
             <Grid.Row columns='equal'>
                     <Grid.Column
-                        verticalAlign='center'
+                        verticalAlign='middle'
                         style={{
                             minWidth:"100px",
                             maxWidth:"100px",
                             paddingRight:"0px"}}>
                         <Dropdown
-                            text={this.state.searchMode}
-                            style={{marginTop:"7px"}}>
+                            text={this.state.searchMode}>
                         <Dropdown.Menu>
                             <Dropdown.Item
                                 onClick={()=>{this.setState({searchMode:"문서제목"})}}>
@@ -190,7 +212,7 @@ class MainMenuLayout extends Component {
                         </Dropdown.Menu>
                         </Dropdown>
                     </Grid.Column>
-                    <Grid.Column>
+                    <Grid.Column style={{paddingLeft:"0px"}}>
                     <Input
                         fluid
                         name="searchKeyword" 
@@ -226,13 +248,18 @@ class MainMenuLayout extends Component {
                                     as={Label}
                                     key={"Tag"+tag.id}
                                     name={tag.id}
-                                    onClick={(_,data)=>{this.handleTagFilterChange(data.name);}}
+                                    onClick={
+                                        (_,data)=>{
+                                            this.state.tagDeleteMode ?
+                                            this.deleteTag(data.name) :
+                                            this.handleTagFilterChange(data.name);
+                                        }}
                                     style={{
                                         opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
                                         margin:"0px 0.285714em 5px 0px",
                                         backgroundColor:tag.color,
                                         color:"white",}}>
-                                    {tag.name}
+                                    {this.state.tagDeleteMode&&<Icon name='close'/>}{tag.name}
                                 </Button>
                             )
                         )}
@@ -242,15 +269,16 @@ class MainMenuLayout extends Component {
                                 on='click'
                                 pinned
                                 position="bottom center"
-                                trigger={<Button
-                                            as={Label}
-                                            key={"AddNewTag"}
-                                            color="grey"
-                                            style={{
-                                                textAlign:"center",
-                                                margin:"0px 0.285714em 5px 0px",}}>
-                                            <Icon name='plus'/>태그추가
-                                        </Button>}>
+                                trigger={
+                                    <Button
+                                        as={Label}
+                                        key={"AddNewTag"}
+                                        color="grey"
+                                        style={{
+                                            textAlign:"center",
+                                            margin:"0px 0.285714em 5px 0px",}}>
+                                        <Icon name='plus'/>태그추가
+                                    </Button>}>
                                     <Form>
                                     <Form.Input 
                                         name='newTagName'
@@ -275,35 +303,16 @@ class MainMenuLayout extends Component {
                                         onClick={this.addNewTag}/>
                                     </Form>
                             </Popup>
-                            <Popup
-                                key={"DeleteTag"}
-                                on='click'
-                                pinned
-                                position="bottom center"
-                                trigger={<Button
-                                            as={Label}
-                                            key={"AddNewTag"}
-                                            color="grey"
-                                            style={{
-                                                textAlign:"center",
-                                                margin:"0px 0.285714em 5px 0px",}}>
-                                            <Icon name='minus'/>태그삭제
-                                        </Button>}>
-                                    <Form>
-                                    <Form.Input 
-                                        name='newTagName'
-                                        label='이름'
-                                        placeholder='태그 이름'
-                                        onChange={this.handleInputChange}/>
-                                    <Form.Input 
-                                        name='newTagColor'
-                                        label='색상'
-                                        placeholder='#FFFFFF'
-                                        onChange={this.handleInputChange}
-                                        error={!/^#[0-9A-F]{6}$/.test(this.state.newTagColor)}/>
-                                    <Button size='small' type='submit'>Submit</Button>
-                                    </Form>
-                            </Popup>
+                            <Button
+                                as={Label}
+                                key={"AddNewTag"}
+                                color="grey"
+                                onClick={this.toggleTagDeleteMode}
+                                style={{
+                                    textAlign:"center",
+                                    margin:"0px 0.285714em 5px 0px",}}>
+                                <Icon name='minus'/>태그삭제
+                            </Button>
                         </div>
                     </Grid.Column>
                     <Button
@@ -356,7 +365,6 @@ class MainMenuLayout extends Component {
                             <Icon
                                 name='search'
                                 size='large'
-                                targetVar='showSearchTab'
                                 onClick={this.toggleShowSearchTab}
                                 style={{
                                     opacity:.8,

@@ -19,7 +19,7 @@ class App extends Component {
                 name:null,
             },
             selectedDocumentId: -1,
-            tagsId:12,
+            tagsId:15,
             tags:[
                 { name: "진행중", id: 0, color: "#016936" },
                 { name: "예정됨", id: 1, color: "#A0A0A0" },
@@ -32,7 +32,10 @@ class App extends Component {
                 { name: "간부", id: 8, color: "#32CD32" },
                 { name: "징계위원회", id: 9, color: "#0E6EB8" },
                 { name: "분대장", id: 10, color: "#FE9A76" },
-                { name: "임시", id: 11, color: "#000000"},
+                { name: "주인없는태그", id: 11, color: "#000000"},
+                { name: "주인없는태그", id: 12, color: "#000000"},
+                { name: "주인없는태그", id: 13, color: "#000000"},
+                { name: "주인없는태그", id: 14, color: "#000000"},
             ],
             documents:[
                 {
@@ -182,6 +185,18 @@ class App extends Component {
         })
     }
 
+    deleteTag = (id) => {
+        let tags = this.state.tags;
+        const tag = tags.find(tag => (tag.id === id));
+        const idx = tags.indexOf(tag);
+        tags.splice(idx,1);
+        if (idx > -1){
+            this.setState({
+                tags:tags,
+            })
+        }
+    }
+
     render() {
         if (!this.state.logged){
             return(
@@ -204,6 +219,7 @@ class App extends Component {
                         handleLogout={this.onLogout}
                         userInfo={this.state.userInfo}
                         addNewTag={this.addNewTag}
+                        deleteTag={this.deleteTag}
                         documents={documents}
                         tags={this.state.tags}/>
                     </Transition>
