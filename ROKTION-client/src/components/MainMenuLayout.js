@@ -36,6 +36,7 @@ class MainMenuLayout extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState){
+        // 매번 tag list 바뀌었는지 체크하지 않고 매번 tagFilter 재생산
         const prevTagFilter = prevState.tagFilter;
         const nextTagFilter = nextProps.tags.map(
             tag=>{
@@ -68,7 +69,6 @@ class MainMenuLayout extends Component {
     }
 
     toggleFilterAllTags = () => {
-
         const val = this.state.filterAllTags;
         const tags = this.state.tagFilter;
         this.setState({
@@ -97,14 +97,8 @@ class MainMenuLayout extends Component {
 
     toggleTagDeleteMode = () => {
         const val = this.state.tagDeleteMode;
-        const tags = this.state.tagFilter
         this.setState({
             tagDeleteMode:!val,
-            // Tag필터링 전부 리셋
-            filterAllTags:false,
-            tagFilter: tags.map(
-                tag => ({...tag, filter:true})
-            )
         })
     }
 
@@ -142,53 +136,64 @@ class MainMenuLayout extends Component {
             document => document.title.indexOf(this.state.searchKeyword) > -1
         );
         
-        const documentList = keywordFilteredList.map(
-            document => (
-                <List.Item key={"Doc"+document.id}>
-                <Grid columns={2}>
-                    <Grid.Row columns='equal'>
-                        <Grid.Column style={{minWidth:"140px", maxWidth:"140px"}}>
-                            <Container textAlign='center'>
-                                <Icon
+        const documentList = keywordFilteredList.length === 0 ?
+            <h1
+                as={List.Item}
+                style={{
+                    width:'inherit',
+                    textAlign:'center',
+                    paddingTop:'100px',
+                    opacity:.5,
+                    }}>
+                    Nobody here but us chickens!
+            </h1>:
+            keywordFilteredList.map(
+                document => (
+                    <List.Item key={"Doc"+document.id}>
+                    <Grid columns={2}>
+                        <Grid.Row columns='equal'>
+                            <Grid.Column style={{minWidth:"140px", maxWidth:"140px"}}>
+                                <Container textAlign='center'>
+                                    <Icon
+                                        onClick={document.onClick}
+                                        name='square'
+                                        size='massive'
+                                        color='blue'
+                                        style={{cursor:"pointer"}}/>
+                                </Container>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <div
                                     onClick={document.onClick}
-                                    name='square'
-                                    size='massive'
-                                    color='blue'
-                                    style={{cursor:"pointer"}}/>
-                            </Container>
-                        </Grid.Column>
-                        <Grid.Column>
-                            <div
-                                onClick={document.onClick}
-                                style={{
-                                    paddingTop:"15px",
-                                    fontSize:"30px",
-                                    cursor:"pointer",}}>
-                                {document.title}
-                            </div>
-                            <div style={{paddingTop:"20px"}}>
-                            {this.props.tags.map(
-                                tag => (
-                                    (document.tags.includes(tag.id)) &&
-                                    <Button
-                                        as={Label}
-                                        key={"Tag"+tag.id}
-                                        style={{
-                                            opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
-                                            backgroundColor:tag.color,
-                                            color:"white"}}
-                                        onClick={()=>{console.log("LABEL")}}>
-                                        {tag.name}
-                                    </Button>
-                                )
-                            )}
-                            </div>
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-                </List.Item>
+                                    style={{
+                                        paddingTop:"15px",
+                                        fontSize:"30px",
+                                        cursor:"pointer",}}>
+                                    {document.title}
+                                </div>
+                                <div style={{paddingTop:"20px"}}>
+                                {this.props.tags.map(
+                                    tag => (
+                                        (document.tags.includes(tag.id)) &&
+                                        <Button
+                                            as={Label}
+                                            key={"Tag"+tag.id}
+                                            style={{
+                                                opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
+                                                backgroundColor:tag.color,
+                                                color:"white"}}
+                                            onClick={()=>{console.log("LABEL")}}>
+                                            {tag.name}
+                                        </Button>
+                                    )
+                                )}
+                                </div>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                    </List.Item>
+                )
             )
-        )
 
         // showSearchTab이 true일때만 렌더
         const searchTab = this.state.showSearchTab ? (
@@ -446,8 +451,17 @@ class MainMenuLayout extends Component {
                 {searchTab}
                 <Container
                     as={Grid.Row}
-                    style={{overflow:'auto', maxHeight:"550px", paddingTop:"0px"}}>
-                    <List>{documentList}</List>
+                    style={{
+                        overflow:'auto',
+                        minHeight:"100px",
+                        maxHeight:"550px",
+                        paddingTop:"0px",}}>
+                    <List
+                        style={{
+                            width:keywordFilteredList.length===0?'inherit':null,
+                        }}>
+                            {documentList}
+                    </List>
                 </Container>
             </Grid>
             </div>
