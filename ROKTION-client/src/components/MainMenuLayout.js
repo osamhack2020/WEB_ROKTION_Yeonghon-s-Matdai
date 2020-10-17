@@ -12,9 +12,8 @@ import {
     Form,
     List,
     Dropdown,
+    Menu,
 } from 'semantic-ui-react';
-
-//TODO: 문서가 가지고 있는 태그 overflow
 
 class MainMenuLayout extends Component {
     constructor(props){
@@ -196,11 +195,33 @@ class MainMenuLayout extends Component {
                                 </div>
                             </Grid.Column>
                             <Grid.Column width={1}>
-                                <Icon
-                                    floated='right'
-                                    name='genderless'
-                                    size='large'
-                                    style={{marginTop:'10px', opacity:.5}}/>
+                            <Popup
+                                key={"documentSetting" + document.id}
+                                on='click'
+                                pinned
+                                position="bottom center"
+                                trigger={<Icon
+                                            floated='right'
+                                            name='genderless'
+                                            size='large'
+                                            style={{marginTop:'10px', opacity:.5}}
+                                        />}
+                                style={{padding:"0px 5px 0px 5px",}}>
+                                    <Menu vertical secondary style={{width:"70px", textAlign:"center"}}>
+                                        <Menu.Item
+                                            style={{padding:"8px 0px 8px 0px", margin:"0px"}}
+                                            fitted='horizontally'
+                                            name='태그수정'
+                                            onClick={()=>{console.log("태그수정");}}/>
+                                        <Divider style={{margin:"0px"}}/>
+                                        <Menu.Item
+                                            style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
+                                            fitted='horizontally'
+                                            name='문서삭제'
+                                            onClick={()=>{console.log("문서삭제?!")}}/>
+                                    </Menu>
+                            </Popup>
+                                
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
