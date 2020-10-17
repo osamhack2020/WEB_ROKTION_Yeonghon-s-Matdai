@@ -26,6 +26,7 @@ class MainMenuLayout extends Component {
             showAllTags:false,
             showSearchTab:false,
             tagDeleteMode:false,
+            tagDeletePopup:-1,
             tagFilter:props.tags.map(
                 tag=>(
                     {id:tag.id, filter:true}
@@ -67,11 +68,12 @@ class MainMenuLayout extends Component {
     }
 
     toggleFilterAllTags = () => {
-        //삭제하는 모드엔 태그 필터링 꺼야함
-        if (this.state.tagDeleteMode) return;
+
         const val = this.state.filterAllTags;
         const tags = this.state.tagFilter;
         this.setState({
+            tagDeleteMode:false, //태그 삭제 모드 해제
+            tagDeletePopup:-1, //태그 삭제 팝업 해제
             filterAllTags:!val,
             tagFilter: tags.map(
                 tag => ({...tag, filter:val})
@@ -242,26 +244,72 @@ class MainMenuLayout extends Component {
                             height:"auto",
                             maxHeight:this.state.showAllTags?null:"30px",
                             overflow:this.state.showAllTags?null:"hidden"}}>
+                               
                         {this.props.tags.map(
-                            tag => (
-                                <Button
+                            tag => {
+                                if (this.state.tagDeleteMode){
+                                    const isTagUsed = this.props.documents.some((doc) => (
+                                        doc.tags.includes(tag.id) ? true : false
+                                    ));
+                                    return(
+                                    <Popup
+                                        key={"Tag"+tag.id}
+                                        name={tag.id}
+                                        on='click'
+                                        open={this.state.tagDeletePopup === tag.id}
+                                        onOpen={()=>{this.setState({tagDeletePopup:tag.id})}}
+                                        pinned
+                                        position="bottom center"
+                                        textAlign='center'
+                                        trigger={
+                                            <Button
+                                            as={Label}
+                                            key={"Tag"+tag.id}
+                                            style={{
+                                                opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
+                                                margin:"0px 0.285714em 5px 0px",
+                                                backgroundColor:tag.color,
+                                                color:"white",}}>
+                                            <Icon name='close'/>{tag.name}
+                                            </Button>}
+                                    >
+                                        <div style={{textAlign:'center'}}>
+                                            {isTagUsed ?
+                                             <p><b> 이 태그는 아직 사용하는 문서가 있어 삭제할 수 없습니다! </b></p>:
+                                             <p><b> 태그를 삭제합니까? </b></p>
+                                            }
+                                            {!isTagUsed &&
+                                                <Button
+                                                    color='red'
+                                                    name={tag.id}
+                                                    onClick={(_,data)=>{
+                                                        this.deleteTag(data.name)
+                                                        this.setState({tagDeletePopup:-1})
+                                                        }
+                                                    }
+                                                >확인</Button>
+                                            }
+                                            <Button
+                                                color='grey'
+                                                name={tag.id}
+                                                onClick={()=>{
+                                                    this.setState({tagDeletePopup:-1})}}
+                                            >취소</Button>
+                                        </div>
+                                    </Popup>)}
+                                else return(<Button
                                     as={Label}
                                     key={"Tag"+tag.id}
                                     name={tag.id}
-                                    onClick={
-                                        (_,data)=>{
-                                            this.state.tagDeleteMode ?
-                                            this.deleteTag(data.name) :
-                                            this.handleTagFilterChange(data.name);
-                                        }}
+                                    onClick={(_,data)=>{this.handleTagFilterChange(data.name)}}
                                     style={{
                                         opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
                                         margin:"0px 0.285714em 5px 0px",
                                         backgroundColor:tag.color,
                                         color:"white",}}>
                                     {this.state.tagDeleteMode&&<Icon name='close'/>}{tag.name}
-                                </Button>
-                            )
+                                </Button>);
+                            }
                         )}
                         <div>
                             <Popup
@@ -274,6 +322,10 @@ class MainMenuLayout extends Component {
                                         as={Label}
                                         key={"AddNewTag"}
                                         color="grey"
+                                        onClick={()=>{
+                                            this.setState({
+                                                tagDeletePopup:-1,
+                                            })}}
                                         style={{
                                             textAlign:"center",
                                             margin:"0px 0.285714em 5px 0px",}}>
@@ -299,7 +351,8 @@ class MainMenuLayout extends Component {
                                     <Button
                                         size='small'
                                         type='submit'
-                                        content="Submit"
+                                        content="태그추가"
+                                        disabled={!(/^[\S\s]+$/.test(this.state.newTagName) && /^#[0-9A-F]{6}$/.test(this.state.newTagColor))}
                                         onClick={this.addNewTag}/>
                                     </Form>
                             </Popup>
