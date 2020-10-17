@@ -18,13 +18,15 @@ class MainMenuLayout extends Component {
     constructor(props){
         super(props);
         this.state = {
+            searchMode: "문서제목",
             searchKeyword: "",
             newTagName: "",
             newTagColor: "",
             filterAllTags:false,
             showAllTags:false,
             showSearchTab:false,
-            tags:null,
+            tagDeleteMode:false,
+            tagDeletePopup:-1,
             tagFilter:props.tags.map(
                 tag=>(
                     {id:tag.id, filter:true}
@@ -34,21 +36,18 @@ class MainMenuLayout extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState){
-        const prevTags = prevState.tags;
-        const tagFilter = prevState.tagFilter;
-        const nextTags = nextProps.tags;
-        if (nextTags !== prevTags){
-            return({
-                tags: nextTags,
-                tagFilter:nextTags.map(
-                    tag=>{
-                            let t = tagFilter.find(l=>l.id===tag);
-                            return t !== undefined ? t : {id:tag.id, filter:true};
-                        }
-                    ),
-            })
-        }
-        return null;
+        // 매번 tag list 바뀌었는지 체크하지 않고 매번 tagFilter 재생산
+        const prevTagFilter = prevState.tagFilter;
+        const nextTagFilter = nextProps.tags.map(
+            tag=>{
+                    let t = prevTagFilter.find(l=>l.id===tag.id);
+                    return t !== undefined ? t : {id:tag.id, filter:true};
+                }
+            )
+
+        return({
+            tagFilter:nextTagFilter,
+        })
     }
 
     handleTagFilterChange = (id) => {
@@ -73,6 +72,8 @@ class MainMenuLayout extends Component {
         const val = this.state.filterAllTags;
         const tags = this.state.tagFilter;
         this.setState({
+            tagDeleteMode:false, //태그 삭제 모드 해제
+            tagDeletePopup:-1, //태그 삭제 팝업 해제
             filterAllTags:!val,
             tagFilter: tags.map(
                 tag => ({...tag, filter:val})
@@ -94,15 +95,34 @@ class MainMenuLayout extends Component {
         });
     }
 
+    toggleTagDeleteMode = () => {
+        const val = this.state.tagDeleteMode;
+        this.setState({
+            tagDeleteMode:!val,
+        })
+    }
+
     addNewTag = () => {
         const name = this.state.newTagName;
         const color = this.state.newTagColor;
-        this.props.addNewTag(name,color);
-        this.setState({
-            newTagName:"",
-            newTagColor:"",
-        })
+        if (/^[\S\s]+$/.test(name) && 
+            /^#[0-9A-F]{6}$/.test(color)){
+            this.props.addNewTag(name,color);
+            this.setState({
+                newTagName:"",
+                newTagColor:"",
+            })
+        }
     }
+
+    deleteTag = (id) => {
+        if(this.props.documents.every((doc) => (
+            doc.tags.includes(id) ? false : true   
+        ))){
+            this.props.deleteTag(id);
+        }
+    }
+
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render(){
@@ -116,79 +136,95 @@ class MainMenuLayout extends Component {
             document => document.title.indexOf(this.state.searchKeyword) > -1
         );
         
-        const documentList = keywordFilteredList.map(
-            document => (
-                <List.Item key={"Doc"+document.id}>
-                <Grid columns={2}>
-                    <Grid.Row columns='equal'>
-                        <Grid.Column style={{minWidth:"140px", maxWidth:"140px"}}>
-                            <Container textAlign='center'>
-                                <Icon
+        const documentList = keywordFilteredList.length === 0 ?
+            <h1
+                as={List.Item}
+                style={{
+                    width:'inherit',
+                    textAlign:'center',
+                    paddingTop:'100px',
+                    opacity:.5,
+                    }}>
+                    Nobody here but us chickens!
+            </h1>:
+            keywordFilteredList.map(
+                document => (
+                    <List.Item key={"Doc"+document.id}>
+                    <Grid columns={2}>
+                        <Grid.Row columns='equal'>
+                            <Grid.Column style={{minWidth:"140px", maxWidth:"140px"}}>
+                                <Container textAlign='center'>
+                                    <Icon
+                                        onClick={document.onClick}
+                                        name='square'
+                                        size='massive'
+                                        color='blue'
+                                        style={{cursor:"pointer"}}/>
+                                </Container>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <div
                                     onClick={document.onClick}
-                                    name='square'
-                                    size='massive'
-                                    color='blue'
-                                    style={{cursor:"pointer"}}/>
-                            </Container>
-                        </Grid.Column>
-                        <Grid.Column>
-                            <div
-                                onClick={document.onClick}
-                                style={{
-                                    paddingTop:"15px",
-                                    fontSize:"30px",
-                                    cursor:"pointer",}}>
-                                {document.title}
-                            </div>
-                            <div style={{paddingTop:"20px"}}>
-                            {this.props.tags.map(
-                                tag => (
-                                    (document.tags.includes(tag.id)) &&
-                                    <Button
-                                        as={Label}
-                                        key={"Tag"+tag.id}
-                                        style={{
-                                            opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
-                                            backgroundColor:tag.color,
-                                            color:"white"}}
-                                        onClick={()=>{console.log("LABEL")}}>
-                                        {tag.name}
-                                    </Button>
-                                )
-                            )}
-                            </div>
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-                </List.Item>
+                                    style={{
+                                        paddingTop:"15px",
+                                        fontSize:"30px",
+                                        cursor:"pointer",}}>
+                                    {document.title}
+                                </div>
+                                <div style={{paddingTop:"20px"}}>
+                                {this.props.tags.map(
+                                    tag => (
+                                        (document.tags.includes(tag.id)) &&
+                                        <Button
+                                            as={Label}
+                                            key={"Tag"+tag.id}
+                                            style={{
+                                                opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
+                                                backgroundColor:tag.color,
+                                                color:"white"}}
+                                            onClick={()=>{console.log("LABEL")}}>
+                                            {tag.name}
+                                        </Button>
+                                    )
+                                )}
+                                </div>
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                    </List.Item>
+                )
             )
-        )
 
         // showSearchTab이 true일때만 렌더
         const searchTab = this.state.showSearchTab ? (
             <>
             <Grid.Row columns='equal'>
                     <Grid.Column
-                        verticalAlign='center'
+                        verticalAlign='middle'
                         style={{
                             minWidth:"100px",
                             maxWidth:"100px",
                             paddingRight:"0px"}}>
                         <Dropdown
-                            text='문서제목'
-                            style={{marginTop:"7px"}}>
+                            text={this.state.searchMode}>
                         <Dropdown.Menu>
-                            <Dropdown.Item>문서제목</Dropdown.Item>
-                            <Dropdown.Item>작성자</Dropdown.Item>
+                            <Dropdown.Item
+                                onClick={()=>{this.setState({searchMode:"문서제목"})}}>
+                                문서제목
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                                onClick={()=>{this.setState({searchMode:"작성자"})}}>
+                                작성자
+                            </Dropdown.Item>
                         </Dropdown.Menu>
                         </Dropdown>
                     </Grid.Column>
-                    <Grid.Column>
+                    <Grid.Column style={{paddingLeft:"0px"}}>
                     <Input
                         fluid
                         name="searchKeyword" 
                         onChange={this.handleInputChange}
-                        placeholder="문서제목으로 검색"/>
+                        placeholder={this.state.searchMode + "(으)로 검색"}/>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row style={{paddingTop:"0px"}} columns='equal'>
@@ -213,21 +249,72 @@ class MainMenuLayout extends Component {
                             height:"auto",
                             maxHeight:this.state.showAllTags?null:"30px",
                             overflow:this.state.showAllTags?null:"hidden"}}>
+                               
                         {this.props.tags.map(
-                            tag => (
-                                <Button
+                            tag => {
+                                if (this.state.tagDeleteMode){
+                                    const isTagUsed = this.props.documents.some((doc) => (
+                                        doc.tags.includes(tag.id) ? true : false
+                                    ));
+                                    return(
+                                    <Popup
+                                        key={"Tag"+tag.id}
+                                        name={tag.id}
+                                        on='click'
+                                        open={this.state.tagDeletePopup === tag.id}
+                                        onOpen={()=>{this.setState({tagDeletePopup:tag.id})}}
+                                        pinned
+                                        position="bottom center"
+                                        textAlign='center'
+                                        trigger={
+                                            <Button
+                                            as={Label}
+                                            key={"Tag"+tag.id}
+                                            style={{
+                                                opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
+                                                margin:"0px 0.285714em 5px 0px",
+                                                backgroundColor:tag.color,
+                                                color:"white",}}>
+                                            <Icon name='close'/>{tag.name}
+                                            </Button>}
+                                    >
+                                        <div style={{textAlign:'center'}}>
+                                            {isTagUsed ?
+                                             <p><b> 이 태그는 아직 사용하는 문서가 있어 삭제할 수 없습니다! </b></p>:
+                                             <p><b> 태그를 삭제합니까? </b></p>
+                                            }
+                                            {!isTagUsed &&
+                                                <Button
+                                                    color='red'
+                                                    name={tag.id}
+                                                    onClick={(_,data)=>{
+                                                        this.deleteTag(data.name)
+                                                        this.setState({tagDeletePopup:-1})
+                                                        }
+                                                    }
+                                                >확인</Button>
+                                            }
+                                            <Button
+                                                color='grey'
+                                                name={tag.id}
+                                                onClick={()=>{
+                                                    this.setState({tagDeletePopup:-1})}}
+                                            >취소</Button>
+                                        </div>
+                                    </Popup>)}
+                                else return(<Button
                                     as={Label}
                                     key={"Tag"+tag.id}
                                     name={tag.id}
-                                    onClick={(_,data)=>{this.handleTagFilterChange(data.name);}}
+                                    onClick={(_,data)=>{this.handleTagFilterChange(data.name)}}
                                     style={{
                                         opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
                                         margin:"0px 0.285714em 5px 0px",
                                         backgroundColor:tag.color,
                                         color:"white",}}>
-                                    {tag.name}
-                                </Button>
-                            )
+                                    {this.state.tagDeleteMode&&<Icon name='close'/>}{tag.name}
+                                </Button>);
+                            }
                         )}
                         <div>
                             <Popup
@@ -235,15 +322,20 @@ class MainMenuLayout extends Component {
                                 on='click'
                                 pinned
                                 position="bottom center"
-                                trigger={<Button
-                                            as={Label}
-                                            key={"AddNewTag"}
-                                            color="grey"
-                                            style={{
-                                                textAlign:"center",
-                                                margin:"0px 0.285714em 5px 0px",}}>
-                                            <Icon name='plus'/>태그추가
-                                        </Button>}>
+                                trigger={
+                                    <Button
+                                        as={Label}
+                                        key={"AddNewTag"}
+                                        color="grey"
+                                        onClick={()=>{
+                                            this.setState({
+                                                tagDeletePopup:-1,
+                                            })}}
+                                        style={{
+                                            textAlign:"center",
+                                            margin:"0px 0.285714em 5px 0px",}}>
+                                        <Icon name='plus'/>태그추가
+                                    </Button>}>
                                     <Form>
                                     <Form.Input 
                                         name='newTagName'
@@ -264,39 +356,21 @@ class MainMenuLayout extends Component {
                                     <Button
                                         size='small'
                                         type='submit'
-                                        content="Submit"
+                                        content="태그추가"
+                                        disabled={!(/^[\S\s]+$/.test(this.state.newTagName) && /^#[0-9A-F]{6}$/.test(this.state.newTagColor))}
                                         onClick={this.addNewTag}/>
                                     </Form>
                             </Popup>
-                            <Popup
-                                key={"DeleteTag"}
-                                on='click'
-                                pinned
-                                position="bottom center"
-                                trigger={<Button
-                                            as={Label}
-                                            key={"AddNewTag"}
-                                            color="grey"
-                                            style={{
-                                                textAlign:"center",
-                                                margin:"0px 0.285714em 5px 0px",}}>
-                                            <Icon name='minus'/>태그삭제
-                                        </Button>}>
-                                    <Form>
-                                    <Form.Input 
-                                        name='newTagName'
-                                        label='이름'
-                                        placeholder='태그 이름'
-                                        onChange={this.handleInputChange}/>
-                                    <Form.Input 
-                                        name='newTagColor'
-                                        label='색상'
-                                        placeholder='#FFFFFF'
-                                        onChange={this.handleInputChange}
-                                        error={!/^#[0-9A-F]{6}$/.test(this.state.newTagColor)}/>
-                                    <Button size='small' type='submit'>Submit</Button>
-                                    </Form>
-                            </Popup>
+                            <Button
+                                as={Label}
+                                key={"AddNewTag"}
+                                color="grey"
+                                onClick={this.toggleTagDeleteMode}
+                                style={{
+                                    textAlign:"center",
+                                    margin:"0px 0.285714em 5px 0px",}}>
+                                <Icon name='minus'/>태그삭제
+                            </Button>
                         </div>
                     </Grid.Column>
                     <Button
@@ -349,7 +423,6 @@ class MainMenuLayout extends Component {
                             <Icon
                                 name='search'
                                 size='large'
-                                targetVar='showSearchTab'
                                 onClick={this.toggleShowSearchTab}
                                 style={{
                                     opacity:.8,
@@ -378,8 +451,17 @@ class MainMenuLayout extends Component {
                 {searchTab}
                 <Container
                     as={Grid.Row}
-                    style={{overflow:'auto', maxHeight:"550px", paddingTop:"0px"}}>
-                    <List>{documentList}</List>
+                    style={{
+                        overflow:'auto',
+                        minHeight:"100px",
+                        maxHeight:"550px",
+                        paddingTop:"0px",}}>
+                    <List
+                        style={{
+                            width:keywordFilteredList.length===0?'inherit':null,
+                        }}>
+                            {documentList}
+                    </List>
                 </Container>
             </Grid>
             </div>
