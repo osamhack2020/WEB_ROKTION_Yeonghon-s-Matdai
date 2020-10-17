@@ -12,6 +12,7 @@ import {
     Form,
     List,
     Dropdown,
+    Menu,
 } from 'semantic-ui-react';
 
 class MainMenuLayout extends Component {
@@ -150,9 +151,11 @@ class MainMenuLayout extends Component {
             keywordFilteredList.map(
                 document => (
                     <List.Item key={"Doc"+document.id}>
-                    <Grid columns={2}>
+                    <Grid columns={3}>
                         <Grid.Row columns='equal'>
-                            <Grid.Column style={{minWidth:"140px", maxWidth:"140px"}}>
+                            <Grid.Column
+                                verticalAlign='middle'
+                                style={{minWidth:"140px", maxWidth:"140px"}}>
                                 <Container textAlign='center'>
                                     <Icon
                                         onClick={document.onClick}
@@ -168,10 +171,11 @@ class MainMenuLayout extends Component {
                                     style={{
                                         paddingTop:"15px",
                                         fontSize:"30px",
+                                        lineHeight:"30px",
                                         cursor:"pointer",}}>
                                     {document.title}
                                 </div>
-                                <div style={{paddingTop:"20px"}}>
+                                <div style={{paddingTop:"10px", paddingBottom:"15px"}}>
                                 {this.props.tags.map(
                                     tag => (
                                         (document.tags.includes(tag.id)) &&
@@ -181,6 +185,7 @@ class MainMenuLayout extends Component {
                                             style={{
                                                 opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
                                                 backgroundColor:tag.color,
+                                                margin:"0px 0.285714em 3px 0px",
                                                 color:"white"}}
                                             onClick={()=>{console.log("LABEL")}}>
                                             {tag.name}
@@ -188,6 +193,35 @@ class MainMenuLayout extends Component {
                                     )
                                 )}
                                 </div>
+                            </Grid.Column>
+                            <Grid.Column width={1}>
+                            <Popup
+                                key={"documentSetting" + document.id}
+                                on='click'
+                                pinned
+                                position="bottom center"
+                                trigger={<Icon
+                                            floated='right'
+                                            name='genderless'
+                                            size='large'
+                                            style={{marginTop:'10px', opacity:.5}}
+                                        />}
+                                style={{padding:"0px 5px 0px 5px",}}>
+                                    <Menu vertical secondary style={{width:"70px", textAlign:"center"}}>
+                                        <Menu.Item
+                                            style={{padding:"8px 0px 8px 0px", margin:"0px"}}
+                                            fitted='horizontally'
+                                            name='태그수정'
+                                            onClick={()=>{console.log("태그수정");}}/>
+                                        <Divider style={{margin:"0px"}}/>
+                                        <Menu.Item
+                                            style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
+                                            fitted='horizontally'
+                                            name='문서삭제'
+                                            onClick={()=>{console.log("문서삭제?!")}}/>
+                                    </Menu>
+                            </Popup>
+                                
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
@@ -247,7 +281,7 @@ class MainMenuLayout extends Component {
                             paddingLeft:"0px",
                             lineBreak:"strict",
                             height:"auto",
-                            maxHeight:this.state.showAllTags?null:"30px",
+                            maxHeight:this.state.showAllTags?null:"28px",
                             overflow:this.state.showAllTags?null:"hidden"}}>
                                
                         {this.props.tags.map(
@@ -272,7 +306,7 @@ class MainMenuLayout extends Component {
                                             key={"Tag"+tag.id}
                                             style={{
                                                 opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
-                                                margin:"0px 0.285714em 5px 0px",
+                                                margin:"0px 0.285714em 3px 0px",
                                                 backgroundColor:tag.color,
                                                 color:"white",}}>
                                             <Icon name='close'/>{tag.name}
@@ -309,7 +343,7 @@ class MainMenuLayout extends Component {
                                     onClick={(_,data)=>{this.handleTagFilterChange(data.name)}}
                                     style={{
                                         opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
-                                        margin:"0px 0.285714em 5px 0px",
+                                        margin:"0px 0.285714em 3px 0px",
                                         backgroundColor:tag.color,
                                         color:"white",}}>
                                     {this.state.tagDeleteMode&&<Icon name='close'/>}{tag.name}
@@ -333,7 +367,7 @@ class MainMenuLayout extends Component {
                                             })}}
                                         style={{
                                             textAlign:"center",
-                                            margin:"0px 0.285714em 5px 0px",}}>
+                                            margin:"0px 0.285714em 3px 0px",}}>
                                         <Icon name='plus'/>태그추가
                                     </Button>}>
                                     <Form>
@@ -368,7 +402,7 @@ class MainMenuLayout extends Component {
                                 onClick={this.toggleTagDeleteMode}
                                 style={{
                                     textAlign:"center",
-                                    margin:"0px 0.285714em 5px 0px",}}>
+                                    margin:"0px 0.285714em 3px 0px",}}>
                                 <Icon name='minus'/>태그삭제
                             </Button>
                         </div>
@@ -457,8 +491,9 @@ class MainMenuLayout extends Component {
                         maxHeight:"550px",
                         paddingTop:"0px",}}>
                     <List
+                        divided
                         style={{
-                            width:keywordFilteredList.length===0?'inherit':null,
+                            width:'calc(100% - 15px)',
                         }}>
                             {documentList}
                     </List>

@@ -39,7 +39,7 @@ class App extends Component {
             ],
             documents:[
                 {
-                    title: "내가 진행중인 업무",
+                    title: "내가 진행중인진행중인진행중인진행중인진행중인진행중인진행중인 업무",
                     admin: "중위 XOX",
                     description: "지이이인행중인 업무들",
                     alert: 15,
@@ -53,7 +53,7 @@ class App extends Component {
                                       <DocumentPageContent content="POGPOGPOGPOGPOG"/>,
                                       <DocumentPageContent content="POGPOGPOGPOGPOGPOG"/>,
                                       <DocumentPageContent content="POGPOGPOGPOGPOGPOGPOG"/>,],
-                    tags:[0,4,5],
+                    tags:[0,4,5,6,7,8,9,10,11,12,13],
                 },
                 {
                     title: "예정된 업무",
@@ -63,7 +63,7 @@ class App extends Component {
                     id: 2,
                     onClick: ()=>{this.setState({selectedDocumentId:2});},
                     documentContent: [<DocumentPageContent content="That's WeirdChamp bro WeirdChamp"/>],
-                    tags:[1,3,6],
+                    tags:[1,3,6,7,8,9,10,11,12],
                 },
                 {
                     title: "종료된 업무",
