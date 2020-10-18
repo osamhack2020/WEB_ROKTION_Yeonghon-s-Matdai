@@ -77,7 +77,7 @@ class App extends Component {
                     tags: new Set([2,7,8]),
                 },
                 { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")},tags:new Set([11]),},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:6, onClick:()=>{console.log("POGGERS")},tags:new Set([11]),},
+                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:5, onClick:()=>{console.log("POGGERS")},tags:new Set([11]),},
             ]
           };
     }
@@ -162,7 +162,7 @@ class App extends Component {
                         admin: docInfo.author,
                         description: '',
                         alert: 10,
-                        id: 5,
+                        id: 6,
                         dbId: docInfo._id,
                         // 태그 이제 Set으로 처리함
                         // tags: relatedDocs.created[i].docTags,
@@ -267,7 +267,8 @@ class App extends Component {
         else{
             let {selectedDocumentId, documents} = this.state;
             let selectedDocument = documents.find(doc => (doc.id === selectedDocumentId));
-            if (selectedDocument !== undefined && selectedDocument.documentContent.length == 0) {
+            console.log(selectedDocument);
+            if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
                 this.getPageContents(selectedDocument, selectedDocumentId - 1);
             }
             return (
