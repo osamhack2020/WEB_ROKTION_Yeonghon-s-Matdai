@@ -10,13 +10,13 @@ class UserIcon extends Component {
     render() {
         return (
             <Popup
-                key={"AAA"}
+                key={"userPopup"}
                 on='click'
                 pinned
                 position="bottom center"
-                trigger={<Icon size='big' name='user circle'/>}
+                trigger={<Icon size='huge' name='user circle'/>}
                 style={{padding:"0px 5px 0px 5px",}}>
-                    <Menu fitted vertical secondary style={{width:"70px", textAlign:"center"}}>
+                    <Menu vertical secondary style={{width:"70px", textAlign:"center"}}>
                         <Menu.Item
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
