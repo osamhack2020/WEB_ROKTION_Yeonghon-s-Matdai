@@ -28,6 +28,7 @@ class MainMenuLayout extends Component {
             showSearchTab:false,
             tagDeleteMode:false,
             tagDeletePopup:-1,
+            tagSettingDocId:-1,
             tagFilter:props.tags.map(
                 tag=>(
                     {id:tag.id, filter:true}
@@ -100,14 +101,21 @@ class MainMenuLayout extends Component {
         const val = this.state.tagDeleteMode;
         this.setState({
             tagDeleteMode:!val,
-        })
+        });
+    }
+
+    setTagSettingMode = (id) => {
+        const val = this.state.tagSettingDocId
+        this.setState({
+            tagSettingDocId:val === id ? -1 : id,
+        });
     }
 
     addNewTag = () => {
         const name = this.state.newTagName;
         const color = this.state.newTagColor;
         if (/^[\S\s]+$/.test(name) && 
-            /^#[0-9A-F]{6}$/.test(color)){
+            /^#[0-9A-Fa-f]{6}$/.test(color)){
             this.props.addNewTag(name,color);
             this.setState({
                 newTagName:"",
@@ -118,7 +126,7 @@ class MainMenuLayout extends Component {
 
     deleteTag = (id) => {
         if(this.props.documents.every((doc) => (
-            doc.tags.includes(id) ? false : true   
+            doc.tags.has(id) ? false : true   
         ))){
             this.props.deleteTag(id);
         }
@@ -129,7 +137,7 @@ class MainMenuLayout extends Component {
     render(){
         const tagFilteredList = this.props.documents.filter(
             document => (
-                document.tags.some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document
+                [...document.tags].some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document
             )
         );
         
@@ -139,7 +147,6 @@ class MainMenuLayout extends Component {
         
         const documentList = keywordFilteredList.length === 0 ?
             <h1
-                as={List.Item}
                 style={{
                     width:'inherit',
                     textAlign:'center',
@@ -155,7 +162,11 @@ class MainMenuLayout extends Component {
                         <Grid.Row columns='equal'>
                             <Grid.Column
                                 verticalAlign='middle'
-                                style={{minWidth:"140px", maxWidth:"140px"}}>
+                                style={{
+                                    minWidth:"140px",
+                                    maxWidth:"140px",
+                                    paddingLeft:"0px",
+                                    paddingRight:"0px",}}>
                                 <Container textAlign='center'>
                                     <Icon
                                         onClick={document.onClick}
@@ -165,7 +176,7 @@ class MainMenuLayout extends Component {
                                         style={{cursor:"pointer"}}/>
                                 </Container>
                             </Grid.Column>
-                            <Grid.Column>
+                            <Grid.Column style={{paddingLeft:"0px"}}>
                                 <div
                                     onClick={document.onClick}
                                     style={{
@@ -176,22 +187,40 @@ class MainMenuLayout extends Component {
                                     {document.title}
                                 </div>
                                 <div style={{paddingTop:"10px", paddingBottom:"15px"}}>
-                                {this.props.tags.map(
-                                    tag => (
-                                        (document.tags.includes(tag.id)) &&
-                                        <Button
-                                            as={Label}
-                                            key={"Tag"+tag.id}
-                                            style={{
-                                                opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
-                                                backgroundColor:tag.color,
-                                                margin:"0px 0.285714em 3px 0px",
-                                                color:"white"}}
-                                            onClick={()=>{console.log("LABEL")}}>
-                                            {tag.name}
-                                        </Button>
+                                {
+                                    this.state.tagSettingDocId === document.id ?
+                                    this.props.tags.map(
+                                        tag => (
+                                            <Button
+                                                as={Label}
+                                                key={"Tag"+tag.id}
+                                                onClick={()=>{
+                                                    this.props.toggleTagInDocument(document.id, tag.id);
+                                                }}
+                                                style={{
+                                                    opacity:document.tags.has(tag.id)?1:0.2,
+                                                    backgroundColor:tag.color,
+                                                    margin:"0px 0.285714em 3px 0px",
+                                                    color:"white"}}>
+                                                {tag.name}
+                                            </Button>
+                                        )
+                                    ) :
+                                    this.props.tags.map(
+                                        tag => (
+                                            (document.tags.has(tag.id)) &&
+                                            <Label
+                                                key={"Tag"+tag.id}
+                                                style={{
+                                                    opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
+                                                    backgroundColor:tag.color,
+                                                    margin:"0px 0.285714em 3px 0px",
+                                                    color:"white"}}>
+                                                {tag.name}
+                                            </Label>
+                                        )
                                     )
-                                )}
+                                }
                                 </div>
                             </Grid.Column>
                             <Grid.Column width={1}>
@@ -204,15 +233,20 @@ class MainMenuLayout extends Component {
                                             floated='right'
                                             name='genderless'
                                             size='large'
-                                            style={{marginTop:'10px', opacity:.5}}
+                                            style={{
+                                                marginTop:'10px',
+                                                opacity:.5,
+                                                cursor:"pointer",
+                                            }}
                                         />}
                                 style={{padding:"0px 5px 0px 5px",}}>
                                     <Menu vertical secondary style={{width:"70px", textAlign:"center"}}>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", margin:"0px"}}
                                             fitted='horizontally'
-                                            name='태그수정'
-                                            onClick={()=>{console.log("태그수정");}}/>
+                                            name={this.state.tagSettingDocId === document.id ? '수정완료' : '태그수정'}
+                                            docid={document.id}
+                                            onClick={(_,data)=>{this.setTagSettingMode(data.docid)}}/>
                                         <Divider style={{margin:"0px"}}/>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
@@ -288,7 +322,7 @@ class MainMenuLayout extends Component {
                             tag => {
                                 if (this.state.tagDeleteMode){
                                     const isTagUsed = this.props.documents.some((doc) => (
-                                        doc.tags.includes(tag.id) ? true : false
+                                        doc.tags.has(tag.id) ? true : false
                                     ));
                                     return(
                                     <Popup
@@ -313,11 +347,13 @@ class MainMenuLayout extends Component {
                                             </Button>}
                                     >
                                         <div style={{textAlign:'center'}}>
-                                            {isTagUsed ?
-                                             <p><b> 이 태그는 아직 사용하는 문서가 있어 삭제할 수 없습니다! </b></p>:
-                                             <p><b> 태그를 삭제합니까? </b></p>
+                                            {(tag.id <= 4) ?
+                                                <p><b> 주요 태그는 삭제할 수 없습니다! </b></p>:
+                                                isTagUsed ?
+                                                <p><b> 이 태그는 아직 사용하는 문서가 있어 삭제할 수 없습니다! </b></p>:
+                                                <p><b> 태그를 삭제합니까? </b></p>
                                             }
-                                            {!isTagUsed &&
+                                            {(!isTagUsed && tag.id>4) &&
                                                 <Button
                                                     color='red'
                                                     name={tag.id}
@@ -386,12 +422,12 @@ class MainMenuLayout extends Component {
                                         autoComplete='off'
                                         value={this.state.newTagColor}
                                         onChange={this.handleInputChange}
-                                        error={!/^#[0-9A-F]{6}$/.test(this.state.newTagColor)}/>
+                                        error={!/^#[0-9A-Fa-f]{6}$/.test(this.state.newTagColor)}/>
                                     <Button
                                         size='small'
                                         type='submit'
                                         content="태그추가"
-                                        disabled={!(/^[\S\s]+$/.test(this.state.newTagName) && /^#[0-9A-F]{6}$/.test(this.state.newTagColor))}
+                                        disabled={!(/^[\S\s]+$/.test(this.state.newTagName) && /^#[0-9A-Fa-f]{6}$/.test(this.state.newTagColor))}
                                         onClick={this.addNewTag}/>
                                     </Form>
                             </Popup>
@@ -489,7 +525,8 @@ class MainMenuLayout extends Component {
                         overflow:'auto',
                         minHeight:"100px",
                         maxHeight:"550px",
-                        paddingTop:"0px",}}>
+                        paddingTop:"0px",
+                        paddingLeft:"15px",}}>
                     <List
                         divided
                         style={{
