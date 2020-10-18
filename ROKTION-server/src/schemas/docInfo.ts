@@ -15,7 +15,7 @@ export interface DocInfo extends Document {
     status: DocStatus;
     contents: Array<{
         pageId: Types.ObjectId,
-        editing: Types.ObjectId,
+        editing?: Types.ObjectId,
         edited: Date,
     }>;
     shareOption: {

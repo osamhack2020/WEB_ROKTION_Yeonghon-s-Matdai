@@ -165,21 +165,23 @@ class App extends Component {
                 return res.json();
             })
             .then(docInfo => {
+                let newState = this.state.documents;
+                newState[i] = {
+                    title: docInfo.title,
+                    admin: docInfo.author,
+                    description: '',
+                    alert: 10,
+                    id: i,
+                    dbId: docInfo._id,
+                    // 태그 이제 Set으로 처리함
+                    // tags: new Set(relatedDocs.created[i].docTags),
+                    tags:new Set([11]), // 임시용
+                    onClick: () => {this.setState({selectedDocumentId: i})},
+                    documentContent: [],
+                    pagesLength: docInfo.contents.length,
+                }
                 this.setState({
-                    documents: this.state.documents[i] = {
-                        title: docInfo.title,
-                        admin: docInfo.author,
-                        description: '',
-                        alert: 10,
-                        id: i,
-                        dbId: docInfo._id,
-                        // 태그 이제 Set으로 처리함
-                        // tags: new Set(relatedDocs.created[i].docTags),
-                        tags:new Set([11]), // 임시용
-                        onClick: () => {this.setState({selectedDocumentId: i})},
-                        documentContent: [],
-                        pagesLength: docInfo.contents.length,
-                    }
+                    documents: newState
                 }); 
             })
             .catch(e => {

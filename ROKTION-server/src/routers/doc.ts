@@ -67,13 +67,13 @@ router.post('/', async (req: Request, res: Response) => {
     });
     // 새로운 Doc 생성 -> DocInfo의 contents에 추가
     const newDoc = new DocModel({
-        pageTitle: 'New Page',
         content: '',
         linkedFiles: []
     });
     newDocInfo.contents.push({
-        title: newDoc.pageTitle,
-        pageId: newDoc._id
+        pageId: newDoc._id,
+        editing: undefined,
+        edited: new Date()
     });
     // 생성자의 db에서 relatedDocs에 새로운 DocInfo 추가
     const author = await UserModel.findById(authorId);
