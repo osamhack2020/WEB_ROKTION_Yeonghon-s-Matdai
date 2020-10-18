@@ -104,13 +104,15 @@ router.get('/:id/:pg', (req: Request, res: Response) => {
     })
     .then(perm => {
         if (perm.permissionLevel >= 1) {
-            let pgId = perm.docInfo.contents[parseInt(req.params.pg)];
+            let pgId = perm.docInfo.contents[Number(req.params.pg)];
+            //console.log(pgId);
             return DocModel.findById(pgId);
         } else {
             throw new Error('Permission denied');
         }
     })
     .then(doc => {
+        //console.log(doc);
         res.json(doc);
     })
     .catch(e => {
