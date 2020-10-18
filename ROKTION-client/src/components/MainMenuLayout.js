@@ -107,7 +107,7 @@ class MainMenuLayout extends Component {
         const name = this.state.newTagName;
         const color = this.state.newTagColor;
         if (/^[\S\s]+$/.test(name) && 
-            /^#[0-9A-F]{6}$/.test(color)){
+            /^#[0-9A-Fa-f]{6}$/.test(color)){
             this.props.addNewTag(name,color);
             this.setState({
                 newTagName:"",
@@ -139,7 +139,6 @@ class MainMenuLayout extends Component {
         
         const documentList = keywordFilteredList.length === 0 ?
             <h1
-                as={List.Item}
                 style={{
                     width:'inherit',
                     textAlign:'center',
@@ -155,7 +154,11 @@ class MainMenuLayout extends Component {
                         <Grid.Row columns='equal'>
                             <Grid.Column
                                 verticalAlign='middle'
-                                style={{minWidth:"140px", maxWidth:"140px"}}>
+                                style={{
+                                    minWidth:"140px",
+                                    maxWidth:"140px",
+                                    paddingLeft:"0px",
+                                    paddingRight:"0px",}}>
                                 <Container textAlign='center'>
                                     <Icon
                                         onClick={document.onClick}
@@ -165,7 +168,7 @@ class MainMenuLayout extends Component {
                                         style={{cursor:"pointer"}}/>
                                 </Container>
                             </Grid.Column>
-                            <Grid.Column>
+                            <Grid.Column style={{paddingLeft:"0px"}}>
                                 <div
                                     onClick={document.onClick}
                                     style={{
@@ -186,8 +189,7 @@ class MainMenuLayout extends Component {
                                                 opacity:this.state.tagFilter.find(l=>l.id===tag.id).filter?1:0.2,
                                                 backgroundColor:tag.color,
                                                 margin:"0px 0.285714em 3px 0px",
-                                                color:"white"}}
-                                            onClick={()=>{console.log("LABEL")}}>
+                                                color:"white"}}>
                                             {tag.name}
                                         </Button>
                                     )
@@ -313,9 +315,11 @@ class MainMenuLayout extends Component {
                                             </Button>}
                                     >
                                         <div style={{textAlign:'center'}}>
-                                            {isTagUsed ?
-                                             <p><b> 이 태그는 아직 사용하는 문서가 있어 삭제할 수 없습니다! </b></p>:
-                                             <p><b> 태그를 삭제합니까? </b></p>
+                                            {(tag.id <= 4) ?
+                                                <p><b> 주요 태그는 삭제할 수 없습니다! </b></p>:
+                                                isTagUsed ?
+                                                <p><b> 이 태그는 아직 사용하는 문서가 있어 삭제할 수 없습니다! </b></p>:
+                                                <p><b> 태그를 삭제합니까? </b></p>
                                             }
                                             {!isTagUsed &&
                                                 <Button
@@ -386,12 +390,12 @@ class MainMenuLayout extends Component {
                                         autoComplete='off'
                                         value={this.state.newTagColor}
                                         onChange={this.handleInputChange}
-                                        error={!/^#[0-9A-F]{6}$/.test(this.state.newTagColor)}/>
+                                        error={!/^#[0-9A-Fa-f]{6}$/.test(this.state.newTagColor)}/>
                                     <Button
                                         size='small'
                                         type='submit'
                                         content="태그추가"
-                                        disabled={!(/^[\S\s]+$/.test(this.state.newTagName) && /^#[0-9A-F]{6}$/.test(this.state.newTagColor))}
+                                        disabled={!(/^[\S\s]+$/.test(this.state.newTagName) && /^#[0-9A-Fa-f]{6}$/.test(this.state.newTagColor))}
                                         onClick={this.addNewTag}/>
                                     </Form>
                             </Popup>
@@ -489,7 +493,8 @@ class MainMenuLayout extends Component {
                         overflow:'auto',
                         minHeight:"100px",
                         maxHeight:"550px",
-                        paddingTop:"0px",}}>
+                        paddingTop:"0px",
+                        paddingLeft:"15px",}}>
                     <List
                         divided
                         style={{
