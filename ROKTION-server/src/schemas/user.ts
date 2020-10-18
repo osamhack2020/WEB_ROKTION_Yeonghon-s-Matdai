@@ -52,7 +52,10 @@ const userSchema = new Schema({
     },
     tags: {
         type: Array,
-        default: []
+        default: [{
+            name: '중요',
+            color: '#FF1111'
+        }]
     },
     relatedDocs: {
         type: Object,
