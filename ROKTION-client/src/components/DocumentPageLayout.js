@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './Layout.css';
 import Clock from './Clock';
 import UserIcon from './UserIcon';
+import DocumentSettingIcon from './DocumentSettingIcon';
 import {
     Sidebar,
     Grid,
@@ -10,7 +11,7 @@ import {
     Divider,
     Icon,
     Pagination,
-  } from 'semantic-ui-react'
+  } from 'semantic-ui-react';
 
 class DocumentPageLayout extends Component{
     constructor(props){
@@ -39,30 +40,47 @@ class DocumentPageLayout extends Component{
                              maxWidth:"1000px",
                              overflow:"visible",}}>
                     <Grid className="mainScreenGrid">
-                        <Grid.Row columns='equal' 
-                                    style={{paddingTop: '1rem', paddingBottom: '0rem'}}>
-                            <Container as={Grid.Column} textAlign='left'>
+                        <Grid.Row
+                            columns='equal' 
+                            style={{paddingTop: '1rem', paddingBottom: '0rem'}}>
+                            <Container
+                                as={Grid.Column}
+                                textAlign='left'>
                                 <Clock/>
                             </Container>
-                            <Container as={Grid.Column} textAlign='right'>
-                                <UserIcon handleLogout={this.props.handleLogout}/>
+                            <Container
+                                as={Grid.Column}
+                                textAlign='right'
+                                style={{paddingRight:'8px'}}>
+                                <Icon.Group size='big' style={{marginRight:'10px'}}>
+                                    <Icon name='file outline'/>
+                                    <Icon corner name='search'/> 
+                                </Icon.Group>
+                                <DocumentSettingIcon/>
+                                {false && <Icon size='large' name='ellipsis horizontal' style={{marginRight:'10px'}}/>}
+                                <UserIcon size='big' handleLogout={this.props.handleLogout}/>
                             </Container>
                         </Grid.Row>
-                        <Grid.Row columns='equal'
-                                    style={{paddingTop: '1rem', paddingBottom: '0rem'}}>
-                            <Container as={Grid.Column}
-                                        className="title noLeftMargin"
-                                        textAlign='left'
-                                        style={{fontSize:40}}>
+                        <Grid.Row
+                            columns='equal'
+                            verticalAlign='bottom'
+                            style={{paddingTop: '0rem', paddingBottom: '0rem'}}>
+                            <Container
+                                as={Grid.Column}
+                                className="title noLeftMargin"
+                                textAlign='left'
+                                style={{fontSize:40, lineHeight:'40px'}}>
                                 <b>[{this.props.document.title}]</b>
                             </Container>
-                            <Container as={Grid.Column}
-                                        textAlign='right'
-                                        style={{top:'.9rem', fontSize:15}}>
-                                <b>지시 및 책임자:{this.props.document.admin}</b>
+                            <Container
+                                as={Grid.Column}
+                                textAlign='right'
+                                width={4}
+                                style={{top:'.4rem', fontSize:15}}>
+                                <b>지시 및 책임자: {this.props.document.admin}</b>
                             </Container>
                         </Grid.Row>
-                        <Grid.Row style={{paddingTop: '1rem', paddingBottom: '0rem'}}>
+                        <Grid.Row style={{paddingTop: '.5rem', paddingBottom: '0rem'}}>
                             <Container as={Grid.Column}
                                         className="progressBar noLeftMargin">
                                 <Progress percent={80}

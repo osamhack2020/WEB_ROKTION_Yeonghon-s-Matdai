@@ -240,14 +240,13 @@ class MainMenuLayout extends Component {
                                             }}
                                         />}
                                 style={{padding:"0px 5px 0px 5px",}}>
-                                    <Menu vertical secondary style={{width:"70px", textAlign:"center"}}>
+                                    <Menu vertical secondary style={{width:"75px", textAlign:"center"}}>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", margin:"0px"}}
                                             fitted='horizontally'
                                             name={this.state.tagSettingDocId === document.id ? '수정완료' : '태그수정'}
                                             docid={document.id}
                                             onClick={(_,data)=>{this.setTagSettingMode(data.docid)}}/>
-                                        <Divider style={{margin:"0px"}}/>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
                                             fitted='horizontally'
@@ -512,7 +511,7 @@ class MainMenuLayout extends Component {
                             marginRight:"30px",
                             minWidth:"45px",
                             maxWidth:"45px"}}>
-                        <UserIcon handleLogout={this.props.handleLogout}/>
+                        <UserIcon size='huge' handleLogout={this.props.handleLogout}/>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row style={{paddingTop:"0px", paddingBottom:"0px"}}>
