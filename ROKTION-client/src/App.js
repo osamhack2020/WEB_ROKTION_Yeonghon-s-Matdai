@@ -108,7 +108,7 @@ class App extends Component {
                 logged: true,
                 userInfo: userData,
             });
-            // this.getUserTags();
+            this.getUserTags();
             this.getDocumentList();
         })
         .catch(e => {
@@ -145,10 +145,19 @@ class App extends Component {
             console.error(e);
         })
     }
+
+    getUserTags = () => {
+        const tags = this.state.userInfo.tags;
+        for (let i = 0; i < tags.length; ++i) {
+            this.addNewTag(tags[i].name, tags[i].color);
+        }
+    }
     
     getDocumentList = () => {
         const relatedDocs = this.state.userInfo.relatedDocs;
-        for (let i = 0; i < relatedDocs.created.length; ++i) {
+        const docsAlready = this.state.documents.length; // 임시용
+        for (let i = docsAlready; i < relatedDocs.created.length + docsAlready; ++i) {
+            // 이거 비동기로 돌아가니, document 자리를 미리 만들어놓고 해야될듯
             fetch(`/api/docs/${relatedDocs.created[i].docId}`, {
                 method: 'GET'
             })
@@ -157,20 +166,20 @@ class App extends Component {
             })
             .then(docInfo => {
                 this.setState({
-                    documents: this.state.documents.concat({
+                    documents: this.state.documents[i] = {
                         title: docInfo.title,
                         admin: docInfo.author,
                         description: '',
                         alert: 10,
-                        id: 6,
+                        id: i,
                         dbId: docInfo._id,
                         // 태그 이제 Set으로 처리함
-                        // tags: relatedDocs.created[i].docTags,
-                        tags:new Set([11]),
-                        onClick: () => {this.setState({selectedDocumentId: this.state.documents.length})},
+                        // tags: new Set(relatedDocs.created[i].docTags),
+                        tags:new Set([11]), // 임시용
+                        onClick: () => {this.setState({selectedDocumentId: i})},
                         documentContent: [],
                         pagesLength: docInfo.contents.length,
-                    })
+                    }
                 }); 
             })
             .catch(e => {
