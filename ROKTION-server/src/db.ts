@@ -8,7 +8,13 @@ export class DB {
         const connect = () => {
             fs.promises.readFile( __dirname + '/../DBAUTH')
             .then(data => {
-                return 'mongodb+srv://' + data + uri;
+                let authData;
+                if (data[data.length - 1] == 0x0a) {
+                    authData = data.slice(0, -1);
+                } else {
+                    authData = data;
+                }
+                return 'mongodb+srv://' + authData + uri;
             })
             .then(uri => {
                 mongoose.connect(uri, {
