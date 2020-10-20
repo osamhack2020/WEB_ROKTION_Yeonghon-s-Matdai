@@ -19,8 +19,9 @@ class App extends Component {
                 name:null,
             },
             selectedDocumentId: -1,
-            tagsId:16,
+            tagsId:0,
             tags:[
+                /*
                 { name: "진행중", id: 0, color: "#016936" },
                 { name: "예정됨", id: 1, color: "#A0A0A0" },
                 { name: "완료됨", id: 2, color: "#EE82EE" },
@@ -37,8 +38,10 @@ class App extends Component {
                 { name: "주인없는태그", id: 13, color: "#000000"},
                 { name: "주인없는태그", id: 14, color: "#000000"},
                 { name: "주인없는태그", id: 15, color: "#000000"},
+                */
             ],
             documents:[
+                /*
                 {
                     title: "내가 진행중인진행중인진행중인진행중인진행중인진행중인진행중인 업무",
                     admin: "중위 XOX",
@@ -78,6 +81,7 @@ class App extends Component {
                 },
                 { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")},tags:new Set([11]),},
                 { title:"PlaceHolder", description:"Holding place :/", alert:0, id:5, onClick:()=>{console.log("POGGERS")},tags:new Set([11]),},
+                */
             ]
           };
     }
@@ -108,7 +112,8 @@ class App extends Component {
                 logged: true,
                 userInfo: userData,
             });
-            // this.getUserTags();
+            //console.log(this.state.documents);
+            this.getUserTags();
             this.getDocumentList();
         })
         .catch(e => {
@@ -145,38 +150,55 @@ class App extends Component {
             console.error(e);
         })
     }
+
+    getUserTags = () => {
+        console.log('Start getUserTags');
+        const tags = this.state.userInfo.tags;
+        for (let i = 0; i < tags.length; ++i) {
+            this.addNewTag(tags[i].name, tags[i].color);
+        }
+        console.log(this.state.tags)
+        console.log('End getUserTags');
+    }
     
     getDocumentList = () => {
+        console.log('Start getDocumentList');
         const relatedDocs = this.state.userInfo.relatedDocs;
-        for (let i = 0; i < relatedDocs.created.length; ++i) {
-            fetch(`/api/docs/${relatedDocs.created[i].docId}`, {
+        const docsAlready = 0; // 임시용
+        for (let i = docsAlready; i < relatedDocs.created.length + docsAlready; ++i) {
+            // 이거 비동기로 돌아감
+            fetch(`/api/docs/${relatedDocs.created[i - docsAlready].docId}`, {
                 method: 'GET'
             })
             .then(res => {
                 return res.json();
             })
             .then(docInfo => {
+                let newState = this.state.documents;
+                newState[i] = {
+                    title: docInfo.title,
+                    admin: docInfo.author,
+                    description: '',
+                    alert: this.state.documents.length,
+                    id: i,
+                    dbId: docInfo._id,
+                    // 태그 이제 Set으로 처리함
+                    tags: new Set(relatedDocs.created[i - docsAlready].docTags),
+                    // tags:new Set([11]), // 임시용
+                    onClick: () => {this.setState({selectedDocumentId: i})},
+                    documentContent: [],
+                    pagesLength: docInfo.contents.length,
+                }
                 this.setState({
-                    documents: this.state.documents.concat({
-                        title: docInfo.title,
-                        admin: docInfo.author,
-                        description: '',
-                        alert: 10,
-                        id: 6,
-                        dbId: docInfo._id,
-                        // 태그 이제 Set으로 처리함
-                        // tags: relatedDocs.created[i].docTags,
-                        tags:new Set([11]),
-                        onClick: () => {this.setState({selectedDocumentId: this.state.documents.length})},
-                        documentContent: [],
-                        pagesLength: docInfo.contents.length,
-                    })
+                    documents: newState
                 }); 
+                console.log(this.state.documents[i])
             })
             .catch(e => {
                 console.error(e);
             })
         }
+        console.log('End getDocumentList');
     }
 
     getPageContents = (document, idx) => {
@@ -188,8 +210,9 @@ class App extends Component {
                 return res.json();
             })
             .then(page => {
-                console.log(page);
-                let docs = [...this.state.documents];
+                //console.log(page);
+                let docs = this.state.documents;
+                //console.log(docs[idx]);
                 docs[idx].documentContent[i] = <DocumentPageContent content={page.content}/>;
                 this.setState({
                     documents: docs,
@@ -267,9 +290,9 @@ class App extends Component {
         else{
             let {selectedDocumentId, documents} = this.state;
             let selectedDocument = documents.find(doc => (doc.id === selectedDocumentId));
-            console.log(selectedDocument);
+            //console.log(selectedDocument);
             if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
-                this.getPageContents(selectedDocument, selectedDocumentId - 1);
+                this.getPageContents(selectedDocument, selectedDocumentId);
             }
             return (
                 selectedDocument !== undefined ?
@@ -286,7 +309,7 @@ class App extends Component {
                         addNewTag={this.addNewTag}
                         deleteTag={this.deleteTag}
                         toggleTagInDocument={this.toggleTagInDocument}
-                        documents={documents}
+                        documents={this.state.documents}
                         tags={this.state.tags}/>
                     </Transition>
             );

@@ -46,7 +46,7 @@ router.post('/login', (req: Request, res: Response) => {
     // 임시용!!!!!!시작
     console.log(req.body);
     req.body = {
-        id: '2076023051',
+        id: '1',
         pw: 'eotjd123'
     }
     // 임시용!!!!!!끝
