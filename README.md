@@ -38,7 +38,7 @@ MongoDB가 정상적으로 작동되면, ROKTION-server/src/db.ts의 uri 프로�
 개발중에는 MongoDB Atlas를 사용합니다. 관련 이슈로 #12 를 참고해주시기 바랍니다.
 
 ```bash
-$ npm i -g typescript
+$ npm i -g typescript react-scripts
 $ cd ROKTION-client && yarn install
 $ cd ../ROKTION-server && npm install
 ```
