@@ -104,7 +104,7 @@ router.get('/:id/:pg', (req: Request, res: Response) => {
     })
     .then(perm => {
         if (perm.permissionLevel >= 1) {
-            let pgId = perm.docInfo.contents[Number(req.params.pg)];
+            let pgId = perm.docInfo.contents[Number(req.params.pg)].pageId;
             //console.log(pgId);
             return DocModel.findById(pgId);
         } else {
