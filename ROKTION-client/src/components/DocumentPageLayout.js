@@ -29,6 +29,7 @@ class DocumentPageLayout extends Component{
                 documentId: nextProps.document.id,
             });
         }
+        return null;
       }
 
     render(){
