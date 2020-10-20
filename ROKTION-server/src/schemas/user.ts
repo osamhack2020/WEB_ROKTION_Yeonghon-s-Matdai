@@ -52,7 +52,28 @@ const userSchema = new Schema({
     },
     tags: {
         type: Array,
-        default: []
+        default: [
+            {
+                name: '진행',
+                color: '#89F5A4'
+            },
+            {
+                name: '예정',
+                color: '#F7DE88'
+            },
+            {
+                name: '완료',
+                color: '#96EDF5'
+            },
+            {
+                name: '문서',
+                color: '#A2ADF5'
+            },
+            {
+                name: '중요',
+                color: '#F76F78'
+            }
+        ]
     },
     relatedDocs: {
         type: Object,

@@ -23,14 +23,15 @@ class DocumentPageLayout extends Component{
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        if (nextProps.document.id !== prevState.documentId){
-            return({
+        if (nextProps.document.id !== prevState.documentId) {
+            return {
                 selectedPage: 0,
                 documentId: nextProps.document.id,
-            });
+            };
+        } else {
+            return {};
         }
-        return null;
-      }
+    }
 
     render(){
         return(
@@ -71,7 +72,7 @@ class DocumentPageLayout extends Component{
                                 className="title noLeftMargin"
                                 textAlign='left'
                                 style={{fontSize:40, lineHeight:'40px'}}>
-                                <b>[{this.props.document.title}]</b>
+                                <b>{this.props.document.title}</b>
                             </Container>
                             <Container
                                 as={Grid.Column}

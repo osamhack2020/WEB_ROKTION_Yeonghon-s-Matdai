@@ -1,15 +1,19 @@
 import { Document, Schema, model } from "mongoose";
 
 export interface Doc extends Document {
-    pageTitle: string;
     content: string;
-    linkedFiles: Array<[string, string]>;
+    linkedFiles: Array<{
+        fileName: string,
+        fileUrl: string
+    }>;
 }
 
 const docSchema = new Schema({
-    pageTitle: String,
     content: String,
-    linkedFiles: Array
+    linkedFiles: {
+        type: Array,
+        default: [],
+    }
 });
 
 export const DocModel = model<Doc>('Doc', docSchema);

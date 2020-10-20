@@ -134,7 +134,7 @@ class MainMenuLayout extends Component {
 
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
-    render(){
+    render() {
         const tagFilteredList = this.props.documents.filter(
             document => (
                 [...document.tags].some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document

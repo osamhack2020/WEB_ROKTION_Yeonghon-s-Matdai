@@ -15,7 +15,7 @@ class LoginPage extends Component {
     }
 
     handleChange = (e,data) => {
-        console.log(e.target.name, e.target.value)
+        //console.log(e.target.name, e.target.value)
         this.setState({
             [e.target.name]:data.value,
         });
@@ -31,7 +31,7 @@ class LoginPage extends Component {
                     transform: "translate(-50%,-50%)",}}>
                 <div style={{textAlign:"center", fontSize:"25px"}}>
                     <b>ROKTION 국군정보공유체계</b>
-                    <p>(임시) ID에 2076023051 치고 접속하면 됨</p>
+                    <p>(임시) ID에 1 치고 접속하면 됨</p>
                 </div>
                 <Segment style={{
                     maxWidth:"400px",
