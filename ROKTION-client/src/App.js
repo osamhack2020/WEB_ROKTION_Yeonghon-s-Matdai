@@ -175,6 +175,8 @@ class App extends Component {
             })
             .then(docInfo => {
                 let newState = this.state.documents;
+                let newTags = relatedDocs.created[i - docsAlready].docTags;
+                newTags.push(docInfo.status);
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
@@ -183,7 +185,7 @@ class App extends Component {
                     id: i,
                     dbId: docInfo._id,
                     // 태그 이제 Set으로 처리함
-                    tags: new Set(relatedDocs.created[i - docsAlready].docTags),
+                    tags: new Set(newTags),
                     // tags:new Set([11]), // 임시용
                     onClick: () => {this.setState({selectedDocumentId: i})},
                     documentContent: [],
@@ -289,7 +291,7 @@ class App extends Component {
         }
         else{
             let {selectedDocumentId, documents} = this.state;
-            let selectedDocument = documents.find(doc => (doc.id === selectedDocumentId));
+            let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
             //console.log(selectedDocument);
             if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
                 this.getPageContents(selectedDocument, selectedDocumentId);

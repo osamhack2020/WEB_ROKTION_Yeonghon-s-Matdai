@@ -3,9 +3,9 @@ import { Document, Schema, model, Types } from "mongoose";
 // 공유시 기본태그로 달려야돼서 필요함
 export enum DocStatus {
     doing,
-    document,
     todo,
-    done
+    done,
+    document,
 }
 
 export interface DocInfo extends Document {
