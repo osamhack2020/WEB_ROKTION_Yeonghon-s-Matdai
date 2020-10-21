@@ -38,7 +38,7 @@ MongoDB가 정상적으로 작동되면, ROKTION-server/src/db.ts의 uri 프로�
 개발중에는 MongoDB Atlas를 사용합니다. 관련 이슈로 #12 를 참고해주시기 바랍니다.
 
 ```bash
-$ npm i -g typescript react-scripts
+$ npm i -g typescript react-scripts yarn
 $ cd ROKTION-client && yarn install
 $ cd ../ROKTION-server && npm install
 ```
@@ -46,10 +46,13 @@ $ cd ../ROKTION-server && npm install
 # 프로젝트 사용법 (Getting Started)
 
 <!--아무거나 적당히 사용법 작성-->
+1. ROKTION-client/.env 파일의 HOST를 사용하는 주소에 맞게 수정합니다.
+2. /etc/hosts에서 0.0.0.0 \<HOSTNAME> 을 추가합니다.
+
 ```bash
-$ npm run dev
+$ cd /ROKTION-server
+$ sudo npm run dev
 ```
-이후 http://(ServerIP):3000/ 으로 접속하면 사용 가능합니다.
 
 # 팀 정보 (Team Infomation)
 
