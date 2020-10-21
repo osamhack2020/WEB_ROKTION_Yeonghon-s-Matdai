@@ -17,10 +17,7 @@ TODO: 메인화면 내용구성 Props로 가져올 수 있게 하기
 TODO: 메뉴 바 Label 위치조정
 */ 
 
-// Accordion부분 map이나 foreach로 간결하게 정리하기
 // Accordion Title 부분 스타일 맞추기
-// Accordion Title에 하위 문서의 alert 총합 알려주기
-// 태그에 해당되는 내용이 없는 경우 Placeholder 넣기
 
 const DocumentPageSidebar = (props) => {
   const [visible, setVisible] = React.useState(false)
@@ -31,52 +28,57 @@ const DocumentPageSidebar = (props) => {
   documents.forEach(data => (totalAlerts += data.alert));
 
   const mainTagList = ['진행','예정','완료','문서','중요'].map(
-    (tag, idx) => (
-    <>
-      <Accordion.Title
-        active={activeIndex === idx}
-        index = {idx}
-        onClick = {()=>{setActiveIndex(activeIndex === idx ? -1 : idx);}}>
-        <Icon name='dropdown'/>
-        {tag}
-      </Accordion.Title>
-      <Accordion.Content
-        active={activeIndex===idx}
-        style={{paddingTop:'0px', paddingBottom:'0px'}}>
-      <Menu size='massive' fluid vertical secondary>
-        {documents.map(
-          data => (
-            data.tags.has(idx) &&
-            <Menu.Item
-              key={data.id}
-              style={{paddingTop:"0px", paddingBottom:"0px", marginTop:"15px"}}
-              onClick={()=>{data.onClick(); setVisible(false);}}>
-              <Grid>
-                <Grid.Row
-                  columns='equal'
-                  verticalAlign='middle'
-                  style={{paddingTop:'5px', paddingBottom:"5px", minHeight:"32px"}}>
-                  <Grid.Column
-                    textAlign='left'
-                    style={{lineHeight:'17px', paddingRight:'9px'}}>
-                      {data.title}
-                  </Grid.Column>
-                  <Grid.Column
-                    width={1}
-                    textAlign='center'
-                    style={{padding:'0px 49px 0px 0px'}}>
-                    {data.alert !== 0 && <Label size='mini' color='red'> {data.alert} </Label>}   
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-            </Menu.Item>
-          )
-        )
-        }
-      </Menu>
-      </Accordion.Content>
-    </>
-    )
+    (tag, idx) => {
+      return(
+        <>
+          <Accordion.Title
+            key={tag+'title'}
+            active={activeIndex === idx}
+            index = {idx}
+            style={{color:'grey', fontSize:'18px'}}
+            onClick = {()=>{setActiveIndex(activeIndex === idx ? -1 : idx);}}>
+            <Icon name='dropdown'/>
+            {tag}
+          </Accordion.Title>
+          <Accordion.Content
+            key={tag+'content'}
+            active={activeIndex===idx}
+            style={{paddingTop:'0px', paddingBottom:'0px'}}>
+          <Menu size='massive' fluid vertical secondary>
+            {documents.map(
+              data => (
+                data.tags.has(idx) &&
+                <Menu.Item
+                  key={data.id}
+                  style={{paddingTop:"0px", paddingBottom:"0px", marginTop:"15px"}}
+                  onClick={()=>{data.onClick(); setVisible(false);}}>
+                  <Grid>
+                    <Grid.Row
+                      columns='equal'
+                      verticalAlign='middle'
+                      style={{paddingTop:'5px', paddingBottom:"5px", minHeight:"32px"}}>
+                      <Grid.Column
+                        textAlign='left'
+                        style={{lineHeight:'17px', paddingRight:'9px'}}>
+                          {data.title}
+                      </Grid.Column>
+                      <Grid.Column
+                        width={1}
+                        textAlign='center'
+                        style={{padding:'0px 49px 0px 0px'}}>
+                        {data.alert !== 0 && <Label size='mini' color='red'> {data.alert} </Label>}   
+                      </Grid.Column>
+                    </Grid.Row>
+                  </Grid>
+                </Menu.Item>
+              )
+            )
+            }
+          </Menu>
+          </Accordion.Content>
+        </>
+      )
+    }
   )
   return (
     <>
