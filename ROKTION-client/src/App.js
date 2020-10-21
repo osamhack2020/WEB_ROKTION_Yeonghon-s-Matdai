@@ -175,6 +175,8 @@ class App extends Component {
             })
             .then(docInfo => {
                 let newState = this.state.documents;
+                let newTags = relatedDocs.created[i - docsAlready].docTags;
+                newTags.push(docInfo.status);
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
@@ -183,7 +185,7 @@ class App extends Component {
                     id: i,
                     dbId: docInfo._id,
                     // 태그 이제 Set으로 처리함
-                    tags: new Set(relatedDocs.created[i - docsAlready].docTags),
+                    tags: new Set(newTags),
                     // tags:new Set([11]), // 임시용
                     onClick: () => {this.setState({selectedDocumentId: i})},
                     documentContent: [],
@@ -224,7 +226,7 @@ class App extends Component {
         }
     }
         
-    addNewTag = (name, color) => {
+    addNewTag = (name, color, isNew = false) => {
         const tags = this.state.tags;
         const tagsId = this.state.tagsId;
         this.setState({
@@ -235,18 +237,46 @@ class App extends Component {
             }),
             tagsId: tagsId+1,
         })
+        
+        if (isNew) {
+        /* body 비는 문제 해결전까지 일단 만들어만 둔다
+            // 서버에 추가한 태그를 보낸다
+            fetch(`/${this.state.userInfo.tagId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    tags: {
+                        action: 'add',
+                        name: name,
+                        color: color,
+                    }
+                })
+            })
+        */
+        }
     }
 
     deleteTag = (id) => {
+        // 0번부터 3번까지는 기본태그기 때문에 삭제 불가능하게 해야됨
         let tags = this.state.tags;
-        const tag = tags.find(tag => (tag.id === id));
-        const idx = tags.indexOf(tag);
-        tags.splice(idx,1);
+        const idx = tags.findIndex(tag => (tag.id === id));
+        tags.splice(idx, 1);
         if (idx > -1){
             this.setState({
                 tags:tags,
             })
         }
+        /* body 비는 문제 해결전까지 일단 만들어만 둔다
+        // 서버에 삭제한 태그의 index를 보낸다.
+        fetch(`/${this.state.userInfo.tagId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                tags: {
+                    action: 'del',
+                    idx: idx
+                }
+            })
+        })
+        */
     }
 
     toggleTagInDocument = (docid, tagid) => {
@@ -289,7 +319,7 @@ class App extends Component {
         }
         else{
             let {selectedDocumentId, documents} = this.state;
-            let selectedDocument = documents.find(doc => (doc.id === selectedDocumentId));
+            let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
             //console.log(selectedDocument);
             if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
                 this.getPageContents(selectedDocument, selectedDocumentId);

@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import { UserModel } from "../schemas/user";
+import { UserModel, Tag } from "../schemas/user";
 import crypto from 'crypto';
 
 const router = express.Router();
@@ -118,14 +118,40 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     getTagId(req.params.id)
     .then(n => {
         if (req.body.passwd) {
+            // 패스워드 변경시
             crypto.randomBytes(64, (err, buf) => {
                 crypto.pbkdf2(req.body.passwd, buf.toString('base64'), 1231, 64, 'sha512', (err, key) => {
                     req.body.passwd = key.toString('base64');
                 });
                 req.body.passwdSalt = buf.toString('base64');
             });
+            return UserModel.update({ tagId: n }, {...req.body});
         }
-        return UserModel.update({ tagId: n }, {...req.body})
+        if (req.body.tags) {
+            // 태그 추가 및 제거시 <- 태그와 같이오는 action 문자열로 동작
+            if (req.body.tags.action === 'add') {
+                // 태그 추가
+                return UserModel.findOne({ tagId: n })
+                .then(usr => {
+                    let newTag: Tag = {
+                        name: req.body.tags.name,
+                        color: req.body.tags.color,
+                    }
+                    usr?.tags.push(newTag);
+                    return usr?.save();
+                })
+                .catch(e => e);
+            } else if (req.body.tags.action === 'del') {
+                // 태그 삭제
+                return UserModel.findOne({ tagId: n })
+                .then(usr => {
+                    usr?.tags.splice(req.body.tags.idx, 1);
+                    return usr?.save();
+                })
+                .catch(e => e);
+            }
+        }
+        return new Error(`Invalid PUT Request on ${req.params.id}`);
     })
     .then(() => res.status(200).end())
     .catch(e => {
