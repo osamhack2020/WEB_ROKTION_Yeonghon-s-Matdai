@@ -116,7 +116,7 @@ class MainMenuLayout extends Component {
         const color = this.state.newTagColor;
         if (/^[\S\s]+$/.test(name) && 
             /^#[0-9A-Fa-f]{6}$/.test(color)){
-            this.props.addNewTag(name,color);
+            this.props.addNewTag(name, color, true);
             this.setState({
                 newTagName:"",
                 newTagColor:"",
