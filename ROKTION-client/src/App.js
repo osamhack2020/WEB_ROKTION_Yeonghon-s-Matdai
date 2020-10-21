@@ -89,6 +89,7 @@ class App extends Component {
     onLogin = (id, pw) => {
         fetch('/api/user/login', {
             method: 'POST',
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 id: id,
                 pw: pw
@@ -239,10 +240,10 @@ class App extends Component {
         })
         
         if (isNew) {
-        /* body 비는 문제 해결전까지 일단 만들어만 둔다
             // 서버에 추가한 태그를 보낸다
-            fetch(`/${this.state.userInfo.tagId}`, {
+            fetch(`/api/user/${this.state.userInfo.tagId}`, {
                 method: 'PUT',
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     tags: {
                         action: 'add',
@@ -250,8 +251,7 @@ class App extends Component {
                         color: color,
                     }
                 })
-            })
-        */
+            });
         }
     }
 
@@ -265,18 +265,18 @@ class App extends Component {
                 tags:tags,
             })
         }
-        /* body 비는 문제 해결전까지 일단 만들어만 둔다
+
         // 서버에 삭제한 태그의 index를 보낸다.
-        fetch(`/${this.state.userInfo.tagId}`, {
+        fetch(`/api/user/${this.state.userInfo.tagId}`, {
             method: 'PUT',
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 tags: {
                     action: 'del',
                     idx: idx
                 }
             })
-        })
-        */
+        });
     }
 
     toggleTagInDocument = (docid, tagid) => {
