@@ -20,69 +20,8 @@ class App extends Component {
             },
             selectedDocumentId: -1,
             tagsId:0,
-            tags:[
-                /*
-                { name: "진행중", id: 0, color: "#016936" },
-                { name: "예정됨", id: 1, color: "#A0A0A0" },
-                { name: "완료됨", id: 2, color: "#EE82EE" },
-                { name: "문서", id: 3, color: "#A52A2A" },
-                { name: "중요", id: 4, color: "#D4B802" },
-                { name: "인수인계", id: 5, color: "#008080" },
-                { name: "상황병", id: 6, color: "#FF1493" },
-                { name: "중대행정병", id: 7, color: "#B03060" },
-                { name: "지원과", id: 8, color: "#B413EC" },
-                { name: "간부", id: 9, color: "#32CD32" },
-                { name: "징계위원회", id: 10, color: "#0E6EB8" },
-                { name: "분대장", id: 11, color: "#FE9A76" },
-                { name: "주인없는태그", id: 12, color: "#000000"},
-                { name: "주인없는태그", id: 13, color: "#000000"},
-                { name: "주인없는태그", id: 14, color: "#000000"},
-                { name: "주인없는태그", id: 15, color: "#000000"},
-                */
-            ],
-            documents:[
-                /*
-                {
-                    title: "내가 진행중인진행중인진행중인진행중인진행중인진행중인진행중인 업무",
-                    admin: "중위 XOX",
-                    description: "지이이인행중인 업무들",
-                    alert: 15,
-                    id: 1,
-                    onClick: ()=>{this.setState({selectedDocumentId:1});},
-                    documentContent: [<DocumentPageContent content="That is such a PogU moment bro"/>,
-                                      <DocumentPageContent content="POG"/>,
-                                      <DocumentPageContent content="POGPOG"/>,
-                                      <DocumentPageContent content="POGPOGPOG"/>,
-                                      <DocumentPageContent content="POGPOGPOGPOG"/>,
-                                      <DocumentPageContent content="POGPOGPOGPOGPOG"/>,
-                                      <DocumentPageContent content="POGPOGPOGPOGPOGPOG"/>,
-                                      <DocumentPageContent content="POGPOGPOGPOGPOGPOGPOG"/>,],
-                    tags:new Set([0,4,5,6,7,8,9,10,11,12,13]),
-                },
-                {
-                    title: "예정된 업무",
-                    admin: "대위 OXO",
-                    description: "군사경찰대대에서 곧 해야할 것들",
-                    alert: 4,
-                    id: 2,
-                    onClick: ()=>{this.setState({selectedDocumentId:2});},
-                    documentContent: [<DocumentPageContent content="That's WeirdChamp bro WeirdChamp"/>],
-                    tags: new Set([1,3,6,7,8,9,10,11,12]),
-                },
-                {
-                    title: "종료된 업무",
-                    admin: "상병 XOX",
-                    description: "끄으으읕난 것들",
-                    alert: 0,
-                    id: 3,
-                    onClick: ()=>{this.setState({selectedDocumentId:3});},
-                    documentContent: [<DocumentPageContent content="S OMEGALUL BAD"/>],
-                    tags: new Set([2,7,8]),
-                },
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:4, onClick:()=>{console.log("POGGERS")},tags:new Set([11]),},
-                { title:"PlaceHolder", description:"Holding place :/", alert:0, id:5, onClick:()=>{console.log("POGGERS")},tags:new Set([11]),},
-                */
-            ]
+            tags:[],
+            documents:[]
           };
     }
 
@@ -256,7 +195,10 @@ class App extends Component {
     }
 
     deleteTag = (id) => {
-        // 0번부터 3번까지는 기본태그기 때문에 삭제 불가능하게 해야됨
+        // 0번부터 4번까지는 기본태그기 때문에 삭제 불가능하게 해야됨
+        // MainMenuLayout에서 일차적으로 방지하긴 함
+        if(id <= 4) return;
+
         let tags = this.state.tags;
         const idx = tags.findIndex(tag => (tag.id === id));
         tags.splice(idx, 1);
@@ -330,7 +272,8 @@ class App extends Component {
                         <DocumentPage
                         handleLogout={this.onLogout}
                         information={this.state}
-                        toMainMenu={()=>{this.setState({selectedDocumentId:-1}); console.log("문서목록!")}}/>
+                        toMainMenu={()=>{this.setState({selectedDocumentId:-1});}}
+                        style={{}}/>
                     </Transition>:
                     <Transition transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
                         <MainMenuLayout
