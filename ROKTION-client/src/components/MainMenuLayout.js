@@ -240,11 +240,23 @@ class MainMenuLayout extends Component {
                                             }}
                                         />}
                                 style={{padding:"0px 5px 0px 5px",}}>
-                                    <Menu vertical secondary style={{width:"75px", textAlign:"center"}}>
+                                    <Menu vertical secondary style={{width:"90px", textAlign:"center"}}>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", margin:"0px"}}
                                             fitted='horizontally'
-                                            name={this.state.tagSettingDocId === document.id ? '수정완료' : '태그수정'}
+                                            name='제목변경'
+                                            docid={document.id}
+                                            onClick={()=>{console.log("제목변경")}}/>
+                                        <Menu.Item
+                                            style={{padding:"8px 0px 8px 0px", margin:"0px"}}
+                                            fitted='horizontally'
+                                            name='아이콘변경'
+                                            docid={document.id}
+                                            onClick={()=>{console.log("아이콘변경")}}/>
+                                        <Menu.Item
+                                            style={{padding:"8px 0px 8px 0px", margin:"0px"}}
+                                            fitted='horizontally'
+                                            name={this.state.tagSettingDocId === document.id ? '변경완료' : '태그변경'}
                                             docid={document.id}
                                             onClick={(_,data)=>{this.setTagSettingMode(data.docid)}}/>
                                         <Menu.Item
@@ -462,10 +474,15 @@ class MainMenuLayout extends Component {
 
         return(
             <>
-            <div style={{padding:'10px 0px 0px 20px',
-                                width:"90%",
-                                minWidth:"500px",
-                                maxWidth:"1000px"}}>
+            <div style={{
+                paddingTop:"10px",
+                position: 'absolute',
+                left:"50%",
+                transform: "translate(-50%,0%)",
+                width:"90%",
+                minWidth:"500px",
+                maxWidth:"1000px"
+                }}>
             <Grid>
                 <Grid.Row
                     columns='equal'
