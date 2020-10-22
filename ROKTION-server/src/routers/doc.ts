@@ -173,12 +173,15 @@ router.put('/:id', (req: Request, res: Response) => {
         if (perm.permissionLevel >= 3) {
             let toUpdate: any = {}
             if (req.body.author && perm.permissionLevel >= 4) {
+                // 관리자 이관
                 toUpdate.author = req.body.author;
             }
             if (req.body.title) {
+                // 제목 변경
                 toUpdate.title = req.body.title;
             }
             if (req.body.shareOption) {
+                // 공유 옵션 변경
                 toUpdate.shareOption = req.body.shareOption;
             }
             return perm.docInfo.update({
@@ -251,10 +254,9 @@ function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null)
             docInfo: docInfo!,
             permissionLevel: PermissionLevel.owner,
         });
-        /* 세션이 안되는 동안은 잠시 죽여놓기
         if (docInfo !== undefined && docInfo !== null && dbId !== undefined && dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
-            if (docInfo.author == dbId) {
+            if (docInfo.author === dbId) {
                 pl = PermissionLevel.owner;
             } else if (docInfo.shareOption.director.indexOf(dbId) > 0) {
                 pl = PermissionLevel.director;
@@ -272,7 +274,6 @@ function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null)
         } else {
             reject(new Error('Can\'t check permission'));
         }
-        */
     });
 }
 
