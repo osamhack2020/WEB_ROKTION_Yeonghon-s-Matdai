@@ -6,8 +6,7 @@ const router = express.Router();
 
 // 로그오프
 router.get('/logoff', (req: Request, res: Response) => {
-    // console.log(req.session);
-    // VSO 환경에선 쿠키/세션도 안되는듯
+    //console.log(req.session);
     if (req.session?.dbId) {
         req.session.destroy(err => {
             if (err) {
@@ -63,6 +62,11 @@ router.post('/login', (req: Request, res: Response) => {
                     req.session!.dbId = usr._id;
                     req.session!.tagId = usr.tagId;
                     //console.log(req.session);
+                    req.session?.save(err => {
+                        if (err) {
+                            throw new Error(err);
+                        }
+                    });
                     console.log(usr.tagId, usr._id);
                     usr.recentLogin = new Date();
                     return usr.save();
