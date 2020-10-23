@@ -6,6 +6,15 @@ class DocumentPageContent extends Component {
         super(props);
         this.state = {
             uploadTimer: -1,
+            isLoaded: false,
+        }
+        if (this.props.pageData !== undefined) {
+            this.setState({
+                isLoaded: true
+            });
+            this.props.setSavedStatus(5);
+        } else {
+            this.props.setSavedStatus(4);
         }
     }
 
@@ -16,6 +25,7 @@ class DocumentPageContent extends Component {
         const uploadWaitTime = 5000;
 
         // 여기서 내용이 수정될때마다 서버에 업로드한다.
+        this.props.setSavedStatus(1);
 
         if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
         // 수정이 정지되고 5초 뒤에 저장되게 한다.
@@ -27,8 +37,9 @@ class DocumentPageContent extends Component {
     }
 
     updateContent = (content) => {
-        console.log('Update Content');
-        fetch(`/api/docs/${this.props.myOpt.dbId}/${this.props.myOpt.page}`, {
+        //console.log('Update Content');
+        this.props.setSavedStatus(2);
+        fetch(`/api/docs/${this.props.pageData.dbId}/${this.props.pageData.page}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -36,23 +47,31 @@ class DocumentPageContent extends Component {
             })
         })
         .then(() => {
-            this.props.myOpt.updateLocalPageContents(this.props.myOpt.idx, this.props.myOpt.page, content);
+            this.props.pageData.updateLocalPageContents(this.props.pageData.idx, this.props.pageData.page, content);
             /*
             return fetch(`/api/docs/${this.props.contentInfo.dbId}/${this.props.contentInfo.page}`, {
                 method: 'GET',
             })*/
+            this.props.setSavedStatus(0);
         })
         .catch(e => {
+            this.props.setSavedStatus(3);
             console.error(e);
         })
     }
 
     render() {
+        if (!this.state.isLoaded && this.props.pageData !== undefined) {
+            this.setState({
+                isLoaded: true
+            })
+            this.props.setSavedStatus(5);
+        }
         return (
             <Form>
                 <TextArea
                     rows='30'
-                    defaultValue={this.props.myOpt?.content}
+                    defaultValue={this.props.pageData?.content}
                     onChange={this.onContentChanged}
                 />
             </Form>

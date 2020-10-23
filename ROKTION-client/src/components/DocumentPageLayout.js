@@ -20,6 +20,7 @@ class DocumentPageLayout extends Component{
         this.state = {
             selectedPage: 0,
             documentId: -1,
+            savedStatusText: '?' 
         };
     }
 
@@ -32,6 +33,38 @@ class DocumentPageLayout extends Component{
         } else {
             return {};
         }
+    }
+
+    /**
+     * 0: 저장완료, 1: 작성중, 2: 저장중, 3: 저장오류, 4: 가져오는중, 5: 열람중(다 가져옴)
+     */
+    setSavedStatus = (status) => {
+        let outStatus = '가져오는중';
+        switch(status) {
+            case 0:
+                outStatus = '저장완료';
+                break;
+            case 1:
+                outStatus = '작성중';
+                break;
+            case 2:
+                outStatus = '저장중';
+                break;
+            case 3:
+                outStatus = '저장오류';
+                break;
+            case 4: 
+                outStatus = '가져오는중';
+                break;
+            case 5: 
+                outStatus = '열람중';
+                break;
+            default:
+                outStatus = '?';
+        }
+        this.setState({
+            savedStatusText: outStatus
+        })
     }
 
     render(){
@@ -71,9 +104,10 @@ class DocumentPageLayout extends Component{
                             <Container
                                 as={Grid.Column}
                                 className="title noLeftMargin"
-                                textAlign='left'
-                                style={{fontSize:40, lineHeight:'40px'}}>
-                                <b>{this.props.document.title}</b>
+                                textAlign='left'>
+                                <b style={{fontSize:40, lineHeight:'40px'}}>
+                                {this.props.document.title}</b>
+                                {this.state.savedStatusText}
                             </Container>
                             <Container
                                 as={Grid.Column}
@@ -98,7 +132,10 @@ class DocumentPageLayout extends Component{
                             <Container as={Grid.Column}
                                         className="contentContainer noLeftMargin"
                                         textAlign='left'>
-                                <DocumentPageContent myOpt={this.props.document.documentContent[this.state.selectedPage]}></DocumentPageContent>
+                                <DocumentPageContent 
+                                    pageData={this.props.document.documentContent[this.state.selectedPage]} 
+                                    setSavedStatus={this.setSavedStatus}>
+                                </DocumentPageContent>
                             </Container>
                         </Grid.Row>
                         <Grid.Row>
