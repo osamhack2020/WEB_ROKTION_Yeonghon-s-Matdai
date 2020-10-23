@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import DocumentPage from './components/DocumentPage';
-import DocumentPageContent from './components/DocumentPageContent';
 import MainMenuLayout from './components/MainMenuLayout';
 import LoginPage from './components/LoginPage';
 import {
@@ -19,7 +18,6 @@ class App extends Component {
                 name:null,
             },
             selectedDocumentId: -1,
-            tagsId:0,
             tags:[],
             documents:[]
           };
@@ -84,7 +82,6 @@ class App extends Component {
                     name:null,
                 },
                 documents: [],
-                tagsId:0,
                 tags:[],
             });
         })
@@ -157,27 +154,41 @@ class App extends Component {
                 //console.log(page);
                 let docs = this.state.documents;
                 //console.log(docs[idx]);
-                docs[idx].documentContent[i] = <DocumentPageContent content={page.content}/>;
+                docs[idx].documentContent[i] = 
+                {
+                    content: page.content,
+                    updateLocalPageContents: this.updateLocalPageContents,
+                    idx: idx,
+                    page: i,
+                    dbId: document.dbId,
+                };
                 this.setState({
                     documents: docs,
-                })
+                });
             })
             .catch(e => {
                 console.error(e);
             })
         }
     }
+
+    updateLocalPageContents = (idx, page, content) => {
+        let docs = this.state.documents;
+        //console.log(docs[idx]);
+        docs[idx].documentContent[page].content = content;
+        this.setState({
+            documents: docs,
+        })
+    }
         
     addNewTag = (name, color, isNew = false) => {
         const tags = this.state.tags;
-        const tagsId = this.state.tagsId;
         this.setState({
             tags: tags.concat({
                 name: name,
-                id: this.state.tagsId,
+                id: tags.length,
                 color: color,
             }),
-            tagsId: tagsId+1,
         })
         
         if (isNew) {

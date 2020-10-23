@@ -12,6 +12,7 @@ import {
     Icon,
     Pagination,
   } from 'semantic-ui-react';
+import DocumentPageContent from './DocumentPageContent';
 
 class DocumentPageLayout extends Component{
     constructor(props){
@@ -97,7 +98,7 @@ class DocumentPageLayout extends Component{
                             <Container as={Grid.Column}
                                         className="contentContainer noLeftMargin"
                                         textAlign='left'>
-                                {this.props.document.documentContent[this.state.selectedPage]}
+                                <DocumentPageContent myOpt={this.props.document.documentContent[this.state.selectedPage]}></DocumentPageContent>
                             </Container>
                         </Grid.Row>
                         <Grid.Row>
