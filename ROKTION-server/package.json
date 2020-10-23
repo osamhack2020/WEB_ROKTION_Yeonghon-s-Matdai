@@ -11,6 +11,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^23.0.0",
+    "@ckeditor/ckeditor5-react": "^2.1.0",
     "@types/express": "^4.17.8",
     "@types/express-session": "^1.17.0",
     "@types/mongoose": "^5.7.36",
