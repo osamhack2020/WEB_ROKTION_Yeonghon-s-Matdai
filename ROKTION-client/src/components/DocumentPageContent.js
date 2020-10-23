@@ -7,14 +7,27 @@ class DocumentPageContent extends Component {
         this.state = {
             uploadTimer: -1,
             isLoaded: false,
+            isSaved: false,
+            content: '',
         }
         if (this.props.pageData !== undefined) {
             this.setState({
-                isLoaded: true
+                isLoaded: true,
+                isSaved: true,
             });
             this.props.setSavedStatus(5);
         } else {
             this.props.setSavedStatus(4);
+        }
+    }
+
+    onSaveKeyDown = (e) => {
+        if (this.state.isLoaded && !this.state.isSaved) {
+            if (e.ctrlKey) {
+                console.log('Force save');
+                if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
+                this.updateContent();
+            }
         }
     }
 
@@ -26,6 +39,10 @@ class DocumentPageContent extends Component {
 
         // 여기서 내용이 수정될때마다 서버에 업로드한다.
         this.props.setSavedStatus(1);
+        this.setState({
+            isSaved: false,
+            content: data.value,
+        });
 
         if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
         // 수정이 정지되고 5초 뒤에 저장되게 한다.
@@ -36,23 +53,26 @@ class DocumentPageContent extends Component {
         // 그리고 내용을 다시 GET 하는 타이밍은 언제로 해야될까
     }
 
-    updateContent = (content) => {
+    updateContent = () => {
         //console.log('Update Content');
         this.props.setSavedStatus(2);
         fetch(`/api/docs/${this.props.pageData.dbId}/${this.props.pageData.page}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                content: content
+                content: this.state.content
             })
         })
         .then(() => {
-            this.props.pageData.updateLocalPageContents(this.props.pageData.idx, this.props.pageData.page, content);
+            this.props.pageData.updateLocalPageContents(this.props.pageData.idx, this.props.pageData.page, this.state.content);
             /*
             return fetch(`/api/docs/${this.props.contentInfo.dbId}/${this.props.contentInfo.page}`, {
                 method: 'GET',
             })*/
             this.props.setSavedStatus(0);
+            this.setState({
+                isSaved: true
+            });
         })
         .catch(e => {
             this.props.setSavedStatus(3);
@@ -73,6 +93,7 @@ class DocumentPageContent extends Component {
                     rows='30'
                     defaultValue={this.props.pageData?.content}
                     onChange={this.onContentChanged}
+                    onKeyDown={this.onSaveKeyDown}
                 />
             </Form>
         );
