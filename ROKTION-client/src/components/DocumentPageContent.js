@@ -7,6 +7,28 @@ class DocumentPageContent extends Component {
         super(props);
         this.state = {
             uploadTimer: -1,
+            isLoaded: false,
+            isSaved: false,
+            content: '',
+        }
+        if (this.props.pageData !== undefined) {
+            this.setState({
+                isLoaded: true,
+                isSaved: true,
+            });
+            this.props.setSavedStatus(5);
+        } else {
+            this.props.setSavedStatus(4);
+        }
+    }
+
+    onSaveKeyDown = (e) => {
+        if (this.state.isLoaded && !this.state.isSaved) {
+            if (e.ctrlKey) {
+                console.log('Force save');
+                if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
+                this.updateContent();
+            }
         }
     }
 
@@ -16,6 +38,11 @@ class DocumentPageContent extends Component {
         const uploadWaitTime = 5000;
 
         // 여기서 내용이 수정될때마다 서버에 업로드한다.
+        this.props.setSavedStatus(1);
+        this.setState({
+            isSaved: false,
+            content: data.value,
+        });
 
         if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
         // 수정이 정지되고 5초 뒤에 저장되게 한다.
@@ -31,28 +58,40 @@ class DocumentPageContent extends Component {
 
     }
 
-    updateContent = (content) => {
-        console.log('Update Content');
-        fetch(`/api/docs/${this.props.myOpt.dbId}/${this.props.myOpt.page}`, {
+    updateContent = () => {
+        //console.log('Update Content');
+        this.props.setSavedStatus(2);
+        fetch(`/api/docs/${this.props.pageData.dbId}/${this.props.pageData.page}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                content: content
+                content: this.state.content
             })
         })
         .then(() => {
-            this.props.myOpt.updateLocalPageContents(this.props.myOpt.idx, this.props.myOpt.page, content);
+            this.props.pageData.updateLocalPageContents(this.props.pageData.idx, this.props.pageData.page, this.state.content);
             /*
             return fetch(`/api/docs/${this.props.contentInfo.dbId}/${this.props.contentInfo.page}`, {
                 method: 'GET',
             })*/
+            this.props.setSavedStatus(0);
+            this.setState({
+                isSaved: true
+            });
         })
         .catch(e => {
+            this.props.setSavedStatus(3);
             console.error(e);
         })
     }
 
     render() {
+        if (!this.state.isLoaded && this.props.pageData !== undefined) {
+            this.setState({
+                isLoaded: true
+            })
+            this.props.setSavedStatus(5);
+        }
         return (
             <CKEditor
                 editor={ ClassicEditor }
@@ -62,6 +101,7 @@ class DocumentPageContent extends Component {
                 onChange={ ( event, editor ) => {
                     this.onContentChanged(editor);
                 } }
+                onKeyDown={this.onSaveKeyDown}
 
                 // 이 두개는 실시간 저장 켜고 끌 때 쓸 수 있겠다
                 onBlur={ ( event, editor ) => {
