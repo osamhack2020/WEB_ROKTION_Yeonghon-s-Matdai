@@ -41,13 +41,13 @@ class DocumentPageContent extends Component {
         this.props.setSavedStatus(1);
         this.setState({
             isSaved: false,
-            content: this.state.content,
+            content: editor.getData(),
         });
 
         if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
         // 수정이 정지되고 5초 뒤에 저장되게 한다.
         this.setState({
-            uploadTimer: setTimeout(() => {this.updateContent(editor.getData())}, uploadWaitTime),
+            uploadTimer: setTimeout(() => {this.updateContent()}, uploadWaitTime),
         })
         // 마지막 수정후 5초 카운트를 세는데, 만일 그사이 수정시 타이머 리셋
         // 그리고 내용을 다시 GET 하는 타이밍은 언제로 해야될까
@@ -55,7 +55,6 @@ class DocumentPageContent extends Component {
         // 뭔가 5초는 너무 긴데, 나는 .5초가 적당하다 봄..ㅎ
         // CKEditor 컴포넌트는 변경된 사항이 알아서 내용에 반영되니까
         // 같은 페이지를 수정하고 있으면 굳이 새로 GET할 필요는 없을듯
-
     }
 
     updateContent = () => {
@@ -96,7 +95,7 @@ class DocumentPageContent extends Component {
             <CKEditor
                 editor={ ClassicEditor }
                 // 기존 데이터 넣어주기
-                data={this.props.myOpt?.content}
+                data={this.props.pageData?.content}
                 onInit={ editor => { }}
                 onChange={ ( event, editor ) => {
                     this.onContentChanged(editor);
