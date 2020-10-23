@@ -84,6 +84,8 @@ class App extends Component {
                     name:null,
                 },
                 documents: [],
+                tagsId:0,
+                tags:[],
             });
         })
         .catch(e => {
