@@ -41,7 +41,7 @@ class DocumentPageContent extends Component {
         this.props.setSavedStatus(1);
         this.setState({
             isSaved: false,
-            content: data.value,
+            content: this.state.content,
         });
 
         if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
