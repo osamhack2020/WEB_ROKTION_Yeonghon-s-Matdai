@@ -150,7 +150,7 @@ router.put('/:id/:pg', (req: Request, res: Response) => {
     .then(perm => {
         if (perm.permissionLevel >= 2) {
             let pgId = perm.docInfo.contents[parseInt(req.params.pg)].pageId;
-            return DocModel.findById(pgId).update({...req.body});
+            return DocModel.updateOne({ _id: pgId }, {...req.body});
         } else {
             throw new Error('Permission denied');
         }
