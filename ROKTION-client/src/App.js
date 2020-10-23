@@ -273,7 +273,7 @@ class App extends Component {
                         handleLogout={this.onLogout}
                         information={this.state}
                         toMainMenu={()=>{this.setState({selectedDocumentId:-1});}}
-                        style={{}}/>
+                        />
                     </Transition>:
                     <Transition transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
                         <MainMenuLayout
