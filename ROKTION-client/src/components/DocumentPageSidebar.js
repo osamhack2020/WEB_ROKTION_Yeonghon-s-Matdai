@@ -80,6 +80,7 @@ const DocumentPageSidebar = (props) => {
       )
     }
   )
+
   return (
     <>
       <Sidebar

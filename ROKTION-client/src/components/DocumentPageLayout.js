@@ -76,7 +76,8 @@ class DocumentPageLayout extends Component{
                              width:"90%",
                              minWidth:"500px",
                              maxWidth:"1000px",
-                             overflow:"visible",}}>
+                             overflow:"visible",
+                             minHeight:"100vh",}}>
                     <Grid className="mainScreenGrid">
                         <Grid.Row
                             columns='equal' 
