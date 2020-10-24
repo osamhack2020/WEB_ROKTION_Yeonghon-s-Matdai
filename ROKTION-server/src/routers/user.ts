@@ -164,13 +164,18 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                     return e;
                 }
             } else if (req.body.tags.action === 'del') {
-                // 태그 삭제
-                try {
-                    const usr_1 = await UserModel.findOne({ tagId: n });
-                    usr_1?.tags.splice(req.body.tags.idx, 1);
-                    return usr_1?.save();
-                } catch (e_1) {
-                    return e_1;
+                if (req.body.tags.idx > 4) {
+                    // 태그 삭제
+                    try {
+                        const usr_1 = await UserModel.findOne({ tagId: n });
+                        usr_1?.tags.splice(req.body.tags.idx, 1);
+                        return usr_1?.save();
+                    } catch (e_1) {
+                        return e_1;
+                    }
+                } else {
+                    // 기본태그는 삭제 불가능
+                    throw new Error(`Default tag cannot be removed`);
                 }
             }
         }
