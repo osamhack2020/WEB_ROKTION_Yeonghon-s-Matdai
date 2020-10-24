@@ -131,9 +131,11 @@ class DocumentPageLayout extends Component{
                             <Divider as={Grid.Column}/>
                         </Grid.Row>
                         <Grid.Row style={{paddingTop: '1.5rem', paddingBottom: '0rem'}}>
-                            <Container as={Grid.Column}
-                                        className="contentContainer noLeftMargin"
-                                        textAlign='left'>
+                            <Container 
+                                as={Grid.Column}
+                                style={{minHeight:"500px"}}
+                                className="contentContainer noLeftMargin"
+                                textAlign='left'>
                                 <DocumentPageContent 
                                     pageData={this.props.document.documentContent[this.state.selectedPage]} 
                                     setSavedStatus={this.setSavedStatus}>

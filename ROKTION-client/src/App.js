@@ -3,15 +3,17 @@ import './App.css';
 import DocumentPage from './components/DocumentPage';
 import MainMenuLayout from './components/MainMenuLayout';
 import LoginPage from './components/LoginPage';
+import SignInPage from './components/SignInPage';
 import {
     Transition,
   } from 'semantic-ui-react'
+
 
 class App extends Component {
     constructor(props){
         super(props);
         this.state = {
-            logged: false,
+            loginStatus: 0,
             userInfo:{
                 regiment:null,
                 rank:null,
@@ -21,6 +23,12 @@ class App extends Component {
             tags:[],
             documents:[]
           };
+    }
+
+    onSignUp = () => {
+        this.setState({
+            loginStatus: 2,
+        })
     }
 
     onLogin = (id, pw) => {
@@ -55,7 +63,7 @@ class App extends Component {
         })
         .then(() => {
             this.setState({
-                logged: true
+                loginStatus: 1
             })
         })
         .catch(e => {
@@ -78,7 +86,7 @@ class App extends Component {
         .then(() => {
             // UserInfo null로 돌려놓기, Document나 Tag들도 리셋해야됨.
             this.setState({
-                logged:false,
+                loginStatus: 0,
                 selectedDocumentId:-1,
                 userInfo:{
                     regiment:null,
@@ -404,43 +412,54 @@ class App extends Component {
     }
 
     render() {
-        if (!this.state.logged){
-            return(
-                <LoginPage handleLogin={this.onLogin}/>
-            );
-        }
-        else{
-            let {selectedDocumentId, documents} = this.state;
-            let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
-            //console.log(selectedDocument);
-            if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
-                this.getPageContents(selectedDocument, selectedDocumentId);
-            }
-            return (
-                selectedDocument !== undefined ?
-                    <Transition onShow={()=>{console.log("mounted")}} transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
-                        <DocumentPage
-                        handleLogout={this.onLogout}
-                        information={this.state}
-                        toMainMenu={()=>{this.setState({selectedDocumentId:-1});}}
-                        addPageAfter={this.addPageAfter}
-                        removePage={this.removePage}
-                        />
-                    </Transition>:
-                    <Transition transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
-                        <MainMenuLayout
-                        handleLogout={this.onLogout}
-                        userInfo={this.state.userInfo}
-                        addNewTag={this.addNewTag}
-                        deleteTag={this.deleteTag}
-                        changeDocumentSettings={this.changeDocumentSettings}
-                        toggleTagInDocument={this.toggleTagInDocument}
-                        createNewDocument={this.createNewDocument}
-                        deleteDocument={this.deleteDocument}
-                        documents={this.state.documents}
-                        tags={this.state.tags}/>
-                    </Transition>
-            );
+        // 0:로그인화면   1:로그인됨   2:회원가입   3:아이디찾기   4:비밀번호찾기
+        switch(this.state.loginStatus) {
+            case 0:
+                return(
+                    <LoginPage
+                        handleLogin={this.onLogin}
+                        handleSignUp={this.onSignUp}
+                    />
+                );
+            case 1:
+                let {selectedDocumentId, documents} = this.state;
+                let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
+                //console.log(selectedDocument);
+                if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
+                    this.getPageContents(selectedDocument, selectedDocumentId);
+                }
+                return (
+                    selectedDocument !== undefined ?
+                        <Transition onShow={()=>{console.log("mounted")}} transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
+                            <DocumentPage
+                            handleLogout={this.onLogout}
+                            information={this.state}
+                            toMainMenu={()=>{this.setState({selectedDocumentId:-1});}}
+                            addPageAfter={this.addPageAfter}
+                            removePage={this.removePage}
+                            />
+                        </Transition>:
+                        <Transition transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
+                            <MainMenuLayout
+                            handleLogout={this.onLogout}
+                            userInfo={this.state.userInfo}
+                            addNewTag={this.addNewTag}
+                            deleteTag={this.deleteTag}
+                            changeDocumentSettings={this.changeDocumentSettings}
+                            toggleTagInDocument={this.toggleTagInDocument}
+                            createNewDocument={this.createNewDocument}
+                            deleteDocument={this.deleteDocument}
+                            documents={this.state.documents}
+                            tags={this.state.tags}/>
+                        </Transition>
+                );
+            case 2:
+                return(<SignInPage/>);
+            case 3:
+                break;
+            case 4:
+                break;
+            default:
         }
     }
 };
