@@ -34,6 +34,7 @@ class LoginPage extends Component {
                     transform: "translate(-50%,-50%)",}}>
                 <div style={{textAlign:"center", fontSize:"25px"}}>
                     <b>ROKTION 국군정보공유체계</b>
+                    <p>이제 1 안치고 그냥 로그인하면 됨</p>
                 </div>
                 <Segment style={{
                     maxWidth:"400px",
@@ -66,7 +67,7 @@ class LoginPage extends Component {
                         >
                             <List.Item onClick={()=>{console.log("비밀번호찾기")}}>아이디 찾기</List.Item>
                             <List.Item onClick={()=>{console.log("비밀번호찾기")}}>비밀번호 찾기</List.Item>
-                            <List.Item onClick={this.props.handleSingIn}>회원가입</List.Item>
+                            <List.Item onClick={this.props.handleSignUp}>회원가입</List.Item>
                         </List>
                     </Container>
                     
