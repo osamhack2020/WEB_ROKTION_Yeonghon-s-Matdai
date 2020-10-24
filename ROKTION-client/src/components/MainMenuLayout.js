@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import UserIcon from './UserIcon';
+import {SketchPicker} from 'react-color';
 import {
     Grid,
     Icon,
@@ -23,12 +24,16 @@ class MainMenuLayout extends Component {
             searchKeyword: "",
             newTagName: "",
             newTagColor: "",
+            newDocTitle: "",
+            newDocColor: "",
             filterAllTags:false,
             showAllTags:false,
             showSearchTab:false,
             tagDeleteMode:false,
             tagDeletePopup:-1,
             tagSettingDocId:-1,
+            titleSettingDocId:-1,
+            docIdOnSettingMode:-1,
             tagFilter:props.tags.map(
                 tag=>(
                     {id:tag.id, filter:true}
@@ -104,18 +109,34 @@ class MainMenuLayout extends Component {
         });
     }
 
-    setTagSettingMode = (id) => {
-        const val = this.state.tagSettingDocId
-        this.setState({
-            tagSettingDocId:val === id ? -1 : id,
-        });
+    setDocIdOnSettingMode = (id) => {
+        const val = this.state.docIdOnSettingMode
+        console.log(val, id)
+        if(val === id || id === -1){
+            //변경 정보 app.js에서 저장
+            this.props.changeDocumentSettings(document.id, this.state.newDocColor, this.state.newDocTitle)
+            //설정 종료
+            this.setState({
+                newDocTitle: "",
+                newDocColor: "",
+                docIdOnSettingMode: -1,
+            })
+        }
+        else{
+            //기본 설정 넣어주기
+            const doc = this.props.documents.find(doc=>doc.id===id)
+            this.setState({
+                newDocTitle: doc.title,
+                newDocColor: doc.color,
+                docIdOnSettingMode: id,
+            });
+        }
     }
 
     addNewTag = () => {
         const name = this.state.newTagName;
         const color = this.state.newTagColor;
-        if (/^[\S\s]+$/.test(name) && 
-            /^#[0-9A-Fa-f]{6}$/.test(color)){
+        if (/^[\S\s]+$/.test(name)){
             this.props.addNewTag(name, color, true);
             this.setState({
                 newTagName:"",
@@ -131,7 +152,6 @@ class MainMenuLayout extends Component {
             this.props.deleteTag(id);
         }
     }
-
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render() {
@@ -168,27 +188,94 @@ class MainMenuLayout extends Component {
                                     paddingLeft:"0px",
                                     paddingRight:"0px",}}>
                                 <Container textAlign='center'>
-                                    <Icon
-                                        onClick={document.onClick}
-                                        name='square'
-                                        size='massive'
-                                        color='blue'
-                                        style={{cursor:"pointer"}}/>
+                                    {this.state.docIdOnSettingMode === document.id ?
+                                        <Popup
+                                            key={"AddTag"}
+                                            on='click'
+                                            pinned
+                                            position="bottom left"
+                                            trigger={
+                                                <Icon.Group
+                                                    onClick={()=>{console.log("Change icon")}}
+                                                    style={{
+                                                        cursor:"pointer"}}>
+                                                    <Icon
+                                                        name='square'
+                                                        size='massive'
+                                                        style={{
+                                                            color: document.color,
+                                                        }}
+                                                    />
+                                                    <Icon
+                                                        inverted
+                                                        size='huge'
+                                                        name='pencil square'
+                                                        style={{opacity:.8,}}/> 
+                                                </Icon.Group>
+                                            }
+                                        >
+                                            <Form>
+                                            <Form.Field>
+                                                <label>색상</label>
+                                                <SketchPicker
+                                                    disableAlpha
+                                                    color={ this.state.newDocColor }
+                                                    onChange={(color)=>{this.setState({newDocColor:color.hex})}}
+                                                    presetColors={[]}
+                                                    style={{boxShadow:'none'}}
+                                                />
+                                            </Form.Field>
+                                            <Button
+                                                size='small'
+                                                type='submit'
+                                                content="색상변경"
+                                                onClick={()=>{
+                                                    this.props.changeDocumentSettings(document.id, this.state.newDocColor, this.state.newDocTitle);
+                                                }}/>
+                                            </Form>
+                                        </Popup>
+                                        :
+                                        <Icon
+                                            onClick={document.onClick}
+                                            name='square'
+                                            size='massive'
+                                            style={{
+                                                cursor:"pointer",
+                                                color: document.color,
+                                            }}
+                                        />
+                                    }
                                 </Container>
                             </Grid.Column>
                             <Grid.Column style={{paddingLeft:"0px"}}>
-                                <div
-                                    onClick={document.onClick}
-                                    style={{
-                                        paddingTop:"15px",
-                                        fontSize:"30px",
-                                        lineHeight:"30px",
-                                        cursor:"pointer",}}>
-                                    {document.title}
-                                </div>
+                                {this.state.docIdOnSettingMode === document.id ?
+                                    <Input
+                                        fluid
+                                        defaultValue={document.title}
+                                        size='big'
+                                        name='newDocTitle'
+                                        action={{
+                                            content:'변경완료',
+                                            onClick:()=>{ this.setDocIdOnSettingMode(-1);},
+                                        }}
+                                        onChange={this.handleInputChange}
+                                        style={{
+                                            paddingTop:"15px",}}
+                                    />
+                                    :
+                                    <div
+                                        onClick={document.onClick}
+                                        style={{
+                                            paddingTop:"15px",
+                                            fontSize:"30px",
+                                            lineHeight:"30px",
+                                            cursor:"pointer",}}>
+                                        {document.title}
+                                    </div>
+                                }
                                 <div style={{paddingTop:"10px", paddingBottom:"15px"}}>
                                 {
-                                    this.state.tagSettingDocId === document.id ?
+                                    this.state.docIdOnSettingMode === document.id ?
                                     this.props.tags.map(
                                         tag => (
                                             <Button
@@ -244,21 +331,9 @@ class MainMenuLayout extends Component {
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", margin:"0px"}}
                                             fitted='horizontally'
-                                            name='제목변경'
+                                            name='정보변경'
                                             docid={document.id}
-                                            onClick={()=>{console.log("제목변경")}}/>
-                                        <Menu.Item
-                                            style={{padding:"8px 0px 8px 0px", margin:"0px"}}
-                                            fitted='horizontally'
-                                            name='아이콘변경'
-                                            docid={document.id}
-                                            onClick={()=>{console.log("아이콘변경")}}/>
-                                        <Menu.Item
-                                            style={{padding:"8px 0px 8px 0px", margin:"0px"}}
-                                            fitted='horizontally'
-                                            name={this.state.tagSettingDocId === document.id ? '변경완료' : '태그변경'}
-                                            docid={document.id}
-                                            onClick={(_,data)=>{this.setTagSettingMode(data.docid)}}/>
+                                            onClick={(_,data)=>{this.setDocIdOnSettingMode(data.docid)}}/>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
                                             fitted='horizontally'
@@ -275,7 +350,7 @@ class MainMenuLayout extends Component {
             )
 
         // showSearchTab이 true일때만 렌더
-        const searchTab = this.state.showSearchTab ? (
+        const searchTab = this.state.showSearchTab ?
             <>
             <Grid.Row columns='equal'>
                     <Grid.Column
@@ -424,21 +499,23 @@ class MainMenuLayout extends Component {
                                         placeholder='태그 이름'
                                         value={this.state.newTagName}
                                         onChange={this.handleInputChange}
-                                        autoComplete='off'
-                                        error={!/^[\S\s]+$/.test(this.state.newTagName)}/>
-                                    <Form.Input 
-                                        name='newTagColor'
-                                        label='색상'
-                                        placeholder='#FFFFFF'
-                                        autoComplete='off'
-                                        value={this.state.newTagColor}
-                                        onChange={this.handleInputChange}
-                                        error={!/^#[0-9A-Fa-f]{6}$/.test(this.state.newTagColor)}/>
+                                        autoComplete='off'/>
+                                    <Form.Field>
+                                        <label>색상</label>
+                                        <SketchPicker
+                                            disableAlpha
+                                            color={ this.state.newTagColor }
+                                            onChange={(color)=>{this.setState({newTagColor:color.hex})}}
+                                            presetColors={[]}
+                                            style={{boxShadow:'none'}}
+                                        />
+                                    </Form.Field>
+                                    
                                     <Button
                                         size='small'
                                         type='submit'
                                         content="태그추가"
-                                        disabled={!(/^[\S\s]+$/.test(this.state.newTagName) && /^#[0-9A-Fa-f]{6}$/.test(this.state.newTagColor))}
+                                        disabled={!/^[\S\s]+$/.test(this.state.newTagName)}
                                         onClick={this.addNewTag}/>
                                     </Form>
                             </Popup>
@@ -469,8 +546,8 @@ class MainMenuLayout extends Component {
                             <Icon color='black' size='big' name={this.state.showAllTags?'angle up':'angle down'}/>
                     </Button>
                 </Grid.Row>
-                </>) :
-                (<></>);
+                </> :
+                <></>;
 
         return(
             <>
@@ -511,18 +588,22 @@ class MainMenuLayout extends Component {
                                 size='large'
                                 onClick={this.toggleShowSearchTab}
                                 style={{
+                                    marginRight:'8px',
                                     opacity:.8,
                                     cursor:"pointer"}}/>
-                            <Icon
-                                name='ellipsis horizontal'
-                                size='large'
-                                onClick={()=>{console.log("Ellipsis horizontal")}}
+                            <Icon.Group
+                                size='big'
+                                onClick={()=>{console.log("문서 추가")}}
                                 style={{
-                                    opacity:.5,
-                                    cursor:"pointer"}}/>
+                                    opacity:.8,
+                                    cursor:"pointer"}}>
+                                <Icon name='file outline'/>
+                                <Icon corner name='plus'/> 
+                            </Icon.Group>
                         </div>
                     </Container>
                     <Grid.Column
+                        verticalAlign='middle'
                         style={{
                             paddingLeft:"0px",
                             marginRight:"30px",
