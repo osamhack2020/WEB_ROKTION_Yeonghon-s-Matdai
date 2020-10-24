@@ -120,8 +120,11 @@ class App extends Component {
                     title: docInfo.title,
                     admin: docInfo.author,
                     description: '',
+                    // alert 임시용
                     alert: this.state.documents.length,
                     id: i,
+                    // 색상 임시용
+                    color: '#11FF11',
                     dbId: docInfo._id,
                     // 태그 이제 Set으로 처리함
                     tags: new Set(newTags),
@@ -266,6 +269,34 @@ class App extends Component {
         })
     }
 
+    changeDocumentSettings = (docid, color, title) => {
+        const docs = this.state.documents;
+        this.setState({
+            documents:
+                docs.map(
+                    doc => (
+                        doc.id === docid ?
+                        {...doc, color:color, title:title}:
+                        {...doc}
+                    )
+                )
+        })
+
+        /* 
+        // 괜히 건드렸다가 터질까봐 무섭다...
+        fetch(`/api/user/${this.state.???}`, {
+            method: '???',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                tags: {
+                    action: 'del',
+                    idx: idx
+                }
+            })
+        });
+         */
+    }
+
     render() {
         if (!this.state.logged){
             return(
@@ -294,6 +325,7 @@ class App extends Component {
                         userInfo={this.state.userInfo}
                         addNewTag={this.addNewTag}
                         deleteTag={this.deleteTag}
+                        changeDocumentSettings={this.changeDocumentSettings}
                         toggleTagInDocument={this.toggleTagInDocument}
                         documents={this.state.documents}
                         tags={this.state.tags}/>
