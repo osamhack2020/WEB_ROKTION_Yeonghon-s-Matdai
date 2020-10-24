@@ -16,7 +16,9 @@ class DocumentPage extends Component {
                 <DocumentPageSidebar documents = {info.documents} toMainMenu={this.props.toMainMenu}/>
                 <DocumentPageLayout
                 handleLogout = {this.props.handleLogout}
-                document = {selectedDocument}/>
+                document = {selectedDocument}
+                addPageAfter={this.props.addPageAfter}
+                removePage={this.props.removePage}/>
             </Sidebar.Pushable>
         );
     }
