@@ -211,6 +211,34 @@ class App extends Component {
         })
     }
 
+    removePage = (rmIdx) => {
+        return new Promise((resolve, reject) => {
+            fetch(`/api/docs/${this.state.documents[this.state.selectedDocumentId].dbId}/${rmIdx}`, {
+                method: 'DELETE',
+            })
+            .then(res => {
+                if (res.status === 200) {
+                    const docs = this.state.documents;
+                    docs[this.state.selectedDocumentId].documentContent.splice(rmIdx, 1);
+                    for (let i = rmIdx; i < docs[this.state.selectedDocumentId].documentContent.length; ++i) {
+                        docs[this.state.selectedDocumentId].documentContent[i].page = i;
+                    }
+                    this.setState({
+                        documents: docs,
+                    })
+                } else {
+                    throw new Error(res.json());
+                }
+            })
+            .then(() => {
+                resolve();
+            })
+            .catch(e => {
+                reject(e);
+            })
+        })
+    }
+
     updateLocalPageContents = (idx, page, content) => {
         let docs = this.state.documents;
         //console.log(docs[idx]);
@@ -326,6 +354,7 @@ class App extends Component {
                         information={this.state}
                         toMainMenu={()=>{this.setState({selectedDocumentId:-1});}}
                         addPageAfter={this.addPageAfter}
+                        removePage={this.removePage}
                         />
                     </Transition>:
                     <Transition transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>

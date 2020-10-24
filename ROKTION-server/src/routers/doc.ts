@@ -219,7 +219,7 @@ router.delete('/:id/:pg', (req: Request, res: Response) => {
     .then(() => res.status(200).end())
     .catch(e => {
         console.error(e);
-        res.status(400).end();
+        res.status(400).json(e);
     })
 });
 

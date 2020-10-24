@@ -167,19 +167,31 @@ class DocumentPageLayout extends Component{
                                 <Popup
                                     trigger={
                                         <Button 
-                                        color='green' 
-                                        icon='plus square'/>
+                                        color='gray' 
+                                        icon='file'/>
                                     }
-                                    content={<Button 
-                                        content='페이지 추가'
-                                        onClick={() => {
-                                            this.props.addPageAfter(this.state.selectedPage)
-                                            .then(() => {
-                                                this.setState({
-                                                    selectedPage: this.state.selectedPage+1
-                                                })
-                                            });
-                                        }}/>
+                                    content={
+                                        <Grid divided='vertically' textAlign='center'>
+                                            <Grid.Row><Button 
+                                            color='green'
+                                            content='페이지 추가'
+                                            icon='plus'
+                                            onClick={() => {
+                                                this.props.addPageAfter(this.state.selectedPage)
+                                                .then(() => {
+                                                    this.setState({
+                                                        selectedPage: this.state.selectedPage+1
+                                                    })
+                                                });
+                                            }}/></Grid.Row>
+                                            <Grid.Row><Button 
+                                            color='red'
+                                            content='페이지 삭제'
+                                            icon='minus'
+                                            onClick={() => {
+                                                this.props.removePage(this.state.selectedPage);
+                                            }}/></Grid.Row>
+                                        </Grid>
                                     }
                                     on='click'
                                     position='top right'
