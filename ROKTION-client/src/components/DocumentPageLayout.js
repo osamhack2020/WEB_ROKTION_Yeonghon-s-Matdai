@@ -11,6 +11,8 @@ import {
     Divider,
     Icon,
     Pagination,
+    Button,
+    Popup
   } from 'semantic-ui-react';
 import DocumentPageContent from './DocumentPageContent';
 
@@ -139,7 +141,8 @@ class DocumentPageLayout extends Component{
                             </Container>
                         </Grid.Row>
                         <Grid.Row>
-                            <Container as={Grid.Column} textAlign='center'>
+                            <Grid.Column width={2}></Grid.Column>
+                            <Container as={Grid.Column} width={10} textAlign='center'>
                                 <Pagination
                                     onPageChange = {
                                         (_,data) => {
@@ -160,6 +163,43 @@ class DocumentPageLayout extends Component{
                                     secondary
                                     totalPages={this.props.document.documentContent.length}/>
                             </Container>
+                            <Grid.Column width={2} textAlign='right'>
+                                <Popup
+                                    trigger={
+                                        <Button 
+                                        color='gray' 
+                                        icon='file'/>
+                                    }
+                                    content={
+                                        <Grid divided='vertically' textAlign='center'>
+                                            <Grid.Row><Button 
+                                            color='green'
+                                            content='페이지 추가'
+                                            icon='plus'
+                                            onClick={() => {
+                                                this.props.addPageAfter(this.state.selectedPage)
+                                                .then(() => {
+                                                    this.setState({
+                                                        selectedPage: this.state.selectedPage+1
+                                                    })
+                                                });
+                                            }}/></Grid.Row>
+                                            <Grid.Row><Button 
+                                            color='red'
+                                            content='페이지 삭제'
+                                            icon='minus'
+                                            onClick={() => {
+                                                this.setState({
+                                                    selectedPage: this.state.selectedPage-1
+                                                })
+                                                this.props.removePage(this.state.selectedPage)
+                                            }}/></Grid.Row>
+                                        </Grid>
+                                    }
+                                    on='click'
+                                    position='top right'
+                                />
+                            </Grid.Column>
                         </Grid.Row>
                     </Grid>
                 </div>
