@@ -12,7 +12,8 @@ import {
     Icon,
     Pagination,
     Button,
-    Popup
+    Popup,
+    Loader,
   } from 'semantic-ui-react';
 import DocumentPageContent from './DocumentPageContent';
 
@@ -44,22 +45,22 @@ class DocumentPageLayout extends Component{
         let outStatus = '가져오는중';
         switch(status) {
             case 0:
-                outStatus = '저장완료';
+                outStatus = <Icon name='check' size='small' color='green'/>;
                 break;
             case 1:
-                outStatus = '작성중';
+                outStatus = <Loader size='tiny' indeterminate active inline/>;
                 break;
             case 2:
-                outStatus = '저장중';
+                outStatus = <Loader size='tiny' active inline/>;
                 break;
             case 3:
-                outStatus = '저장오류';
+                outStatus = <Icon name='exclamation triangle' size='small' color='red'/>;
                 break;
             case 4: 
-                outStatus = '가져오는중';
+                outStatus = <Loader size='tiny' indeterminate active inline/>;
                 break;
             case 5: 
-                outStatus = '열람중';
+                outStatus = <Icon name='eye' size='small'/>;
                 break;
             default:
                 outStatus = '?';
@@ -76,7 +77,8 @@ class DocumentPageLayout extends Component{
                              width:"90%",
                              minWidth:"500px",
                              maxWidth:"1000px",
-                             overflow:"visible",}}>
+                             overflow:"visible",
+                             minHeight:"100vh",}}>
                     <Grid className="mainScreenGrid">
                         <Grid.Row
                             columns='equal' 
