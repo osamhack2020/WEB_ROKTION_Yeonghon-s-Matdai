@@ -47,12 +47,16 @@ class App extends Component {
         .then(userData => {
             //console.log(userData);
             this.setState({
-                logged: true,
                 userInfo: userData,
             });
             //console.log(this.state.documents);
             this.getUserTags();
-            this.getDocumentList();
+            return this.getDocumentList();
+        })
+        .then(() => {
+            this.setState({
+                logged: true
+            })
         })
         .catch(e => {
             console.error(e);
@@ -100,13 +104,13 @@ class App extends Component {
         console.log('End getUserTags');
     }
     
-    getDocumentList = () => {
+    getDocumentList = async () => {
         console.log('Start getDocumentList');
         const relatedDocs = this.state.userInfo.relatedDocs;
         const docsAlready = 0; // 임시용
         for (let i = docsAlready; i < relatedDocs.created.length + docsAlready; ++i) {
             // 이거 비동기로 돌아감
-            fetch(`/api/docs/${relatedDocs.created[i - docsAlready].docId}`, {
+            await fetch(`/api/docs/${relatedDocs.created[i - docsAlready].docId}`, {
                 method: 'GET'
             })
             .then(res => {
@@ -121,14 +125,12 @@ class App extends Component {
                     admin: docInfo.author,
                     description: '',
                     // alert 임시용
-                    alert: this.state.documents.length,
+                    alert: parseInt(Math.random() * 100),
                     id: i,
                     // 색상 임시용
                     color: '#11FF11',
                     dbId: docInfo._id,
-                    // 태그 이제 Set으로 처리함
                     tags: new Set(newTags),
-                    // tags:new Set([11]), // 임시용
                     onClick: () => {this.setState({selectedDocumentId: i})},
                     documentContent: [],
                     pagesLength: docInfo.contents.length,
@@ -154,6 +156,9 @@ class App extends Component {
                 return res.json();
             })
             .then(page => {
+                if (page === null) {
+                    throw new Error(`Got NULL page, ${document.dbId}/${i}`)
+                }
                 //console.log(page);
                 let docs = this.state.documents;
                 //console.log(docs[idx]);

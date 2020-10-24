@@ -72,7 +72,7 @@ class DocumentPageContent extends Component {
 
         // 수정이 정지되고 5초 뒤에 저장되게 한다.
         if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
-        const timer = setTimeout(() => {this.updateContent(); console.log('do!')}, uploadWaitTime);
+        const timer = setTimeout(() => {this.updateContent()}, uploadWaitTime);
         this.setState({
             uploadTimer: timer,
         })
@@ -135,7 +135,7 @@ class DocumentPageContent extends Component {
             <CKEditor
                 editor={ ClassicEditor }
                 // 기존 데이터 넣어주기
-                data={this.props.pageData?.content}
+                data={this.props.pageData? this.props.pageData.content : '로딩중...'}
                 onInit={ editor => {
                     editor.editing.view.document.on('keydown', this.onSaveKeyDown);
                 } }

@@ -155,11 +155,16 @@ class MainMenuLayout extends Component {
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render() {
-        const tagFilteredList = this.props.documents.filter(
-            document => (
-                [...document.tags].some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document
-            )
-        );
+        let tagFilteredList = [];
+        try {
+            tagFilteredList = this.props.documents.filter(
+                document => (
+                    [...document.tags].some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document
+                )
+            );
+        } catch (e) {
+            tagFilteredList = this.props.documents;
+        }
         
         const keywordFilteredList = tagFilteredList.filter(
             document => document.title.indexOf(this.state.searchKeyword) > -1
