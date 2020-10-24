@@ -169,7 +169,7 @@ class DocumentPageLayout extends Component{
                                 <Popup
                                     trigger={
                                         <Button 
-                                        color='gray' 
+                                        color='grey' 
                                         icon='file'/>
                                     }
                                     content={
