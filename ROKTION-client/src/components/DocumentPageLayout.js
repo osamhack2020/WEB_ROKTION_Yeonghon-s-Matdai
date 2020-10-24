@@ -189,7 +189,10 @@ class DocumentPageLayout extends Component{
                                             content='페이지 삭제'
                                             icon='minus'
                                             onClick={() => {
-                                                this.props.removePage(this.state.selectedPage);
+                                                this.setState({
+                                                    selectedPage: this.state.selectedPage-1
+                                                })
+                                                this.props.removePage(this.state.selectedPage)
                                             }}/></Grid.Row>
                                         </Grid>
                                     }

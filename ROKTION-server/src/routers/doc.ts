@@ -206,12 +206,12 @@ router.delete('/:id/:pg', (req: Request, res: Response) => {
     .then(docInfo => {
         return checkPermission(req.session?.dbId, docInfo);
     })
-    .then(perm => {
+    .then(async perm => {
         if (perm.permissionLevel >= 4) {
             let pgId = perm.docInfo.contents[parseInt(req.params.pg)].pageId;
-            DocModel.findById(pgId).remove();
+            await DocModel.deleteOne({ _id: pgId });
             perm.docInfo.contents.splice(parseInt(req.params.pg), 1);
-            return perm.docInfo.save();
+            await perm.docInfo.save();
         } else {
             throw new Error('Permission denied');
         }
