@@ -14,7 +14,6 @@ router.post('/:id', async (req: Request, res: Response) => {
 
     // 새로운 Doc 생성
     const newDoc = new DocModel({
-        pageTitle: 'New Page',
         content: '',
         linkedFiles: []
     });
@@ -22,13 +21,15 @@ router.post('/:id', async (req: Request, res: Response) => {
     // id의 DocInfo를 찾아 contents의 올바른 위치에 삽입
     const docInfoById = await DocInfoModel.findById(req.params.id);
     checkPermission(req.session?.dbId, docInfoById)
-    .then(perm => {
+    .then(async (perm) => {
         if (docInfoById === undefined && docInfoById === null) {
             throw new Error('No document');
         } else if (perm.permissionLevel >= 2) {
-            docInfoById?.update({ $set: {
-                contents: docInfoById.contents.splice(req.body.afterIdx, 0, newDoc._id)
-            }});
+            docInfoById?.contents.splice(Number(req.body.afterIdx), 0, {
+                pageId: newDoc._id,
+                edited: new Date(),
+            })
+            await docInfoById?.save();
         } else {
             throw new Error('Permission denied');
         }
@@ -37,10 +38,9 @@ router.post('/:id', async (req: Request, res: Response) => {
         console.error(e);
         session.abortTransaction();
         session.endSession();
-        res.status(400).end();
+        res.status(400).json(e);
     });
 
-    // 완료
     await session.commitTransaction();
     session.endSession();
     res.status(201).end();

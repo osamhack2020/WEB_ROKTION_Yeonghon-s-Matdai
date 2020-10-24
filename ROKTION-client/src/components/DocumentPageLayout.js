@@ -11,6 +11,8 @@ import {
     Divider,
     Icon,
     Pagination,
+    Button,
+    Popup
   } from 'semantic-ui-react';
 import DocumentPageContent from './DocumentPageContent';
 
@@ -139,7 +141,8 @@ class DocumentPageLayout extends Component{
                             </Container>
                         </Grid.Row>
                         <Grid.Row>
-                            <Container as={Grid.Column} textAlign='center'>
+                            <Grid.Column width={2}></Grid.Column>
+                            <Container as={Grid.Column} width={10} textAlign='center'>
                                 <Pagination
                                     onPageChange = {
                                         (_,data) => {
@@ -160,6 +163,28 @@ class DocumentPageLayout extends Component{
                                     secondary
                                     totalPages={this.props.document.documentContent.length}/>
                             </Container>
+                            <Grid.Column width={2} textAlign='right'>
+                                <Popup
+                                    trigger={
+                                        <Button 
+                                        color='green' 
+                                        icon='plus square'/>
+                                    }
+                                    content={<Button 
+                                        content='페이지 추가'
+                                        onClick={() => {
+                                            this.props.addPageAfter(this.state.selectedPage)
+                                            .then(() => {
+                                                this.setState({
+                                                    selectedPage: this.state.selectedPage+1
+                                                })
+                                            });
+                                        }}/>
+                                    }
+                                    on='click'
+                                    position='top right'
+                                />
+                            </Grid.Column>
                         </Grid.Row>
                     </Grid>
                 </div>
