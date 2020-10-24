@@ -9,6 +9,7 @@ class DocumentPageContent extends Component {
             uploadTimer: -1,
             isLoaded: false,
             isSaved: false,
+            isSaving: false,
             content: '',
         }
         if (this.props.pageData !== undefined) {
@@ -22,10 +23,11 @@ class DocumentPageContent extends Component {
         }
     }
 
-    onSaveKeyDown = (e) => {
-        if (this.state.isLoaded && !this.state.isSaved) {
-            if (e.ctrlKey) {
-                console.log('Force save');
+    onSaveKeyDown = (e, keyData) => {
+        //console.log(e, keyData);
+        if (this.state.isLoaded && !this.state.isSaved && !this.state.isSaving) {
+            if (keyData.ctrlKey) {
+                //console.log('Force save');
                 if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
                 this.updateContent();
             }
@@ -60,6 +62,9 @@ class DocumentPageContent extends Component {
     updateContent = () => {
         //console.log('Update Content');
         this.props.setSavedStatus(2);
+        this.setState({
+            isSaving: true,
+        })
         fetch(`/api/docs/${this.props.pageData.dbId}/${this.props.pageData.page}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
@@ -75,11 +80,15 @@ class DocumentPageContent extends Component {
             })*/
             this.props.setSavedStatus(0);
             this.setState({
-                isSaved: true
+                isSaved: true,
+                isSaving: false
             });
         })
         .catch(e => {
             this.props.setSavedStatus(3);
+            this.setState({
+                isSaving: false
+            });
             console.error(e);
         })
     }
@@ -96,11 +105,12 @@ class DocumentPageContent extends Component {
                 editor={ ClassicEditor }
                 // 기존 데이터 넣어주기
                 data={this.props.pageData?.content}
-                onInit={ editor => { }}
+                onInit={ editor => {
+                    editor.editing.view.document.on('keydown', this.onSaveKeyDown);
+                } }
                 onChange={ ( event, editor ) => {
                     this.onContentChanged(editor);
                 } }
-                onKeyDown={this.onSaveKeyDown}
 
                 // 이 두개는 실시간 저장 켜고 끌 때 쓸 수 있겠다
                 onBlur={ ( event, editor ) => {
