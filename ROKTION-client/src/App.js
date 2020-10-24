@@ -124,7 +124,7 @@ class App extends Component {
                     alert: this.state.documents.length,
                     id: i,
                     // 색상 임시용
-                    color: '#11FF11',
+                    color: '#C1C1C1',
                     dbId: docInfo._id,
                     // 태그 이제 Set으로 처리함
                     tags: new Set(newTags),
@@ -284,8 +284,8 @@ class App extends Component {
 
         let tags = this.state.tags;
         const idx = tags.findIndex(tag => (tag.id === id));
-        tags.splice(idx, 1);
         if (idx > -1){
+            tags.splice(idx, 1);
             this.setState({
                 tags:tags,
             })
@@ -364,6 +364,40 @@ class App extends Component {
          */
     }
 
+    createNewDocument = () => {
+        //기본 문서 생성
+        console.log(this.state.documents, this.state.tags)
+        const docs = this.state.documents;
+        const newDoc = {
+            title: "새 문서" + docs.length,
+            admin: "아무개",
+            description: '',
+            alert: docs.length,
+            //!!!!!!! 임시 !!!!!!!!
+            id: docs.length,
+            color: '#C1C1C1',
+            dbId: ".",
+            tags: new Set([0]),
+            onClick: () => {this.setState({selectedDocumentId: docs.length})},
+            documentContent: [],
+            pagesLength: 1,
+        }
+        this.setState({
+            documents: docs.concat(newDoc),
+        }); 
+    }
+
+    deleteDocument = (docid) => {
+        let docs = this.state.documents;
+        const idx = docs.findIndex(doc => (doc.id === docid));
+        if (idx > -1){
+            docs.splice(idx, 1);
+            this.setState({
+                documents:docs,
+            })
+        }
+    }
+
     render() {
         if (!this.state.logged){
             return(
@@ -396,6 +430,8 @@ class App extends Component {
                         deleteTag={this.deleteTag}
                         changeDocumentSettings={this.changeDocumentSettings}
                         toggleTagInDocument={this.toggleTagInDocument}
+                        createNewDocument={this.createNewDocument}
+                        deleteDocument={this.deleteDocument}
                         documents={this.state.documents}
                         tags={this.state.tags}/>
                     </Transition>
