@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
 import {
+    Container,
     Segment,
     Form,
     Button,
+    List,
   } from 'semantic-ui-react'
 
 class LoginPage extends Component {
     constructor(props){
         super(props);
         this.state = {
-            id:null,
+            //임시
+            id:'1',
             password:null,
         }
     }
@@ -31,25 +34,42 @@ class LoginPage extends Component {
                     transform: "translate(-50%,-50%)",}}>
                 <div style={{textAlign:"center", fontSize:"25px"}}>
                     <b>ROKTION 국군정보공유체계</b>
-                    <p>(임시) ID에 1 치고 접속하면 됨</p>
                 </div>
                 <Segment style={{
                     maxWidth:"400px",
-                    minWidth:"400px",}}>
+                    minWidth:"400px",
+                    paddingBottom:'4px',}}>
                     <Form>
                     <Form.Input
-                        label='ID'
                         name='id'
-                        placeholder='ID'
+                        placeholder='아이디'
                         onChange={this.handleChange}/>
                     <Form.Input
-                        label='Password'
                         name='password'
-                        placeholder='Password'
+                        placeholder='비밀번호'
                         type='password'
                         onChange={this.handleChange}/>
-                    <Button type='submit' onClick={() => this.props.handleLogin(this.state.id, this.state.password)}>Login</Button>
-                    <Button type='submit'>Forgot password?</Button>
+                    <Container
+                        as={Form.Field} 
+                        textAlign='center'
+                        style={{marginBottom:"5px"}}>
+                    <Button
+                        fluid
+                        type='submit'
+                        onClick={() => this.props.handleLogin(this.state.id, this.state.password)}
+                    >로그인</Button>
+                    </Container>
+                    <Container as={Form.Field} textAlign='center'>
+                        <List
+                            divided horizontal
+                            style={{opacity:.5, cursor:"pointer"}}
+                        >
+                            <List.Item onClick={()=>{console.log("비밀번호찾기")}}>아이디 찾기</List.Item>
+                            <List.Item onClick={()=>{console.log("비밀번호찾기")}}>비밀번호 찾기</List.Item>
+                            <List.Item onClick={this.props.handleSingIn}>회원가입</List.Item>
+                        </List>
+                    </Container>
+                    
                     </Form>
                 </Segment>
                 
