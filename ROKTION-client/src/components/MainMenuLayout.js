@@ -114,7 +114,7 @@ class MainMenuLayout extends Component {
         console.log(val, id)
         if(val === id || id === -1){
             //변경 정보 app.js에서 저장
-            this.props.changeDocumentSettings(document.id, this.state.newDocColor, this.state.newDocTitle)
+            this.props.changeDocumentSettings(id, this.state.newDocColor, this.state.newDocTitle)
             //설정 종료
             this.setState({
                 newDocTitle: "",
@@ -155,16 +155,14 @@ class MainMenuLayout extends Component {
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render() {
-        let tagFilteredList = [];
-        try {
-            tagFilteredList = this.props.documents.filter(
-                document => (
-                    [...document.tags].some(tag=>(this.state.tagFilter.find(l=>l.id===tag)).filter) && document
-                )
-            );
-        } catch (e) {
-            tagFilteredList = this.props.documents;
-        }
+        const tagFilteredList = this.props.documents.filter(
+            document => (
+                [...document.tags].some(
+                    tag=>{
+                        const t = this.state.tagFilter.find(l=>l.id===tag)
+                        return t !== undefined ? t.filter : false}) && document
+            )
+        );
         
         const keywordFilteredList = tagFilteredList.filter(
             document => document.title.indexOf(this.state.searchKeyword) > -1
@@ -201,7 +199,6 @@ class MainMenuLayout extends Component {
                                             position="bottom left"
                                             trigger={
                                                 <Icon.Group
-                                                    onClick={()=>{console.log("Change icon")}}
                                                     style={{
                                                         cursor:"pointer"}}>
                                                     <Icon
@@ -261,7 +258,7 @@ class MainMenuLayout extends Component {
                                         name='newDocTitle'
                                         action={{
                                             content:'변경완료',
-                                            onClick:()=>{ this.setDocIdOnSettingMode(-1);},
+                                            onClick:()=>{ this.setDocIdOnSettingMode(document.id);},
                                         }}
                                         onChange={this.handleInputChange}
                                         style={{
@@ -343,7 +340,9 @@ class MainMenuLayout extends Component {
                                             style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
                                             fitted='horizontally'
                                             name='문서삭제'
-                                            onClick={()=>{console.log("문서삭제?!")}}/>
+                                            docid={document.id}
+                                            onClick={(_,data)=>{this.props.deleteDocument(data.docid)}}
+                                        />
                                     </Menu>
                             </Popup>
                                 
@@ -424,7 +423,6 @@ class MainMenuLayout extends Component {
                                         onOpen={()=>{this.setState({tagDeletePopup:tag.id})}}
                                         pinned
                                         position="bottom center"
-                                        textAlign='center'
                                         trigger={
                                             <Button
                                             as={Label}
@@ -598,7 +596,7 @@ class MainMenuLayout extends Component {
                                     cursor:"pointer"}}/>
                             <Icon.Group
                                 size='big'
-                                onClick={()=>{console.log("문서 추가")}}
+                                onClick={this.props.createNewDocument}
                                 style={{
                                     opacity:.8,
                                     cursor:"pointer"}}>
