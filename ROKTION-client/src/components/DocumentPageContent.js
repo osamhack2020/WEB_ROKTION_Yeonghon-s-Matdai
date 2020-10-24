@@ -13,14 +13,7 @@ class DocumentPageContent extends Component {
             content: '',
             currentPage: 0
         }
-        if (props.pageData !== undefined) {
-            this.state.isLoaded = true;
-            this.state.isSaved = true;
-            this.state.currentPage = props.pageData.page;
-            this.props.setSavedStatus(5);
-        } else {
-            this.props.setSavedStatus(4);
-        }
+        props.setSavedStatus(4);
     }
 
     resetContent = () => {
@@ -59,6 +52,9 @@ class DocumentPageContent extends Component {
         // e: 이벤트, 주로 e.target을 쓴다. e.target 하면 html 그대로나오는데 -> name, value
         // data: 호출한 객체 데이터
         const uploadWaitTime = 5000;
+        if (!this.state.isLoaded) {
+            return;
+        }
         if (this.props.pageData && this.state.currentPage !== this.props.pageData?.page) {
             return;
         }
@@ -130,6 +126,7 @@ class DocumentPageContent extends Component {
             })
             this.props.setSavedStatus(5);
         }
+
 
         return (
             <CKEditor
