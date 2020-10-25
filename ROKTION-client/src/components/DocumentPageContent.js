@@ -30,7 +30,7 @@ class DocumentPageContent extends Component {
     onContentChanged = (editor) => {
         // e: 이벤트, 주로 e.target을 쓴다. e.target 하면 html 그대로나오는데 -> name, value
         // data: 호출한 객체 데이터
-        const uploadWaitTime = 5000;
+        const uploadWaitTime = 3000;
         if (!this.state.isLoaded) {
             return;
         }
@@ -103,18 +103,22 @@ class DocumentPageContent extends Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         const isLoaded = nextProps.pageData !== null && nextProps.pageData !== undefined;
-        clearTimeout(prevState.uploadTimer);
-        if (prevState.isLoaded !== isLoaded) {
+        const isPageChanged = prevState.currentPage !== nextProps.pageData?.page;
+        let toReturn = null;
+        if (prevState.isLoaded !== isLoaded || (isLoaded && isPageChanged)) {
+            // 로드 상태가 변했을때, 페이지 변경시
             nextProps.setSavedStatus(isLoaded ? 5 : 4);
+            clearTimeout(prevState.uploadTimer);
+            toReturn = {
+                uploadTimer: -1,
+                isLoaded: isLoaded,
+                isSaved: false,
+                isSaving: false,
+                currentPage: isLoaded ? nextProps.pageData.page : -1,
+            }
         }
 
-        return {
-            uploadTimer: -2,
-            isLoaded: isLoaded,
-            isSaved: false,
-            isSaving: false,
-            currentPage: isLoaded ? nextProps.pageData.page : -1,
-        }
+        return toReturn;
     }
 
     componentDidUpdate(prevProps, prevState) {
