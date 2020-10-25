@@ -221,13 +221,13 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                 // 유저 태그 삭제시
                 try {
                     const usr = await UserModel.findOne({ tagId: n });
-                    const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId === req.body.docTags.docId);
-                    const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId === req.body.docTags.docId);
+                    const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId == req.body.docTags.docId);
+                    const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId == req.body.docTags.docId);
                     if (createdDocIdx! >= 0) {
-                        const delIdx = usr?.relatedDocs.created[createdDocIdx!].docTags.findIndex(num => num === Number(req.body.docTags.tagId));
+                        const delIdx = usr?.relatedDocs.created[createdDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
                         if (delIdx! >= 0) usr?.relatedDocs.created[createdDocIdx!].docTags.splice(delIdx!, 1);
                     } else if (createdDocIdx! >= 0) {
-                        const delIdx = usr?.relatedDocs.shared[sharedDocIdx!].docTags.findIndex(num => num === Number(req.body.docTags.tagId));
+                        const delIdx = usr?.relatedDocs.shared[sharedDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
                         if (delIdx! >= 0) usr?.relatedDocs.shared[sharedDocIdx!].docTags.splice(delIdx!, 1);
                     }
                     usr?.markModified('relatedDocs');
