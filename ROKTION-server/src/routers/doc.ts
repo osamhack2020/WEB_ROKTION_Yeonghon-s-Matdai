@@ -171,22 +171,23 @@ router.put('/:id', (req: Request, res: Response) => {
     })
     .then(perm => {
         if (perm.permissionLevel >= 3) {
-            let toUpdate: any = {}
             if (req.body.author && perm.permissionLevel >= 4) {
                 // 관리자 이관
-                toUpdate.author = req.body.author;
+                perm.docInfo.author = req.body.author;
             }
             if (req.body.title) {
                 // 제목 변경
-                toUpdate.title = req.body.title;
+                perm.docInfo.title = req.body.title;
+            }
+            if (req.body.color) {
+                // 색깔 변경
+                perm.docInfo.titleColor = req.body.color;
             }
             if (req.body.shareOption) {
                 // 공유 옵션 변경
-                toUpdate.shareOption = req.body.shareOption;
+                perm.docInfo.shareOption = req.body.shareOption;
             }
-            return perm.docInfo.update({
-                $set: toUpdate
-            });
+            return perm.docInfo.save();
         } else {
             throw new Error('Permission denied');
         }

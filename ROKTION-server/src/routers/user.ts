@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import { UserModel, Tag } from "../schemas/user";
 import crypto from 'crypto';
+import { DocInfoModel, DocStatus } from "../schemas/docInfo";
 
 const router = express.Router();
 
@@ -138,6 +139,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
         }
     })
     .then(async n => {
+        let active = false;
         if (req.body.passwd) {
             // 패스워드 변경시
             crypto.randomBytes(64, (err, buf) => {
@@ -146,10 +148,12 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                 });
                 req.body.passwdSalt = buf.toString('base64');
             });
-            return UserModel.update({ tagId: n }, {...req.body});
+            await UserModel.update({ tagId: n }, {...req.body});
+            active = true;
         }
         if (req.body.tags) {
             // 태그 추가 및 제거시 <- 태그와 같이오는 action 문자열로 동작
+            // in: tags.name, tags.color, tags.action
             if (req.body.tags.action === 'add') {
                 // 태그 추가
                 try {
@@ -159,19 +163,21 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                         color: req.body.tags.color,
                     };
                     usr?.tags.push(newTag);
-                    return usr?.save();
+                    await usr?.save();
+                    active = true;
                 } catch (e) {
-                    return e;
+                    throw new Error(e);
                 }
             } else if (req.body.tags.action === 'del') {
-                if (req.body.tags.idx > 4) {
+                if (req.body.tags.idx > 3) {
                     // 태그 삭제
                     try {
                         const usr_1 = await UserModel.findOne({ tagId: n });
                         usr_1?.tags.splice(req.body.tags.idx, 1);
-                        return usr_1?.save();
+                        await usr_1?.save();
+                        active = true;
                     } catch (e_1) {
-                        return e_1;
+                        throw new Error(e_1);
                     }
                 } else {
                     // 기본태그는 삭제 불가능
@@ -179,7 +185,64 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                 }
             }
         }
-        throw new Error(`Invalid PUT Request on ${req.params.id}`);
+        if (req.body.docTags) {
+            // 문서의 태그 수정 <- action 문자열로 동작
+            // in: docTags.action, docTags.docId, docTags.tagId
+            if (req.body.docTags.action === 'default') {
+                // 기본 태그 변경시
+                try {
+                    const docInfo = await DocInfoModel.findById(req.body.docTags.docId);
+                    docInfo!.status = Number(req.body.docTags.tagId) as DocStatus;
+                    await docInfo?.save();
+                    active = true;
+                } catch (e) {
+                    throw new Error(e);
+                }
+            } else if (req.body.docTags.action === 'add') {
+                // 유저 태그 추가시
+                try {
+                    const usr = await UserModel.findOne({ tagId: n });
+                    const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId == req.body.docTags.docId);
+                    const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId == req.body.docTags.docId);
+                    if (createdDocIdx! >= 0) {
+                        usr?.relatedDocs.created[createdDocIdx!].docTags.push(Number(req.body.docTags.tagId));
+                        usr?.relatedDocs.created[createdDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
+                    } else if (createdDocIdx! >= 0) {
+                        usr?.relatedDocs.shared[sharedDocIdx!].docTags.push(Number(req.body.docTags.tagId));
+                        usr?.relatedDocs.shared[sharedDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
+                    }
+                    usr?.markModified('relatedDocs');
+                    await usr?.save();
+                    active = true;
+                } catch (e) {
+                    throw new Error(e);
+                }
+            } else if (req.body.docTags.action === 'del') {
+                // 유저 태그 삭제시
+                try {
+                    const usr = await UserModel.findOne({ tagId: n });
+                    const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId == req.body.docTags.docId);
+                    const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId == req.body.docTags.docId);
+                    if (createdDocIdx! >= 0) {
+                        const delIdx = usr?.relatedDocs.created[createdDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
+                        if (delIdx! >= 0) usr?.relatedDocs.created[createdDocIdx!].docTags.splice(delIdx!, 1);
+                    } else if (createdDocIdx! >= 0) {
+                        const delIdx = usr?.relatedDocs.shared[sharedDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
+                        if (delIdx! >= 0) usr?.relatedDocs.shared[sharedDocIdx!].docTags.splice(delIdx!, 1);
+                    }
+                    usr?.markModified('relatedDocs');
+                    await usr?.save();
+                    active = true;
+                } catch (e) {
+                    throw new Error(e);
+                }
+            }
+        }
+        if (active) {
+            return;
+        } else {
+            throw new Error(`Invalid PUT Request on ${req.params.id}`);
+        }
     })
     .then(() => res.status(200).end())
     .catch(e => {
@@ -209,29 +272,15 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
     .catch(e => res.status(400).end());
 });
 
-// 문자열 군번 값을 숫자로 바꿔주는 친구, Parser
-function getTagId(id: string) : Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-        try {
-            if (Number(id) > 0) {
-                resolve(Number(id));
-            } else {
-                let nums = id.split('-');
-                let numId = Number(nums[0] + nums[1]);
-                if (nums.length === 2 &&  numId > 0) {
-                    resolve(numId);
-                } else {
-                    throw new Error(`NaN, invalid id with ${id}`);
-                }
-            }
-        } catch (e) {
-            reject(Error(e));
-        }
+// 문자열 군번값이 유효한지 확인해주는 친구...?
+function getTagId(id: string) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        resolve(id);
     });
 }
 
-function checkLogined(session: Express.Session) : Promise<number> {
-    return new Promise<number>((resolve, reject) => {
+function checkLogined(session: Express.Session) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
         if (session.dbId && session.tagId) {
             resolve(session.tagId);
         } else {

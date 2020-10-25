@@ -30,12 +30,12 @@ const DocumentPageSidebar = (props) => {
   const mainTagList = ['진행','예정','완료','문서','중요'].map(
     (tag, idx) => {
       return(
-        <>
+        <Container key={idx}>
           <Accordion.Title
             key={tag+'title'}
             active={activeIndex === idx}
             index = {idx}
-            style={{color:'grey', fontSize:'18px'}}
+            style={{color:'white', fontSize:'18px'}}
             onClick = {()=>{setActiveIndex(activeIndex === idx ? -1 : idx);}}>
             <Icon name='dropdown'/>
             {tag}
@@ -76,7 +76,7 @@ const DocumentPageSidebar = (props) => {
             }
           </Menu>
           </Accordion.Content>
-        </>
+        </Container>
       )
     }
   )
@@ -143,7 +143,7 @@ const DocumentPageSidebar = (props) => {
           <Grid.Row>
             <Menu size='massive' fluid vertical secondary>
               <Menu.Item
-                style={{textAlign:"center", fontSize:"20px"}}
+                style={{textAlign:"center", fontSize:"20px", color:"white"}}
                 key={"ToMainMenu"}
                 onClick={props.toMainMenu}>
                 문서 목록

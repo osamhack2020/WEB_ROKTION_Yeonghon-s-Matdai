@@ -11,30 +11,10 @@ class DocumentPageContent extends Component {
             isSaved: false,
             isSaving: false,
             content: '',
-            currentPage: 0
+            currentPage: -1,
+            editorHandle: null,
         }
         props.setSavedStatus(4);
-    }
-
-    resetContent = () => {
-        clearTimeout(this.state.uploadTimer);
-        this.setState({
-            uploadTimer: -1,
-            isLoaded: false,
-            isSaved: false,
-            isSaving: false,
-            currentPage: -1,
-        });
-        if (this.props.pageData !== undefined) {
-            this.setState({
-                isLoaded: true,
-                isSaved: true,
-                currentPage: this.props.pageData.page,
-            })
-            this.props.setSavedStatus(5);
-        } else {
-            this.props.setSavedStatus(4);
-        }
     }
 
     onSaveKeyDown = (e, keyData) => {
@@ -43,7 +23,7 @@ class DocumentPageContent extends Component {
             if (keyData.ctrlKey) {
                 //console.log('Force save');
                 if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
-                this.updateContent();
+                this.updateContent(this.state.currentPage, this.state.content);
             }
         }
     }
@@ -51,7 +31,7 @@ class DocumentPageContent extends Component {
     onContentChanged = (editor) => {
         // e: 이벤트, 주로 e.target을 쓴다. e.target 하면 html 그대로나오는데 -> name, value
         // data: 호출한 객체 데이터
-        const uploadWaitTime = 5000;
+        const uploadWaitTime = 3000;
         if (!this.state.isLoaded) {
             return;
         }
@@ -68,10 +48,9 @@ class DocumentPageContent extends Component {
 
         // 수정이 정지되고 5초 뒤에 저장되게 한다.
         if (this.state.uploadTimer > 0) clearTimeout(this.state.uploadTimer);
-        const timer = setTimeout(() => {this.updateContent()}, uploadWaitTime);
         this.setState({
-            uploadTimer: timer,
-        })
+            uploadTimer: setTimeout(() => {this.updateContent(this.state.currentPage, this.state.content)}, uploadWaitTime),
+        });
         //console.log(timer);
         // 마지막 수정후 5초 카운트를 세는데, 만일 그사이 수정시 타이머 리셋
         // 그리고 내용을 다시 GET 하는 타이밍은 언제로 해야될까
@@ -81,8 +60,15 @@ class DocumentPageContent extends Component {
         // 같은 페이지를 수정하고 있으면 굳이 새로 GET할 필요는 없을듯
     }
 
-    updateContent = () => {
+    updateContent = (page, content) => {
         //console.log('Update Content');
+        if (!this.state.isLoaded || this.state.isSaved) {
+            return;
+        }
+        if (page < 0) {
+            return;
+        }
+
         this.props.setSavedStatus(2);
         this.setState({
             isSaving: true,
@@ -91,11 +77,11 @@ class DocumentPageContent extends Component {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                content: this.state.content
+                content: content
             })
         })
         .then(() => {
-            this.props.pageData.updateLocalPageContents(this.props.pageData.idx, this.props.pageData.page, this.state.content);
+            this.props.pageData.updateLocalPageContents(this.props.pageData.idx, page, content);
             /*
             return fetch(`/api/docs/${this.props.contentInfo.dbId}/${this.props.contentInfo.page}`, {
                 method: 'GET',
@@ -103,7 +89,7 @@ class DocumentPageContent extends Component {
             this.props.setSavedStatus(0);
             this.setState({
                 isSaved: true,
-                isSaving: false
+                isSaving: false,
             });
         })
         .catch(e => {
@@ -115,26 +101,47 @@ class DocumentPageContent extends Component {
         })
     }
 
-    render() {
-        if (this.props.pageData && this.state.currentPage !== this.props.pageData?.page) {
-            this.resetContent();
+    static getDerivedStateFromProps(nextProps, prevState) {
+        const isLoaded = nextProps.pageData !== null && nextProps.pageData !== undefined;
+        const isPageChanged = prevState.currentPage !== nextProps.pageData?.page;
+        let toReturn = null;
+        if (prevState.isLoaded !== isLoaded || (isLoaded && isPageChanged)) {
+            // 로드 상태가 변했을때, 페이지 변경시
+            nextProps.setSavedStatus(isLoaded ? 5 : 4);
+            toReturn = {
+                isLoaded: isLoaded,
+                isSaved: true,
+                isSaving: false,
+                content: isLoaded ? nextProps.pageData.content : '',
+                currentPage: isLoaded ? nextProps.pageData.page : -1,
+            }
         }
 
-        if (!this.state.isLoaded && this.props.pageData !== undefined) {
+        return toReturn;
+    }
+
+    componentDidUpdate(_, prevState) {
+        if (this.state.isLoaded !== prevState.isLoaded || prevState.currentPage !== this.state.currentPage) {
+            this.props.setSavedStatus(this.state.isLoaded ? 5 : 4);
+            clearTimeout(prevState.uploadTimer);
             this.setState({
-                isLoaded: true
-            })
-            this.props.setSavedStatus(5);
+                uploadTimer: -1,
+                isSaved: true,
+            });
         }
+        var editorHandle = this.state.editorHandle;
+        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded;
+    }
 
-
+    render() {
         return (
             <CKEditor
                 editor={ ClassicEditor }
                 // 기존 데이터 넣어주기
-                data={this.props.pageData? this.props.pageData.content : '로딩중...'}
+                data={this.state.isLoaded ? this.props.pageData.content : '로딩중...'}
                 onInit={ editor => {
                     editor.editing.view.document.on('keydown', this.onSaveKeyDown);
+                    this.setState({ editorHandle: editor });
                 } }
                 onChange={ ( event, editor ) => {
                     this.onContentChanged(editor);
