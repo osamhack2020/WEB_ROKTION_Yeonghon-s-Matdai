@@ -11,7 +11,8 @@ class DocumentPageContent extends Component {
             isSaved: false,
             isSaving: false,
             content: '',
-            currentPage: -1
+            currentPage: -1,
+            editorHandle: null,
         }
         props.setSavedStatus(4);
     }
@@ -89,7 +90,7 @@ class DocumentPageContent extends Component {
             this.props.setSavedStatus(0);
             this.setState({
                 isSaved: true,
-                isSaving: false
+                isSaving: false,
             });
         })
         .catch(e => {
@@ -112,8 +113,9 @@ class DocumentPageContent extends Component {
             toReturn = {
                 uploadTimer: -1,
                 isLoaded: isLoaded,
-                isSaved: false,
+                isSaved: true,
                 isSaving: false,
+                content: nextProps.pageData.content,
                 currentPage: isLoaded ? nextProps.pageData.page : -1,
             }
         }
@@ -121,10 +123,12 @@ class DocumentPageContent extends Component {
         return toReturn;
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(_, prevState) {
         if (this.state.isLoaded !== prevState.isLoaded || prevState.currentPage !== this.state.currentPage) {
             this.props.setSavedStatus(this.state.isLoaded ? 5 : 4);
         }
+        var editorHandle = this.state.editorHandle;
+        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded;
     }
 
     render() {
@@ -135,6 +139,7 @@ class DocumentPageContent extends Component {
                 data={this.state.isLoaded ? this.props.pageData.content : '로딩중...'}
                 onInit={ editor => {
                     editor.editing.view.document.on('keydown', this.onSaveKeyDown);
+                    this.setState({ editorHandle: editor })
                 } }
                 onChange={ ( event, editor ) => {
                     this.onContentChanged(editor);

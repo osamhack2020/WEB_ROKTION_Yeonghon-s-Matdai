@@ -143,7 +143,7 @@ const DocumentPageSidebar = (props) => {
           <Grid.Row>
             <Menu size='massive' fluid vertical secondary>
               <Menu.Item
-                style={{textAlign:"center", fontSize:"20px"}}
+                style={{textAlign:"center", fontSize:"20px", color:"white"}}
                 key={"ToMainMenu"}
                 onClick={props.toMainMenu}>
                 문서 목록
