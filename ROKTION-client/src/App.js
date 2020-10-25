@@ -136,7 +136,7 @@ class App extends Component {
                     alert: parseInt(Math.random() * 100),
                     id: i,
                     // 색상 임시용
-                    color: '#C1C1C1',
+                    color: docInfo.titleColor,
                     dbId: docInfo._id,
                     tags: new Set(newTags),
                     onClick: () => {this.setState({selectedDocumentId: i})},
@@ -378,19 +378,14 @@ class App extends Component {
                 )
         })
 
-        /* 
-        // 괜히 건드렸다가 터질까봐 무섭다...
-        fetch(`/api/user/${this.state.???}`, {
-            method: '???',
+        fetch(`/api/docs/${docs.find(doc => doc.id === docid).dbId}`, {
+            method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                tags: {
-                    action: 'del',
-                    idx: idx
-                }
+                title: title,
+                color: color,
             })
         });
-         */
     }
 
     createNewDocument = () => {
