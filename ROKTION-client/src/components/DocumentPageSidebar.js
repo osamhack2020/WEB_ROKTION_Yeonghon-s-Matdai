@@ -35,7 +35,7 @@ const DocumentPageSidebar = (props) => {
             key={tag+'title'}
             active={activeIndex === idx}
             index = {idx}
-            style={{color:'grey', fontSize:'18px'}}
+            style={{color:'white', fontSize:'18px'}}
             onClick = {()=>{setActiveIndex(activeIndex === idx ? -1 : idx);}}>
             <Icon name='dropdown'/>
             {tag}
@@ -143,7 +143,7 @@ const DocumentPageSidebar = (props) => {
           <Grid.Row>
             <Menu size='massive' fluid vertical secondary>
               <Menu.Item
-                style={{textAlign:"center", fontSize:"20px"}}
+                style={{textAlign:"center", fontSize:"20px", color:"white"}}
                 key={"ToMainMenu"}
                 onClick={props.toMainMenu}>
                 문서 목록

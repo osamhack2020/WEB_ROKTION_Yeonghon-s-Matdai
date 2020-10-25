@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import DocumentPage from './components/DocumentPage';
 import MainMenuLayout from './components/MainMenuLayout';
 import LoginPage from './components/LoginPage';
@@ -108,13 +107,13 @@ class App extends Component {
         console.log('End getUserTags');
     }
     
-    getDocumentList = async () => {
+    getDocumentList = () => {
         console.log('Start getDocumentList');
         const relatedDocs = this.state.userInfo.relatedDocs;
         const docsAlready = 0; // 임시용
         for (let i = docsAlready; i < relatedDocs.created.length + docsAlready; ++i) {
             // 이거 비동기로 돌아감
-            await fetch(`/api/docs/${relatedDocs.created[i - docsAlready].docId}`, {
+            fetch(`/api/docs/${relatedDocs.created[i - docsAlready].docId}`, {
                 method: 'GET'
             })
             .then(res => {

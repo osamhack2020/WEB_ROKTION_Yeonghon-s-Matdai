@@ -111,7 +111,7 @@ class MainMenuLayout extends Component {
 
     setDocIdOnSettingMode = (id) => {
         const val = this.state.docIdOnSettingMode
-        console.log(val, id)
+        //console.log(val, id)
         if(val === id || id === -1){
             //변경 정보 app.js에서 저장
             this.props.changeDocumentSettings(id, this.state.newDocColor, this.state.newDocTitle)
