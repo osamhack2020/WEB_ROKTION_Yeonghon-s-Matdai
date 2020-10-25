@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import SignUpModal from './SignUpModal'
 import {
     Container,
     Segment,
@@ -65,12 +66,11 @@ class LoginPage extends Component {
                             divided horizontal
                             style={{opacity:.5, cursor:"pointer"}}
                         >
-                            <List.Item onClick={()=>{console.log("비밀번호찾기")}}>아이디 찾기</List.Item>
+                            <List.Item onClick={()=>{console.log("아이디찾기")}}>아이디 찾기</List.Item>
                             <List.Item onClick={()=>{console.log("비밀번호찾기")}}>비밀번호 찾기</List.Item>
-                            <List.Item onClick={this.props.handleSignUp}>회원가입</List.Item>
+                            <SignUpModal createNewUser={this.props.createNewUser}/>
                         </List>
                     </Container>
-                    
                     </Form>
                 </Segment>
                 
