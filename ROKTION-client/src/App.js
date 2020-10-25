@@ -3,7 +3,6 @@ import './App.css';
 import DocumentPage from './components/DocumentPage';
 import MainMenuLayout from './components/MainMenuLayout';
 import LoginPage from './components/LoginPage';
-import SignInPage from './components/SignInPage';
 import {
     Transition,
   } from 'semantic-ui-react'
@@ -23,12 +22,6 @@ class App extends Component {
             tags:[],
             documents:[]
           };
-    }
-
-    onSignUp = () => {
-        this.setState({
-            loginStatus: 2,
-        })
     }
 
     onLogin = (id, pw) => {
@@ -411,14 +404,19 @@ class App extends Component {
         }
     }
 
+    createNewUser = (newUser) => {
+        // 음...
+        console.log(newUser);
+    }
+
     render() {
-        // 0:로그인화면   1:로그인됨   2:회원가입   3:아이디찾기   4:비밀번호찾기
+        // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:
                 return(
                     <LoginPage
                         handleLogin={this.onLogin}
-                        handleSignUp={this.onSignUp}
+                        createNewUser={this.createNewUser}
                     />
                 );
             case 1:
@@ -453,13 +451,8 @@ class App extends Component {
                             tags={this.state.tags}/>
                         </Transition>
                 );
-            case 2:
-                return(<SignInPage/>);
-            case 3:
-                break;
-            case 4:
-                break;
             default:
+                break;
         }
     }
 };
