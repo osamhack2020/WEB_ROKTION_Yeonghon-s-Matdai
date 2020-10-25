@@ -49,9 +49,17 @@ class App extends Component {
             }
         })
         .then(data => {
+            if (data.status !== 200) {
+                alert('Wrong ID or password');
+                throw new Error(`Wrong ID or password`);
+            }
             return data.json();
         })
         .then(userData => {
+            if (userData === null) {
+                alert('Wrong ID or password');
+                throw new Error(`Wrong ID or password`);
+            }
             //console.log(userData);
             this.setState({
                 userInfo: userData,
