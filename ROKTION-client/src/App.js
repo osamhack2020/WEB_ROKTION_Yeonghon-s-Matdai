@@ -56,15 +56,11 @@ class App extends Component {
             //console.log(userData);
             this.setState({
                 userInfo: userData,
+                loginStatus: 1
             });
             //console.log(this.state.documents);
             this.getUserTags();
             return this.getDocumentList();
-        })
-        .then(() => {
-            this.setState({
-                loginStatus: 1
-            })
         })
         .catch(e => {
             console.error(e);
@@ -136,11 +132,12 @@ class App extends Component {
                     alert: parseInt(Math.random() * 100),
                     id: i,
                     // 색상 임시용
-                    color: '#C1C1C1',
+                    color: docInfo.titleColor,
                     dbId: docInfo._id,
                     tags: new Set(newTags),
                     onClick: () => {this.setState({selectedDocumentId: i})},
                     documentContent: [],
+                    isDocumentContentLoaded: -1, // -1: 미로딩, 0: 로딩중, 1: 로딩완료
                     pagesLength: docInfo.contents.length,
                 }
                 this.setState({
@@ -156,6 +153,13 @@ class App extends Component {
     }
 
     getPageContents = (document, idx) => {
+        this.setState((state) => {
+            const newDocs = state.documents;
+            newDocs[idx].isDocumentContentLoaded = 0;
+            return {
+                documents: newDocs
+            }
+        });
         for (let i = 0; i < document.pagesLength; ++i) {
             fetch(`/api/docs/${document.dbId}/${i}`, {
                 method: 'GET'
@@ -178,6 +182,7 @@ class App extends Component {
                     page: i,
                     dbId: document.dbId,
                 };
+                ++(docs[idx].isDocumentContentLoaded);
                 this.setState({
                     documents: docs,
                 });
@@ -319,22 +324,26 @@ class App extends Component {
 
     toggleTagInDocument = (docid, tagid) => {
         const docs = this.state.documents;
-        const docTags = docs.find(doc => (doc.id===docid)).tags;
+        const doc = docs.find(doc => (doc.id===docid));
+        let action;
         if (tagid <= 3){
             //주요태그 (진행중/예정됨/완료됨/문서)
-            docTags.delete(0);
-            docTags.delete(1);
-            docTags.delete(2);
-            docTags.delete(3);
-            docTags.add(tagid);
+            doc.tags.delete(0);
+            doc.tags.delete(1);
+            doc.tags.delete(2);
+            doc.tags.delete(3);
+            doc.tags.add(tagid);
+            action = 'default';
         }
-        else if (docTags.has(tagid)){
+        else if (doc.tags.has(tagid)){
             //태그삭제
-            docTags.delete(tagid);
+            doc.tags.delete(tagid);
+            action = 'del';
         }
         else{
             //태그추가
-            docTags.add(tagid);
+            doc.tags.add(tagid);
+            action = 'add';
         }
 
         this.setState({
@@ -342,11 +351,23 @@ class App extends Component {
                 docs.map(
                     doc => (
                         doc.id === docid ?
-                        {...doc, tags:docTags}:
+                        {...doc, tags:doc.tags}:
                         {...doc}
                     )
                 )
         })
+
+        fetch(`/api/user/${this.state.userInfo.tagId}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                docTags: {
+                    action: action,
+                    docId: doc.dbId,
+                    tagId: tagid,
+                }
+            })
+        });
     }
 
     changeDocumentSettings = (docid, color, title) => {
@@ -362,19 +383,14 @@ class App extends Component {
                 )
         })
 
-        /* 
-        // 괜히 건드렸다가 터질까봐 무섭다...
-        fetch(`/api/user/${this.state.???}`, {
-            method: '???',
+        fetch(`/api/docs/${docs.find(doc => doc.id === docid).dbId}`, {
+            method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                tags: {
-                    action: 'del',
-                    idx: idx
-                }
+                title: title,
+                color: color,
             })
         });
-         */
     }
 
     createNewDocument = () => {
@@ -411,6 +427,14 @@ class App extends Component {
         }
     }
 
+    componentDidUpdate() {
+        let {selectedDocumentId, documents} = this.state;
+        let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
+        if (selectedDocument !== undefined && selectedDocument.isDocumentContentLoaded < 0) {
+            this.getPageContents(selectedDocument, selectedDocumentId);
+        }
+    }
+
     render() {
         // 0:로그인화면   1:로그인됨   2:회원가입   3:아이디찾기   4:비밀번호찾기
         switch(this.state.loginStatus) {
@@ -425,9 +449,7 @@ class App extends Component {
                 let {selectedDocumentId, documents} = this.state;
                 let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
                 //console.log(selectedDocument);
-                if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
-                    this.getPageContents(selectedDocument, selectedDocumentId);
-                }
+
                 return (
                     selectedDocument !== undefined ?
                         <Transition onShow={()=>{console.log("mounted")}} transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>

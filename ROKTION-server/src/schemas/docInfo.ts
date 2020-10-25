@@ -10,6 +10,7 @@ export enum DocStatus {
 
 export interface DocInfo extends Document {
     title: string;
+    titleColor: string;
     description: string;
     author: Types.ObjectId;
     status: DocStatus;
@@ -31,6 +32,7 @@ export interface DocInfo extends Document {
 
 const docInfoSchema = new Schema({
     title: String,
+    titleColor: String,
     description: String,
     author: Types.ObjectId,
     status: {
