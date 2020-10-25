@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import DocumentPage from './components/DocumentPage';
 import MainMenuLayout from './components/MainMenuLayout';
 import LoginPage from './components/LoginPage';

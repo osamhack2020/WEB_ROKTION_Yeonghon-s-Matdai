@@ -1,0 +1,16 @@
+
+/* 사이드바 색깔 변경 */
+.ui.inverted.menu {
+    background: #52565a!important;
+}
+
+/* 사이드바의 버튼들 테두리 제거 */
+.ui.basic.black.button {
+    box-shadow: none!important;
+}
+
+/* 사이드바의 버튼 hover시 동작 변경 */
+.ui.basic.black.button:hover {
+    box-shadow: none!important;
+    background: #606367!important;
+}

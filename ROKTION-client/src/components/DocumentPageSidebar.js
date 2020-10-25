@@ -35,7 +35,7 @@ const DocumentPageSidebar = (props) => {
             key={tag+'title'}
             active={activeIndex === idx}
             index = {idx}
-            style={{color:'grey', fontSize:'18px'}}
+            style={{color:'white', fontSize:'18px'}}
             onClick = {()=>{setActiveIndex(activeIndex === idx ? -1 : idx);}}>
             <Icon name='dropdown'/>
             {tag}
