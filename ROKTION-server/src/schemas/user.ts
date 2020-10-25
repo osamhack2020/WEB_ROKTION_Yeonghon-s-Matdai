@@ -11,7 +11,7 @@ export interface DocView {
 }
 
 export interface User extends Document {
-    tagId: number;
+    tagId: string;
     passwd: string;
     passwdSalt: string;
     name: string;
@@ -28,7 +28,7 @@ export interface User extends Document {
 
 const userSchema = new Schema({
     tagId: {
-        type: Number,
+        type: String,
         required: true,
         unique: true,
     },
