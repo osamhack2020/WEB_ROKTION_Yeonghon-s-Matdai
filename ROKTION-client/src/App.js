@@ -56,15 +56,11 @@ class App extends Component {
             //console.log(userData);
             this.setState({
                 userInfo: userData,
+                loginStatus: 1
             });
             //console.log(this.state.documents);
             this.getUserTags();
             return this.getDocumentList();
-        })
-        .then(() => {
-            this.setState({
-                loginStatus: 1
-            })
         })
         .catch(e => {
             console.error(e);
@@ -141,6 +137,7 @@ class App extends Component {
                     tags: new Set(newTags),
                     onClick: () => {this.setState({selectedDocumentId: i})},
                     documentContent: [],
+                    isDocumentContentLoaded: -1, // -1: 미로딩, 0: 로딩중, 1: 로딩완료
                     pagesLength: docInfo.contents.length,
                 }
                 this.setState({
@@ -156,6 +153,13 @@ class App extends Component {
     }
 
     getPageContents = (document, idx) => {
+        this.setState((state) => {
+            const newDocs = state.documents;
+            newDocs[idx].isDocumentContentLoaded = 0;
+            return {
+                documents: newDocs
+            }
+        });
         for (let i = 0; i < document.pagesLength; ++i) {
             fetch(`/api/docs/${document.dbId}/${i}`, {
                 method: 'GET'
@@ -178,6 +182,7 @@ class App extends Component {
                     page: i,
                     dbId: document.dbId,
                 };
+                ++(docs[idx].isDocumentContentLoaded);
                 this.setState({
                     documents: docs,
                 });
@@ -422,6 +427,14 @@ class App extends Component {
         }
     }
 
+    componentDidUpdate() {
+        let {selectedDocumentId, documents} = this.state;
+        let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
+        if (selectedDocument !== undefined && selectedDocument.isDocumentContentLoaded < 0) {
+            this.getPageContents(selectedDocument, selectedDocumentId);
+        }
+    }
+
     render() {
         // 0:로그인화면   1:로그인됨   2:회원가입   3:아이디찾기   4:비밀번호찾기
         switch(this.state.loginStatus) {
@@ -436,9 +449,7 @@ class App extends Component {
                 let {selectedDocumentId, documents} = this.state;
                 let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
                 //console.log(selectedDocument);
-                if (selectedDocument !== undefined && selectedDocument.documentContent.length === 0) {
-                    this.getPageContents(selectedDocument, selectedDocumentId);
-                }
+
                 return (
                     selectedDocument !== undefined ?
                         <Transition onShow={()=>{console.log("mounted")}} transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>

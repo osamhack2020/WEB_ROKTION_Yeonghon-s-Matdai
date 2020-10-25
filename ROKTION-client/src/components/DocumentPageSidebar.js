@@ -30,7 +30,7 @@ const DocumentPageSidebar = (props) => {
   const mainTagList = ['진행','예정','완료','문서','중요'].map(
     (tag, idx) => {
       return(
-        <>
+        <Container key={idx}>
           <Accordion.Title
             key={tag+'title'}
             active={activeIndex === idx}
@@ -76,7 +76,7 @@ const DocumentPageSidebar = (props) => {
             }
           </Menu>
           </Accordion.Content>
-        </>
+        </Container>
       )
     }
   )
