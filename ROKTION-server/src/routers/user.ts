@@ -272,29 +272,15 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
     .catch(e => res.status(400).end());
 });
 
-// 문자열 군번 값을 숫자로 바꿔주는 친구, Parser
-function getTagId(id: string) : Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-        try {
-            if (Number(id) > 0) {
-                resolve(Number(id));
-            } else {
-                let nums = id.split('-');
-                let numId = Number(nums[0] + nums[1]);
-                if (nums.length === 2 &&  numId > 0) {
-                    resolve(numId);
-                } else {
-                    throw new Error(`NaN, invalid id with ${id}`);
-                }
-            }
-        } catch (e) {
-            reject(Error(e));
-        }
+// 문자열 군번값이 유효한지 확인해주는 친구...?
+function getTagId(id: string) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        resolve(id);
     });
 }
 
-function checkLogined(session: Express.Session) : Promise<number> {
-    return new Promise<number>((resolve, reject) => {
+function checkLogined(session: Express.Session) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
         if (session.dbId && session.tagId) {
             resolve(session.tagId);
         } else {
