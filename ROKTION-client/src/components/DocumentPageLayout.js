@@ -74,9 +74,10 @@ class DocumentPageLayout extends Component{
         return(
             <Sidebar.Pusher className="pushableMainScreen" style={{overflow:'visible'}}>
                 <div style={{padding:'10px 0px 0px 20px',
-                             width:"90%",
-                             minWidth:"500px",
-                             maxWidth:"1000px",
+                             //width:"90%",
+                             width:"95%",
+                             minWidth:"786px",
+                             //maxWidth:"100vh",
                              overflow:"visible",
                              minHeight:"100vh",}}>
                     <Grid className="mainScreenGrid">
