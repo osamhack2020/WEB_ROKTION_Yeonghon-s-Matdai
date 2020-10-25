@@ -319,22 +319,26 @@ class App extends Component {
 
     toggleTagInDocument = (docid, tagid) => {
         const docs = this.state.documents;
-        const docTags = docs.find(doc => (doc.id===docid)).tags;
+        const doc = docs.find(doc => (doc.id===docid));
+        let action;
         if (tagid <= 3){
             //주요태그 (진행중/예정됨/완료됨/문서)
-            docTags.delete(0);
-            docTags.delete(1);
-            docTags.delete(2);
-            docTags.delete(3);
-            docTags.add(tagid);
+            doc.tags.delete(0);
+            doc.tags.delete(1);
+            doc.tags.delete(2);
+            doc.tags.delete(3);
+            doc.tags.add(tagid);
+            action = 'default';
         }
-        else if (docTags.has(tagid)){
+        else if (doc.tags.has(tagid)){
             //태그삭제
-            docTags.delete(tagid);
+            doc.tags.delete(tagid);
+            action = 'del';
         }
         else{
             //태그추가
-            docTags.add(tagid);
+            doc.tags.add(tagid);
+            action = 'add';
         }
 
         this.setState({
@@ -342,11 +346,23 @@ class App extends Component {
                 docs.map(
                     doc => (
                         doc.id === docid ?
-                        {...doc, tags:docTags}:
+                        {...doc, tags:doc.tags}:
                         {...doc}
                     )
                 )
         })
+
+        fetch(`/api/user/${this.state.userInfo.tagId}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                docTags: {
+                    action: action,
+                    docId: doc.dbId,
+                    tagId: tagid,
+                }
+            })
+        });
     }
 
     changeDocumentSettings = (docid, color, title) => {
