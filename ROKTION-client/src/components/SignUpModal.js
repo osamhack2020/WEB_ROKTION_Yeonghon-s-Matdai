@@ -5,6 +5,7 @@ import {
     List,
     Form,
     Icon,
+    Grid,
   } from 'semantic-ui-react'
 
 
@@ -26,8 +27,6 @@ class SignUpModal extends Component {
             regimentError:false,
             rank:null,
             rankError:false,
-            serialNumber:null,
-            serialNumberError:false,
             dateOfBirth:null,
             dateOfBirthError:false,
             email:null,
@@ -52,8 +51,6 @@ class SignUpModal extends Component {
             regimentError:false,
             rank:null,
             rankError:false,
-            serialNumber:null,
-            serialNumberError:false,
             dateOfBirth:null,
             dateOfBirthError:false,
             email:null,
@@ -72,13 +69,12 @@ class SignUpModal extends Component {
             nameError:false,
             regimentError:false,
             rankError:false,
-            serialNumberError:false,
             dateOfBirthError:false,
             emailError:false,
             phoneNumberError:false,
         })
 
-        if(!/^[0-9a-zA-Z]{5,15}$/.test(this.state.id)){
+        if(!/^[0-9]{2}-[0-9]{5,8}$/.test(this.state.id)){
             this.setState({idError:true});
             isValid = false;
         }
@@ -108,10 +104,6 @@ class SignUpModal extends Component {
         }
         if(this.state.rank === null){
             this.setState({rankError:true});
-            isValid = false;
-        }
-        if(!/^[0-9]{2}-[0-9]{5,8}$/.test(this.state.serialNumber)){
-            this.setState({serialNumberError:true});
             isValid = false;
         }
         if(!/^[0-9]{6}$/.test(this.state.dateOfBirth)){
@@ -149,7 +141,6 @@ class SignUpModal extends Component {
             name:this.state.name,
             regiment:this.state.regiment,
             rank:this.state.rank,
-            serialNumber:this.state.serialNumber,
             dateOfBirth:this.state.dateOfBirth,
             email:this.state.email,
             phoneNumber:this.state.phoneNumber
@@ -203,8 +194,8 @@ class SignUpModal extends Component {
                         fluid
                         label={
                             this.state.idError ? 
-                            '아이디가 형식에 맞지 않습니다. (5-15자 사이의 영문, 숫자 조합)' :
-                            '아이디 (5-15자 사이의 영문, 숫자 조합)'}
+                            '아이디가 형식에 맞지 않습니다. (잘못된 군번입니다)' :
+                            '아이디 (본인의 군번)'}
                         onChange={this.handleUserDataChange}
                         error={this.state.idError}
                         placeholder='아이디' />
@@ -266,16 +257,6 @@ class SignUpModal extends Component {
                         onChange={this.handleUserDataChange}
                         error={this.state.regimentError}
                         placeholder='소속부대' />
-                    <Form.Input
-                        name='serialNumber'
-                        fluid
-                        label={
-                            this.state.serialNumberError ?
-                            '잘못된 군번입니다.' :
-                            '군번'}
-                        onChange={this.handleUserDataChange}
-                        error={this.state.serialNumberError}
-                        placeholder='군번' />
                     <Form.Input
                         name='dateOfBirth'
                         fluid
@@ -342,22 +323,47 @@ class SignUpModal extends Component {
             open={this.state.isSignedUp}
             >
                 <Modal.Content>
-                    <Modal.Description>
-                        <Icon name='check' color='green' size='massive'/>
-                        <h1>축하합니다!</h1>
-                        <h2>ROKTION 국군정보체계에 가입이 완료되었습니다!</h2>
-                        <Button
-                            content='확인'
-                            onClick={()=>{
-                                this.resetUserData();
-                                this.setState({
-                                    isSignedUp:false,
-                                    isSigningUp:false})
+                    <Grid
+                        as={Modal.Description}
+                        style={{padding:"10px 25px 10px 25px"}}>
+                        <Grid.Row
+                            columns='equal'
+                            verticalAlign='middle'>
+                            <Grid.Column width={3}>
+                            <Icon.Group size='massive'>
+                                <Icon name='user'/>
+                                <Icon
+                                    corner
+                                    color='green'
+                                    name='check'/> 
+                            </Icon.Group>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <h1 style={{marginBottom:"5px"}}>
+                                    {this.state.name}님, 환영합니다!
+                                </h1>
+                                <div style={{fontSize:"20px", marginTop:"0px", marginBottom:"5px"}}>
+                                    ROKTION 국군정보체계에 성공적으로 가입되었습니다.
+                                </div>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row style={{paddingTop:"0px", paddingBottom:"5px"}}>
+                            <Button
+                                fluid
+                                size='small'
+                                color='green'
+                                content='로그인하러 가기'
+                                onClick={()=>{
+                                    this.resetUserData();
+                                    this.setState({
+                                        isSignedUp:false,
+                                        isSigningUp:false})
+                                    }
                                 }
-                            }/>
-                    </Modal.Description>
+                            />
+                        </Grid.Row>
+                    </Grid>
                 </Modal.Content>
-
             </Modal>
             </>
         );

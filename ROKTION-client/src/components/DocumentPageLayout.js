@@ -3,6 +3,7 @@ import './Layout.css';
 import Clock from './Clock';
 import UserIcon from './UserIcon';
 import DocumentSettingIcon from './DocumentSettingIcon';
+import MentionUserPopup from './MentionUserPopup';
 import {
     Sidebar,
     Grid,
@@ -16,6 +17,7 @@ import {
     Loader,
   } from 'semantic-ui-react';
 import DocumentPageContent from './DocumentPageContent';
+
 
 class DocumentPageLayout extends Component{
     constructor(props){
@@ -168,7 +170,11 @@ class DocumentPageLayout extends Component{
                                     secondary
                                     totalPages={this.props.document.documentContent.length}/>
                             </Container>
-                            <Grid.Column width={2} textAlign='right'>
+                            <Grid.Column width={3} textAlign='right'>
+                                <MentionUserPopup
+                                    createNewMention={this.props.createNewMention}
+                                    docid={this.state.documentId}
+                                    page={this.state.selectedPage}/>
                                 <Popup
                                     trigger={
                                         <Button 
@@ -176,8 +182,8 @@ class DocumentPageLayout extends Component{
                                         icon='file'/>
                                     }
                                     content={
-                                        <Grid divided='vertically' textAlign='center'>
-                                            <Grid.Row><Button 
+                                        <Grid style={{width:'150px'}} textAlign='center'>
+                                            <Grid.Row style={{paddingBottom:'5px'}}><Button 
                                             color='green'
                                             content='페이지 추가'
                                             icon='plus'
@@ -189,7 +195,7 @@ class DocumentPageLayout extends Component{
                                                     })
                                                 });
                                             }}/></Grid.Row>
-                                            <Grid.Row><Button 
+                                            <Grid.Row style={{paddingTop:"0px"}}><Button 
                                             color='red'
                                             content='페이지 삭제'
                                             icon='minus'

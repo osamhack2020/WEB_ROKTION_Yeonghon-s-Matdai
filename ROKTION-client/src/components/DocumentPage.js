@@ -15,6 +15,7 @@ class DocumentPage extends Component {
             <Sidebar.Pushable className="DocumentPage" style={{overflow:'visible'}}>
                 <DocumentPageSidebar documents = {info.documents} toMainMenu={this.props.toMainMenu}/>
                 <DocumentPageLayout
+                createNewMention={this.props.createNewMention}
                 handleLogout = {this.props.handleLogout}
                 document = {selectedDocument}
                 addPageAfter={this.props.addPageAfter}
