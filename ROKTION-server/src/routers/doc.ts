@@ -281,13 +281,9 @@ router.delete('/:id', (req: Request, res: Response) => {
     })
 });
 
-// 문서 접근 권한 체크 (WIP)
+// 문서 접근 권한 체크
 function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null) : Promise<Permission> {
     return new Promise((resolve, reject) => {
-        resolve({
-            docInfo: docInfo!,
-            permissionLevel: PermissionLevel.owner,
-        });
         if (docInfo !== undefined && docInfo !== null && dbId !== undefined && dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
             if (docInfo.author === dbId) {
@@ -306,7 +302,7 @@ function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null)
                 permissionLevel: pl,
             });
         } else {
-            reject(new Error('Can\'t check permission'));
+            reject(new Error(`Can\'t check permission, ${dbId}`));
         }
     });
 }

@@ -127,11 +127,10 @@ class App extends Component {
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
-                    description: '',
+                    description: docInfo.description,
                     // alert 임시용
                     alert: parseInt(Math.random() * 100),
                     id: i,
-                    // 색상 임시용
                     color: docInfo.titleColor,
                     dbId: docInfo._id,
                     tags: new Set(newTags),
@@ -210,6 +209,7 @@ class App extends Component {
                         page: afterPageIdx + 1,
                         dbId: docs[this.state.selectedDocumentId].dbId,
                     });
+                    ++docs.pagesLength;
                     this.setState({
                         documents: docs,
                     });
@@ -238,6 +238,7 @@ class App extends Component {
                     for (let i = rmIdx; i < docs[this.state.selectedDocumentId].documentContent.length; ++i) {
                         docs[this.state.selectedDocumentId].documentContent[i].page = i;
                     }
+                    --docs.pagesLength;
                     this.setState({
                         documents: docs,
                     })
@@ -430,10 +431,11 @@ class App extends Component {
         .then(data => {
             newDoc.admin = data.author;
             newDoc.dbId = data.dbId;
-            console.log(newDoc);
+            //console.log(newDoc);
             this.setState({
-                documents: [...docs, newDoc],
+                documents: [newDoc, ...docs],
             }); 
+            this.reindexingDocuments();
         })
         .then(() => {
             // end loading screen
@@ -463,6 +465,7 @@ class App extends Component {
                 this.setState({
                     documents:docs,
                 })
+                this.reindexingDocuments();
             })
             .catch(e => {
                 console.error(e);
@@ -470,6 +473,21 @@ class App extends Component {
         } else {
             console.error(`Cannot find doc with ${docid}`);
         }
+    }
+
+    reindexingDocuments = () => {
+        const docs = this.state.documents;
+        this.setState({
+            documents: docs.map((doc, idx) => {
+                doc.id = idx;
+                doc.onClick = () => {this.setState({selectedDocumentId: idx})};
+                doc.documentContent = doc.documentContent.map(cont => {
+                    cont.idx = idx;
+                    return cont;
+                });
+                return doc;
+            })
+        });
     }
 
     createNewUser = (newUser) => {
