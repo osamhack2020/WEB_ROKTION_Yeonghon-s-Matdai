@@ -5,6 +5,7 @@ import {
     List,
     Form,
     Icon,
+    Grid,
   } from 'semantic-ui-react'
 
 
@@ -342,22 +343,47 @@ class SignUpModal extends Component {
             open={this.state.isSignedUp}
             >
                 <Modal.Content>
-                    <Modal.Description>
-                        <Icon name='check' color='green' size='massive'/>
-                        <h1>축하합니다!</h1>
-                        <h2>ROKTION 국군정보체계에 가입이 완료되었습니다!</h2>
-                        <Button
-                            content='확인'
-                            onClick={()=>{
-                                this.resetUserData();
-                                this.setState({
-                                    isSignedUp:false,
-                                    isSigningUp:false})
+                    <Grid
+                        as={Modal.Description}
+                        style={{padding:"10px 25px 10px 25px"}}>
+                        <Grid.Row
+                            columns='equal'
+                            verticalAlign='middle'>
+                            <Grid.Column width={3}>
+                            <Icon.Group size='massive'>
+                                <Icon name='user'/>
+                                <Icon
+                                    corner
+                                    color='green'
+                                    name='check'/> 
+                            </Icon.Group>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <h1 style={{marginBottom:"5px"}}>
+                                    {this.state.name}님, 환영합니다!
+                                </h1>
+                                <div style={{fontSize:"20px", marginTop:"0px", marginBottom:"5px"}}>
+                                    ROKTION 국군정보체계에 성공적으로 가입되었습니다.
+                                </div>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row style={{paddingTop:"0px", paddingBottom:"5px"}}>
+                            <Button
+                                fluid
+                                size='small'
+                                color='green'
+                                content='로그인하러 가기'
+                                onClick={()=>{
+                                    this.resetUserData();
+                                    this.setState({
+                                        isSignedUp:false,
+                                        isSigningUp:false})
+                                    }
                                 }
-                            }/>
-                    </Modal.Description>
+                            />
+                        </Grid.Row>
+                    </Grid>
                 </Modal.Content>
-
             </Modal>
             </>
         );
