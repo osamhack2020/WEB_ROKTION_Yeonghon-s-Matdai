@@ -132,112 +132,115 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     ])
     .then(value => {
         // 로그인 한 유저가 수정하려는건지 확인
-        if (value[0] === value[1]) {
-            return value[0];
-        } else {
-            throw new Error('No permission');
-        }
+        return {tagId: value[0], perm: value[0] === value[1]};
     })
-    .then(async n => {
+    .then(async data => {
         let active = false;
-        if (req.body.passwd) {
-            // 패스워드 변경시
-            crypto.randomBytes(64, (err, buf) => {
-                crypto.pbkdf2(req.body.passwd, buf.toString('base64'), 1231, 64, 'sha512', (err, key) => {
-                    req.body.passwd = key.toString('base64');
+        if (data.perm) {
+            // 본인의 정보 수정
+            if (req.body.passwd) {
+                // 패스워드 변경시
+                crypto.randomBytes(64, (err, buf) => {
+                    crypto.pbkdf2(req.body.passwd, buf.toString('base64'), 1231, 64, 'sha512', (err, key) => {
+                        req.body.passwd = key.toString('base64');
+                    });
+                    req.body.passwdSalt = buf.toString('base64');
                 });
-                req.body.passwdSalt = buf.toString('base64');
-            });
-            await UserModel.update({ tagId: n }, {...req.body});
-            active = true;
-        }
-        if (req.body.tags) {
-            // 태그 추가 및 제거시 <- 태그와 같이오는 action 문자열로 동작
-            // in: tags.name, tags.color, tags.action
-            if (req.body.tags.action === 'add') {
-                // 태그 추가
-                try {
-                    const usr = await UserModel.findOne({ tagId: n });
-                    let newTag: Tag = {
-                        name: req.body.tags.name,
-                        color: req.body.tags.color,
-                    };
-                    usr?.tags.push(newTag);
-                    await usr?.save();
-                    active = true;
-                } catch (e) {
-                    throw new Error(e);
-                }
-            } else if (req.body.tags.action === 'del') {
-                if (req.body.tags.idx > 3) {
-                    // 태그 삭제
+                await UserModel.update({ tagId: data.tagId }, {...req.body});
+                active = true;
+            }
+            if (req.body.tags) {
+                // 태그 추가 및 제거시 <- 태그와 같이오는 action 문자열로 동작
+                // in: tags.name, tags.color, tags.action
+                if (req.body.tags.action === 'add') {
+                    // 태그 추가
                     try {
-                        const usr_1 = await UserModel.findOne({ tagId: n });
-                        usr_1?.tags.splice(req.body.tags.idx, 1);
-                        await usr_1?.save();
+                        const usr = await UserModel.findOne({ tagId: data.tagId });
+                        let newTag: Tag = {
+                            name: req.body.tags.name,
+                            color: req.body.tags.color,
+                        };
+                        usr?.tags.push(newTag);
+                        await usr?.save();
                         active = true;
-                    } catch (e_1) {
-                        throw new Error(e_1);
+                    } catch (e) {
+                        throw new Error(e);
                     }
-                } else {
-                    // 기본태그는 삭제 불가능
-                    throw new Error(`Default tag cannot be removed`);
+                } else if (req.body.tags.action === 'del') {
+                    if (req.body.tags.idx > 3) {
+                        // 태그 삭제
+                        try {
+                            const usr_1 = await UserModel.findOne({ tagId: data.tagId });
+                            usr_1?.tags.splice(req.body.tags.idx, 1);
+                            await usr_1?.save();
+                            active = true;
+                        } catch (e_1) {
+                            throw new Error(e_1);
+                        }
+                    } else {
+                        // 기본태그는 삭제 불가능
+                        throw new Error(`Default tag cannot be removed`);
+                    }
+                }
+            }
+            if (req.body.docTags) {
+                // 문서의 태그 수정 <- action 문자열로 동작
+                // in: docTags.action, docTags.docId, docTags.tagId
+                if (req.body.docTags.action === 'default') {
+                    // 기본 태그 변경시
+                    try {
+                        const docInfo = await DocInfoModel.findById(req.body.docTags.docId);
+                        docInfo!.status = Number(req.body.docTags.tagId) as DocStatus;
+                        await docInfo?.save();
+                        active = true;
+                    } catch (e) {
+                        throw new Error(e);
+                    }
+                } else if (req.body.docTags.action === 'add') {
+                    // 유저 태그 추가시
+                    try {
+                        const usr = await UserModel.findOne({ tagId: data.tagId });
+                        const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId == req.body.docTags.docId);
+                        const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId == req.body.docTags.docId);
+                        if (createdDocIdx! >= 0) {
+                            usr?.relatedDocs.created[createdDocIdx!].docTags.push(Number(req.body.docTags.tagId));
+                            usr?.relatedDocs.created[createdDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
+                        } else if (sharedDocIdx! >= 0) {
+                            usr?.relatedDocs.shared[sharedDocIdx!].docTags.push(Number(req.body.docTags.tagId));
+                            usr?.relatedDocs.shared[sharedDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
+                        }
+                        usr?.markModified('relatedDocs');
+                        await usr?.save();
+                        active = true;
+                    } catch (e) {
+                        throw new Error(e);
+                    }
+                } else if (req.body.docTags.action === 'del') {
+                    // 유저 태그 삭제시
+                    try {
+                        const usr = await UserModel.findOne({ tagId: data.tagId });
+                        const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId == req.body.docTags.docId);
+                        const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId == req.body.docTags.docId);
+                        if (createdDocIdx! >= 0) {
+                            const delIdx = usr?.relatedDocs.created[createdDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
+                            if (delIdx! >= 0) usr?.relatedDocs.created[createdDocIdx!].docTags.splice(delIdx!, 1);
+                        } else if (createdDocIdx! >= 0) {
+                            const delIdx = usr?.relatedDocs.shared[sharedDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
+                            if (delIdx! >= 0) usr?.relatedDocs.shared[sharedDocIdx!].docTags.splice(delIdx!, 1);
+                        }
+                        usr?.markModified('relatedDocs');
+                        await usr?.save();
+                        active = true;
+                    } catch (e) {
+                        throw new Error(e);
+                    }
                 }
             }
         }
-        if (req.body.docTags) {
-            // 문서의 태그 수정 <- action 문자열로 동작
-            // in: docTags.action, docTags.docId, docTags.tagId
-            if (req.body.docTags.action === 'default') {
-                // 기본 태그 변경시
-                try {
-                    const docInfo = await DocInfoModel.findById(req.body.docTags.docId);
-                    docInfo!.status = Number(req.body.docTags.tagId) as DocStatus;
-                    await docInfo?.save();
-                    active = true;
-                } catch (e) {
-                    throw new Error(e);
-                }
-            } else if (req.body.docTags.action === 'add') {
-                // 유저 태그 추가시
-                try {
-                    const usr = await UserModel.findOne({ tagId: n });
-                    const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId == req.body.docTags.docId);
-                    const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId == req.body.docTags.docId);
-                    if (createdDocIdx! >= 0) {
-                        usr?.relatedDocs.created[createdDocIdx!].docTags.push(Number(req.body.docTags.tagId));
-                        usr?.relatedDocs.created[createdDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
-                    } else if (sharedDocIdx! >= 0) {
-                        usr?.relatedDocs.shared[sharedDocIdx!].docTags.push(Number(req.body.docTags.tagId));
-                        usr?.relatedDocs.shared[sharedDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
-                    }
-                    usr?.markModified('relatedDocs');
-                    await usr?.save();
-                    active = true;
-                } catch (e) {
-                    throw new Error(e);
-                }
-            } else if (req.body.docTags.action === 'del') {
-                // 유저 태그 삭제시
-                try {
-                    const usr = await UserModel.findOne({ tagId: n });
-                    const createdDocIdx = usr?.relatedDocs.created.findIndex(docView => docView.docId == req.body.docTags.docId);
-                    const sharedDocIdx = usr?.relatedDocs.shared.findIndex(docView => docView.docId == req.body.docTags.docId);
-                    if (createdDocIdx! >= 0) {
-                        const delIdx = usr?.relatedDocs.created[createdDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
-                        if (delIdx! >= 0) usr?.relatedDocs.created[createdDocIdx!].docTags.splice(delIdx!, 1);
-                    } else if (createdDocIdx! >= 0) {
-                        const delIdx = usr?.relatedDocs.shared[sharedDocIdx!].docTags.findIndex(num => num == Number(req.body.docTags.tagId));
-                        if (delIdx! >= 0) usr?.relatedDocs.shared[sharedDocIdx!].docTags.splice(delIdx!, 1);
-                    }
-                    usr?.markModified('relatedDocs');
-                    await usr?.save();
-                    active = true;
-                } catch (e) {
-                    throw new Error(e);
-                }
-            }
-        }
+        // 본인 또는 타인의 정보 수정 - alert, 등등?
+        /// 뭐라도 하겠지 WIP
+        
+        // req가 유효했는지 체크
         if (active) {
             return;
         } else {
@@ -246,7 +249,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     })
     .then(() => res.status(200).end())
     .catch(e => {
-        res.status(400).end();
+        res.status(400).json(e);
     });    
 });
 
