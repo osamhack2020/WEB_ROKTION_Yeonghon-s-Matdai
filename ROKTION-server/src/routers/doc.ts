@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Doc, DocModel } from "../schemas/doc";
 import { DocInfo, DocInfoModel } from "../schemas/docInfo";
 import { UserModel } from "../schemas/user";
@@ -47,7 +47,7 @@ router.post('/:id', async (req: Request, res: Response) => {
 });
 
 // 새로운 문서를 추가
-// in: 문서 제목(newTitle)
+// in: 문서 제목(title), 문서 색(color)
 router.post('/', async (req: Request, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -55,19 +55,21 @@ router.post('/', async (req: Request, res: Response) => {
     // 새로운 DocInfo 생성 <- in 다 넣는다.
     const authorId = mongoose.Types.ObjectId(req.session?.dbId);
     const newDocInfo = new DocInfoModel({
-        title: req.body.newTitle,
+        title: req.body.title,
+        titleColor: req.body.color,
+        description: '',
         author: authorId,
+        status: 0,
         contents: [],
-        shareOption: {
-            owner: req.session!.dbId,
-        },
+        shareOption: { },
         edited: {
-            editor: authorId
+            editor: authorId,
+            editDate: new Date()
         }
     });
     // 새로운 Doc 생성 -> DocInfo의 contents에 추가
     const newDoc = new DocModel({
-        content: '',
+        content: '새로운 문서에 오신걸 환영합니다!',
         linkedFiles: []
     });
     newDocInfo.contents.push({
@@ -78,7 +80,12 @@ router.post('/', async (req: Request, res: Response) => {
     // 생성자의 db에서 relatedDocs에 새로운 DocInfo 추가
     const author = await UserModel.findById(authorId);
     try {
-        author?.relatedDocs.created.splice(0, 0, newDocInfo._id);
+        author?.relatedDocs.created.splice(0, 0, {
+            docId: newDocInfo._id,
+            docTags: [],
+            alert: 0,
+        });
+        author?.markModified('relatedDocs');
         await newDoc.save();
         await newDocInfo.save();
         await author?.save();
@@ -86,13 +93,16 @@ router.post('/', async (req: Request, res: Response) => {
         console.error(e);
         session.abortTransaction();
         session.endSession();
-        res.status(400).end();
+        res.status(400).json(e);
     }
 
     // 완료
     await session.commitTransaction();
     session.endSession();
-    res.status(201).end();
+    res.status(201).json({
+        author: authorId,
+        dbId: newDocInfo._id,
+    });
 });
 
 // id의 문서의 pg 가져오기
@@ -234,8 +244,32 @@ router.delete('/:id', (req: Request, res: Response) => {
         if (perm.permissionLevel >= 4) {
             // 하위 페이지 삭제
             for (let i = 0; i < perm.docInfo.contents.length; ++i) {
-                DocModel.findById(perm.docInfo.contents[i].pageId).remove();
+                DocModel.findById(perm.docInfo.contents[i].pageId)
+                .then(doc => {
+                    return doc?.remove();
+                })
+                .catch(e => {
+                    throw e;
+                })
             }
+            // user의 리스트에서도 삭제
+            //console.log(req?.session);
+            UserModel.findById(req.session?.dbId)
+            .then(user => {
+                console.log(user?.name);
+                const createdDocIdx = user?.relatedDocs.created.findIndex(docView => docView.docId.toHexString() == req.params.id);
+                const sharedDocIdx = user?.relatedDocs.shared.findIndex(docView => docView.docId.toHexString() == req.params.id);
+                if (createdDocIdx! >= 0) {
+                    user?.relatedDocs.created.splice(createdDocIdx!, 1);
+                } else if (sharedDocIdx! >= 0) {
+                    user?.relatedDocs.shared.splice(sharedDocIdx!, 1);
+                }
+                user?.markModified('relatedDocs');
+                return user?.save();
+            })
+            .catch(e => {
+                throw e;
+            })
             return perm.docInfo.remove();
         } else {
             throw new Error('Permission denied');
@@ -248,22 +282,18 @@ router.delete('/:id', (req: Request, res: Response) => {
     })
 });
 
-// 문서 접근 권한 체크 (WIP)
+// 문서 접근 권한 체크
 function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null) : Promise<Permission> {
     return new Promise((resolve, reject) => {
-        resolve({
-            docInfo: docInfo!,
-            permissionLevel: PermissionLevel.owner,
-        });
         if (docInfo !== undefined && docInfo !== null && dbId !== undefined && dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
-            if (docInfo.author === dbId) {
+            if (docInfo.author == dbId) {
                 pl = PermissionLevel.owner;
-            } else if (docInfo.shareOption.director.indexOf(dbId) > 0) {
+            } else if (docInfo.shareOption.director?.indexOf(dbId) > 0) {
                 pl = PermissionLevel.director;
-            } else if (docInfo.shareOption.editor.indexOf(dbId) > 0) {
+            } else if (docInfo.shareOption.editor?.indexOf(dbId) > 0) {
                 pl = PermissionLevel.editor;
-            } else if (docInfo.shareOption.viewer.indexOf(dbId) > 0) { 
+            } else if (docInfo.shareOption.viewer?.indexOf(dbId) > 0) { 
                 pl = PermissionLevel.viewer;
             } else { 
                 pl = PermissionLevel.forbidden; 
@@ -273,7 +303,7 @@ function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null)
                 permissionLevel: pl,
             });
         } else {
-            reject(new Error('Can\'t check permission'));
+            reject(new Error(`Can\'t check permission, ${dbId}`));
         }
     });
 }
