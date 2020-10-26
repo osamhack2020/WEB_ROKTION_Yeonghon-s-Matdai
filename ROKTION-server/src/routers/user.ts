@@ -207,7 +207,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                     if (createdDocIdx! >= 0) {
                         usr?.relatedDocs.created[createdDocIdx!].docTags.push(Number(req.body.docTags.tagId));
                         usr?.relatedDocs.created[createdDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
-                    } else if (createdDocIdx! >= 0) {
+                    } else if (sharedDocIdx! >= 0) {
                         usr?.relatedDocs.shared[sharedDocIdx!].docTags.push(Number(req.body.docTags.tagId));
                         usr?.relatedDocs.shared[sharedDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
                     }

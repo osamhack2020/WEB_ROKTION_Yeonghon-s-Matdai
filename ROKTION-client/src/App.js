@@ -430,8 +430,9 @@ class App extends Component {
         .then(data => {
             newDoc.admin = data.author;
             newDoc.dbId = data.dbId;
+            console.log(newDoc);
             this.setState({
-                documents: [newDoc, ...docs],
+                documents: [...docs, newDoc],
             }); 
         })
         .then(() => {
@@ -445,11 +446,29 @@ class App extends Component {
     deleteDocument = (docid) => {
         let docs = this.state.documents;
         const idx = docs.findIndex(doc => (doc.id === docid));
-        if (idx > -1){
-            docs.splice(idx, 1);
-            this.setState({
-                documents:docs,
+
+        if (idx > -1) {
+            fetch(`/api/docs/${docs[idx].dbId}`, {
+                method: 'DELETE',
             })
+            .then(res => {
+                if (res.status === 200) {
+                    return;
+                } else {
+                    throw new Error(`Not deleted`);
+                }
+            })
+            .then(() => {
+                docs.splice(idx, 1);
+                this.setState({
+                    documents:docs,
+                })
+            })
+            .catch(e => {
+                console.error(e);
+            })
+        } else {
+            console.error(`Cannot find doc with ${docid}`);
         }
     }
 

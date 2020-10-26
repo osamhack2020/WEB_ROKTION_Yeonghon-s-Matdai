@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Doc, DocModel } from "../schemas/doc";
 import { DocInfo, DocInfoModel } from "../schemas/docInfo";
 import { UserModel } from "../schemas/user";
@@ -243,8 +243,32 @@ router.delete('/:id', (req: Request, res: Response) => {
         if (perm.permissionLevel >= 4) {
             // 하위 페이지 삭제
             for (let i = 0; i < perm.docInfo.contents.length; ++i) {
-                DocModel.findById(perm.docInfo.contents[i].pageId).remove();
+                DocModel.findById(perm.docInfo.contents[i].pageId)
+                .then(doc => {
+                    return doc?.remove();
+                })
+                .catch(e => {
+                    throw e;
+                })
             }
+            // user의 리스트에서도 삭제
+            //console.log(req?.session);
+            UserModel.findById(req.session?.dbId)
+            .then(user => {
+                console.log(user?.name);
+                const createdDocIdx = user?.relatedDocs.created.findIndex(docView => docView.docId.toHexString() == req.params.id);
+                const sharedDocIdx = user?.relatedDocs.shared.findIndex(docView => docView.docId.toHexString() == req.params.id);
+                if (createdDocIdx! >= 0) {
+                    user?.relatedDocs.created.splice(createdDocIdx!, 1);
+                } else if (sharedDocIdx! >= 0) {
+                    user?.relatedDocs.shared.splice(sharedDocIdx!, 1);
+                }
+                user?.markModified('relatedDocs');
+                return user?.save();
+            })
+            .catch(e => {
+                throw e;
+            })
             return perm.docInfo.remove();
         } else {
             throw new Error('Permission denied');
