@@ -124,12 +124,13 @@ class App extends Component {
                 let newState = this.state.documents;
                 let newTags = relatedDocs.created[i - docsAlready].docTags;
                 newTags.push(docInfo.status);
+                const newAlert = relatedDocs.created[i - docsAlready].alert;
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
                     description: docInfo.description,
                     // alert 임시용
-                    alert: parseInt(Math.random() * 100),
+                    alert: newAlert,
                     id: i,
                     color: docInfo.titleColor,
                     dbId: docInfo._id,

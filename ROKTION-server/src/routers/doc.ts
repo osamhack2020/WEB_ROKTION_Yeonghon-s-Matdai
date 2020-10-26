@@ -83,6 +83,7 @@ router.post('/', async (req: Request, res: Response) => {
         author?.relatedDocs.created.splice(0, 0, {
             docId: newDocInfo._id,
             docTags: [],
+            alert: 0,
         });
         author?.markModified('relatedDocs');
         await newDoc.save();
@@ -286,13 +287,13 @@ function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null)
     return new Promise((resolve, reject) => {
         if (docInfo !== undefined && docInfo !== null && dbId !== undefined && dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
-            if (docInfo.author === dbId) {
+            if (docInfo.author == dbId) {
                 pl = PermissionLevel.owner;
-            } else if (docInfo.shareOption.director.indexOf(dbId) > 0) {
+            } else if (docInfo.shareOption.director?.indexOf(dbId) > 0) {
                 pl = PermissionLevel.director;
-            } else if (docInfo.shareOption.editor.indexOf(dbId) > 0) {
+            } else if (docInfo.shareOption.editor?.indexOf(dbId) > 0) {
                 pl = PermissionLevel.editor;
-            } else if (docInfo.shareOption.viewer.indexOf(dbId) > 0) { 
+            } else if (docInfo.shareOption.viewer?.indexOf(dbId) > 0) { 
                 pl = PermissionLevel.viewer;
             } else { 
                 pl = PermissionLevel.forbidden; 
