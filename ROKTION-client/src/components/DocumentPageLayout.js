@@ -176,7 +176,7 @@ class DocumentPageLayout extends Component{
                                         icon='file'/>
                                     }
                                     content={
-                                        <Grid divided='vertically' textAlign='center'>
+                                        <Grid style={{width:'150px'}} textAlign='center'>
                                             <Grid.Row><Button 
                                             color='green'
                                             content='페이지 추가'
@@ -189,7 +189,7 @@ class DocumentPageLayout extends Component{
                                                     })
                                                 });
                                             }}/></Grid.Row>
-                                            <Grid.Row><Button 
+                                            <Grid.Row style={{paddingTop:"0px"}}><Button 
                                             color='red'
                                             content='페이지 삭제'
                                             icon='minus'
