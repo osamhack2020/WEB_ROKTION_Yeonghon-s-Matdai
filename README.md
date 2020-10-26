@@ -26,10 +26,10 @@
 - Typescript
 - React
     - Create-React-App
+    - react-color
 - Semantic ui
     - semantic-ui-react
 - CKEditor 5
-- react-color
 
 # 설치 안내 (Installation Process)
 

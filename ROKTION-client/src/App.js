@@ -127,11 +127,10 @@ class App extends Component {
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
-                    description: '',
+                    description: docInfo.description,
                     // alert 임시용
                     alert: parseInt(Math.random() * 100),
                     id: i,
-                    // 색상 임시용
                     color: docInfo.titleColor,
                     dbId: docInfo._id,
                     tags: new Set(newTags),
@@ -153,13 +152,7 @@ class App extends Component {
     }
 
     getPageContents = (document, idx) => {
-        this.setState((state) => {
-            const newDocs = state.documents;
-            newDocs[idx].isDocumentContentLoaded = 0;
-            return {
-                documents: newDocs
-            }
-        });
+        document.isDocumentContentLoaded = 0;
         for (let i = 0; i < document.pagesLength; ++i) {
             fetch(`/api/docs/${document.dbId}/${i}`, {
                 method: 'GET'
@@ -216,6 +209,7 @@ class App extends Component {
                         page: afterPageIdx + 1,
                         dbId: docs[this.state.selectedDocumentId].dbId,
                     });
+                    ++docs.pagesLength;
                     this.setState({
                         documents: docs,
                     });
@@ -244,6 +238,7 @@ class App extends Component {
                     for (let i = rmIdx; i < docs[this.state.selectedDocumentId].documentContent.length; ++i) {
                         docs[this.state.selectedDocumentId].documentContent[i].page = i;
                     }
+                    --docs.pagesLength;
                     this.setState({
                         documents: docs,
                     })
@@ -395,36 +390,104 @@ class App extends Component {
 
     createNewDocument = () => {
         //기본 문서 생성
-        console.log(this.state.documents, this.state.tags)
+        //console.log(this.state.documents, this.state.tags)
         const docs = this.state.documents;
         const newDoc = {
             title: "새 문서" + docs.length,
-            admin: "아무개",
             description: '',
             alert: docs.length,
             //!!!!!!! 임시 !!!!!!!!
             id: docs.length,
-            color: '#C1C1C1',
-            dbId: ".",
+            color: (() => {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                  color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+              })(),
             tags: new Set([0]),
             onClick: () => {this.setState({selectedDocumentId: docs.length})},
+            isDocumentContentLoaded: -1,
             documentContent: [],
             pagesLength: 1,
         }
-        this.setState({
-            documents: docs.concat(newDoc),
-        }); 
+        // start loading screen
+        fetch('/api/docs/', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: newDoc.title,
+                color: newDoc.color,
+            })
+        })
+        .then(res => {
+            if (res.status === 201) {
+                return res.json();
+            } else {
+                throw res.json();
+            }
+        })
+        .then(data => {
+            newDoc.admin = data.author;
+            newDoc.dbId = data.dbId;
+            //console.log(newDoc);
+            this.setState({
+                documents: [newDoc, ...docs],
+            }); 
+            this.reindexingDocuments();
+        })
+        .then(() => {
+            // end loading screen
+        })
+        .catch(e => {
+            console.error(new Error(`Fail at create document, ${e}`));
+        })
     }
 
     deleteDocument = (docid) => {
         let docs = this.state.documents;
         const idx = docs.findIndex(doc => (doc.id === docid));
-        if (idx > -1){
-            docs.splice(idx, 1);
-            this.setState({
-                documents:docs,
+
+        if (idx > -1) {
+            fetch(`/api/docs/${docs[idx].dbId}`, {
+                method: 'DELETE',
             })
+            .then(res => {
+                if (res.status === 200) {
+                    return;
+                } else {
+                    throw new Error(`Not deleted`);
+                }
+            })
+            .then(() => {
+                docs.splice(idx, 1);
+                this.setState({
+                    documents:docs,
+                })
+                this.reindexingDocuments();
+            })
+            .catch(e => {
+                console.error(e);
+            })
+        } else {
+            console.error(`Cannot find doc with ${docid}`);
         }
+    }
+
+    reindexingDocuments = () => {
+        const docs = this.state.documents;
+        this.setState({
+            documents: docs.map((doc, idx) => {
+                doc.id = idx;
+                doc.onClick = () => {this.setState({selectedDocumentId: idx})};
+                doc.documentContent = doc.documentContent.map(cont => {
+                    cont.idx = idx;
+                    return cont;
+                });
+                return doc;
+            })
+        });
     }
 
     createNewUser = (newUser) => {

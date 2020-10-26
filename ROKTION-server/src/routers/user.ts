@@ -13,7 +13,7 @@ router.get('/logoff', (req: Request, res: Response) => {
         req.session?.destroy(err => {
             if (err) {
                 // 로그오프 실패
-                console.log(err);
+                console.error(err);
                 throw err;
             } else {
                 // 정상 로그오프
@@ -125,7 +125,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
 
 // 유저 정보 수정
 router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body);
+    //console.log(req.body);
     Promise.all([
         checkLogined(req.session!),
         getTagId(req.params.id)
@@ -207,7 +207,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                     if (createdDocIdx! >= 0) {
                         usr?.relatedDocs.created[createdDocIdx!].docTags.push(Number(req.body.docTags.tagId));
                         usr?.relatedDocs.created[createdDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
-                    } else if (createdDocIdx! >= 0) {
+                    } else if (sharedDocIdx! >= 0) {
                         usr?.relatedDocs.shared[sharedDocIdx!].docTags.push(Number(req.body.docTags.tagId));
                         usr?.relatedDocs.shared[sharedDocIdx!].docTags.sort((a, b) => {return Number(a) - Number(b)});
                     }
@@ -279,7 +279,7 @@ function getTagId(id: string) : Promise<string> {
     });
 }
 
-function checkLogined(session: Express.Session) : Promise<string> {
+export function checkLogined(session: Express.Session) : Promise<string> {
     return new Promise<string>((resolve, reject) => {
         if (session.dbId && session.tagId) {
             resolve(session.tagId);
