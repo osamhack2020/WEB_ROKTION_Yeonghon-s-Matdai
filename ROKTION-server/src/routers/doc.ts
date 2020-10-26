@@ -47,7 +47,7 @@ router.post('/:id', async (req: Request, res: Response) => {
 });
 
 // 새로운 문서를 추가
-// in: 문서 제목(newTitle)
+// in: 문서 제목(title), 문서 색(color)
 router.post('/', async (req: Request, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -55,19 +55,21 @@ router.post('/', async (req: Request, res: Response) => {
     // 새로운 DocInfo 생성 <- in 다 넣는다.
     const authorId = mongoose.Types.ObjectId(req.session?.dbId);
     const newDocInfo = new DocInfoModel({
-        title: req.body.newTitle,
+        title: req.body.title,
+        titleColor: req.body.color,
+        description: '',
         author: authorId,
+        status: 0,
         contents: [],
-        shareOption: {
-            owner: req.session!.dbId,
-        },
+        shareOption: { },
         edited: {
-            editor: authorId
+            editor: authorId,
+            editDate: new Date()
         }
     });
     // 새로운 Doc 생성 -> DocInfo의 contents에 추가
     const newDoc = new DocModel({
-        content: '',
+        content: '새로운 문서에 오신걸 환영합니다!',
         linkedFiles: []
     });
     newDocInfo.contents.push({
@@ -78,7 +80,11 @@ router.post('/', async (req: Request, res: Response) => {
     // 생성자의 db에서 relatedDocs에 새로운 DocInfo 추가
     const author = await UserModel.findById(authorId);
     try {
-        author?.relatedDocs.created.splice(0, 0, newDocInfo._id);
+        author?.relatedDocs.created.splice(0, 0, {
+            docId: newDocInfo._id,
+            docTags: [],
+        });
+        author?.markModified('relatedDocs');
         await newDoc.save();
         await newDocInfo.save();
         await author?.save();
@@ -86,13 +92,16 @@ router.post('/', async (req: Request, res: Response) => {
         console.error(e);
         session.abortTransaction();
         session.endSession();
-        res.status(400).end();
+        res.status(400).json(e);
     }
 
     // 완료
     await session.commitTransaction();
     session.endSession();
-    res.status(201).end();
+    res.status(201).json({
+        author: authorId,
+        dbId: newDocInfo._id,
+    });
 });
 
 // id의 문서의 pg 가져오기
