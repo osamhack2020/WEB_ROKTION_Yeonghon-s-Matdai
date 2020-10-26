@@ -431,6 +431,21 @@ class App extends Component {
         // 음...
         console.log(newUser);
     }
+
+    shareDocument = (targetUser, docid, authority) => {
+        console.log(targetUser, docid, authority);
+    }
+
+    createNewMention = (targetUser, docid, pageIndex) => {
+        const newMention = {
+            //mentioningUser: 현재 유저의 id,
+            docid: docid,
+            pageIndex: pageIndex,
+        }
+
+        // 서버에서 targetUser 찾아서 mention 추가
+        console.log(targetUser, newMention);
+    }
     
     componentDidUpdate() {
         let {selectedDocumentId, documents} = this.state;
@@ -459,6 +474,7 @@ class App extends Component {
                     selectedDocument !== undefined ?
                         <Transition onShow={()=>{console.log("mounted")}} transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
                             <DocumentPage
+                            createNewMention={this.createNewMention}
                             handleLogout={this.onLogout}
                             information={this.state}
                             toMainMenu={()=>{this.setState({selectedDocumentId:-1});}}
@@ -476,6 +492,7 @@ class App extends Component {
                             toggleTagInDocument={this.toggleTagInDocument}
                             createNewDocument={this.createNewDocument}
                             deleteDocument={this.deleteDocument}
+                            shareDocument={this.shareDocument}
                             documents={this.state.documents}
                             tags={this.state.tags}/>
                         </Transition>

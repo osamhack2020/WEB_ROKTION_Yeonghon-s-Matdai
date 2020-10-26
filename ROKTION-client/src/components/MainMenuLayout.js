@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import UserIcon from './UserIcon';
+import ShareDocumentModal from './ShareDocumentModal';
 import {SketchPicker} from 'react-color';
 import {
     Grid,
@@ -15,6 +16,7 @@ import {
     Dropdown,
     Menu,
 } from 'semantic-ui-react';
+
 
 class MainMenuLayout extends Component {
     constructor(props){
@@ -33,6 +35,8 @@ class MainMenuLayout extends Component {
             tagDeletePopup:-1,
             tagSettingDocId:-1,
             titleSettingDocId:-1,
+            sharingDocId:-1,
+            showSharingModal:false,
             docIdOnSettingMode:-1,
             tagFilter:props.tags.map(
                 tag=>(
@@ -131,6 +135,13 @@ class MainMenuLayout extends Component {
                 docIdOnSettingMode: id,
             });
         }
+    }
+
+    setSharingDocId = (id) => {
+        this.setState({
+            sharingDocId:id,
+            showSharingModal:id !== -1,
+        })
     }
 
     addNewTag = () => {
@@ -329,13 +340,19 @@ class MainMenuLayout extends Component {
                                             }}
                                         />}
                                 style={{padding:"0px 5px 0px 5px",}}>
-                                    <Menu vertical secondary style={{width:"90px", textAlign:"center"}}>
+                                    <Menu vertical secondary style={{width:"80px", textAlign:"center"}}>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", margin:"0px"}}
                                             fitted='horizontally'
                                             name='정보변경'
                                             docid={document.id}
                                             onClick={(_,data)=>{this.setDocIdOnSettingMode(data.docid)}}/>
+                                        <Menu.Item
+                                            style={{padding:"8px 0px 8px 0px", margin:"0px"}}
+                                            fitted='horizontally'
+                                            name='문서공유'
+                                            docid={document.id}
+                                            onClick={(_,data)=>{this.setSharingDocId(data.docid)}}/>
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
                                             fitted='horizontally'
@@ -637,6 +654,11 @@ class MainMenuLayout extends Component {
                 </Container>
             </Grid>
             </div>
+            <ShareDocumentModal
+                open={this.state.showSharingModal}
+                toggleModal={this.setSharingDocId}
+                docid={this.state.sharingDocId}
+                shareDocument={this.props.shareDocument}/>
             </>
         );
     }
