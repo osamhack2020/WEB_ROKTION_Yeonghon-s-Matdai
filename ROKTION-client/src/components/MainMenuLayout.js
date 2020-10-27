@@ -15,6 +15,8 @@ import {
     List,
     Dropdown,
     Menu,
+    Modal,
+    Header,
 } from 'semantic-ui-react';
 
 
@@ -36,7 +38,9 @@ class MainMenuLayout extends Component {
             tagSettingDocId:-1,
             titleSettingDocId:-1,
             sharingDocId:-1,
+            deleteDocid:-1,
             showSharingModal:false,
+            showDeleteModal:false,
             docIdOnSettingMode:-1,
             tagFilter:props.tags.map(
                 tag=>(
@@ -358,7 +362,12 @@ class MainMenuLayout extends Component {
                                             fitted='horizontally'
                                             name='문서삭제'
                                             docid={document.id}
-                                            onClick={(_,data)=>{this.props.deleteDocument(data.docid)}}
+                                            onClick={(_,data)=>{
+                                                this.setState({
+                                                    showDeleteModal:true,
+                                                    deleteDocid:data.docid})
+                                                }
+                                            }
                                         />
                                     </Menu>
                             </Popup>
@@ -659,6 +668,34 @@ class MainMenuLayout extends Component {
                 toggleModal={this.setSharingDocId}
                 docid={this.state.sharingDocId}
                 shareDocument={this.props.shareDocument}/>
+            <Modal
+                closeIcon
+                closeOnDimmerClick={true}
+                closeOnEscape={false}
+                dimmer='inverted'
+                onClose={()=>{this.setState({showDeleteModal:false})}}
+                open={this.state.showDeleteModal}
+                style={{width:"525px", height:"150px", textAlign:'center'}}>
+                <Modal.Content>
+                    <Modal.Description style={{paddingTop:"20px", paddingBottom:"20px"}}>
+                    <Header><h2>
+                        정말로 이 문서를 삭제합니까?    
+                    </h2></Header>
+                    </Modal.Description>
+                    <Button
+                        content='삭제'
+                        color='red'
+                        onClick={()=>{
+                                this.props.deleteDocument(this.state.deleteDocid)
+                                this.setState({
+                                    showDeleteModal:false,
+                                    deleteDocid:-1,
+                                })
+                            }
+                        }
+                    />
+                </Modal.Content>
+            </Modal>
             </>
         );
     }
