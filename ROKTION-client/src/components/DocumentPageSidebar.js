@@ -91,7 +91,7 @@ const DocumentPageSidebar = (props) => {
         visible={!visible}
         width='very thin'
       >
-        <Container style={{paddingTop:"9px"}}> {/*Button size 60x42 so (60-42)/2 */}
+        <Container style={{paddingTop:"30px"}}> {/*Button size 60x42 so (60-42)/2 */}
           <Button
             onClick = {() => {setVisible(true)}}
             style={{marginRight:"0rem", paddingBottom:"3px"}} 
@@ -119,7 +119,7 @@ const DocumentPageSidebar = (props) => {
         visible={visible}
         width='wide'
       >
-        <Grid relaxed padded columns='equal' textAlign='center'>
+        <Grid relaxed padded columns='equal' textAlign='center' style={{paddingTop:"15px"}}>
           <Grid.Row verticalAlign='middle'>
             <Grid.Column width={10}>
               <div style={{color:"white", fontSize:"25px"}}>ROKTION</div>
