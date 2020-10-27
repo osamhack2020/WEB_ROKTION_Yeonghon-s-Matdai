@@ -3,7 +3,9 @@ import './Layout.css';
 import Clock from './Clock';
 import UserIcon from './UserIcon';
 import DocumentSettingIcon from './DocumentSettingIcon';
+import DocumentPageContent from './DocumentPageContent';
 import MentionUserPopup from './MentionUserPopup';
+import TodoPane from './TodoPane';
 import {
     Sidebar,
     Grid,
@@ -15,8 +17,9 @@ import {
     Button,
     Popup,
     Loader,
+    Tab,
   } from 'semantic-ui-react';
-import DocumentPageContent from './DocumentPageContent';
+
 
 
 class DocumentPageLayout extends Component{
@@ -75,13 +78,17 @@ class DocumentPageLayout extends Component{
     render(){
         return(
             <Sidebar.Pusher className="pushableMainScreen" style={{overflow:'visible'}}>
+                <Grid stackable={false} stretched>
+                <Grid.Row>
+                <Grid.Column
+                    style={{
+                        paddingRight:"0px",
+                        width:"95vw",
+                        minWidth:"700px",
+                        maxWidth:"1000px",
+                    }}>
                 <div style={{padding:'10px 30px 10px 20px',
-                             //width:"90%",
-                             width:"95vw",
-                             minWidth:"700px",
-                             maxWidth:"1315px",
-                             overflow:"visible",
-                             minHeight:"100vh",}}>
+                             }}>
                     <Grid className="mainScreenGrid">
                         <Grid.Row
                             columns='equal' 
@@ -138,7 +145,7 @@ class DocumentPageLayout extends Component{
                         <Grid.Row style={{paddingTop: '1.5rem', paddingBottom: '0rem'}}>
                             <Container 
                                 as={Grid.Column}
-                                style={{minHeight:"500px"}}
+                                style={{height:'calc(100vh - 209.5px - 10.5px)'}}
                                 className="contentContainer noLeftMargin"
                                 textAlign='left'>
                                 <DocumentPageContent 
@@ -214,6 +221,21 @@ class DocumentPageLayout extends Component{
                         </Grid.Row>
                     </Grid>
                 </div>
+                </Grid.Column>
+                <Grid.Column style={{paddingLeft:"0px"}}>
+                <Tab
+                    menu={{secondary:true, pointing:true}}
+                    style={{
+                        width:"600px", //이거 화면 모양 달라지면 무조건 문제될텐데 다른 방법이 없다 신밧드
+                        paddingTop:"10px",
+                    }}
+                    panes={[
+                    { menuItem: '메모장', render: () => <Tab.Pane><TodoPane/></Tab.Pane> },
+                    { menuItem: '언급', render: () => <Tab.Pane>언급 커밍쑨</Tab.Pane> },
+                ]}/>
+                </Grid.Column>
+                </Grid.Row>
+                </Grid>
             </Sidebar.Pusher>
         );
     }
