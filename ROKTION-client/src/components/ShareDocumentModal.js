@@ -6,12 +6,14 @@ import {
     Grid,
     Modal,
     Header,
+    Dropdown,
 } from 'semantic-ui-react'
 
 class ShareDocumentModal extends Component {
     constructor(props){
         super(props);
         this.state = {
+            authority:0,
             targetUser:null,
             targetUserError:false,
             documentShared:false,
@@ -26,8 +28,17 @@ class ShareDocumentModal extends Component {
         });
     }
 
+    handleAuthorityChange = (_, data) => {
+        this.setState({
+            authority:data.value,
+            targetUserError:false,
+            documentShared:false,
+        });
+    }
+
     resetState = () => {
         this.setState({
+            authority:0,
             targetUser:null,
             targetUserError:false,
             documentShared:false,
@@ -53,15 +64,21 @@ class ShareDocumentModal extends Component {
     }
 
     render() {
+        const authorityOption = [
+            {key:'read', text:'열람',value:0},
+            {key:'write', text:'열람 및 수정',value:1},
+            {key:'admin', text:'관리자',value:2},
+        ]
+
         return (
             <Modal
                 closeIcon
-                closeOnDimmerClick={false}
+                closeOnDimmerClick={true}
                 closeOnEscape={false}
                 dimmer='inverted'
                 onClose={()=>{this.resetState(); this.props.toggleModal(-1)}}
                 open={this.props.open}
-                style={{width:"500px", height:"150px", textAlign:'center'}}>
+                style={{width:"525px", height:"150px", textAlign:'center'}}>
                 <Modal.Content>
                     <Modal.Description style={{paddingTop:"20px"}}>
                     <Header><h2>
@@ -76,11 +93,19 @@ class ShareDocumentModal extends Component {
                     <Grid.Row columns='equal' style={{paddingTop:"0px"}}>
                         <Container as={Grid.Column} style={{padding:"0px"}}>
                         <Input
+                            name='targetUser'
                             size='small'
                             placeholder='ID(군번)'
                             error={this.state.targetUserError}
                             onChange={this.handleInputChange}
                             style={{width:'300px'}}
+                            label={
+                                <Dropdown
+                                    name='authority'
+                                    onChange={this.handleAuthorityChange}
+                                    options={authorityOption}
+                                    defaultValue={authorityOption[0].value}/>
+                            }
                         />
                         <Button
                             color='teal'
@@ -88,7 +113,7 @@ class ShareDocumentModal extends Component {
                             style={{marginLeft:'3px', padding:"10px"}}
                             onClick={()=>{
                                 if(this.validateInput())
-                                this.props.shareDocument(this.state.targetUser, this.props.docid, "임시")
+                                this.props.shareDocument(this.state.targetUser, this.props.docid, this.state.authority)
                             }}/>
                         </Container>
                         </Grid.Row>
