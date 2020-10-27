@@ -19,6 +19,7 @@
 - Typescript
 - Express
 - Mongoose
+- Socket.io
 
 ## Client (front-end)
 
@@ -30,6 +31,7 @@
 - Semantic ui
     - semantic-ui-react
 - CKEditor 5
+- Socket.io-client
 
 # 설치 안내 (Installation Process)
 

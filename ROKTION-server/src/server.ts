@@ -1,10 +1,11 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import logger from 'morgan';
 import { DB } from "./db";
 import session from 'express-session';
 import http from 'http';
 import socketIO from "socket.io";
 
+import createSocketActions from "./socket";
 import userRouter from './routers/user';
 import docsRouter from './routers/doc';
 import errorHandle from './routers/errorHandle';
@@ -14,6 +15,8 @@ const app = express();
 const PORT = 5000;
 const db = new DB();
 db.initalConnect();
+const server = http.createServer(app);
+const io = socketIO(server);
 
 // middlewares
 app.use(logger('dev'));
@@ -27,33 +30,27 @@ app.use(session({
         maxAge: 60 * 60 * 1000, // 60분
         secure: false,
     }
-}))
+}));
 
 // routers
 app.use('/api/user', userRouter);
 app.use('/api/docs', docsRouter);
 app.use('/api', errorHandle);
 
-// socket server
-function runSocketServer(port: number): void {
-    const server = http.createServer(app);
-    const io = socketIO(server);
+server.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`);
+});
 
-    server.listen(port, () => {
-        console.log(`Server is listening on port ${port}`);
+// socket actions
+io.on('connection', (socket) => {
+    socket.on('test', (message) => {
+        console.log(`test: ${message}`);
+        io.emit('test', JSON.stringify({message}));
     });
 
-    io.on('connection', (socket) => {
-        console.log('connected');
-        socket.on('test', (message) => {
-            console.log(message);
-            io.emit('test', JSON.stringify({message}));
-        });
+    createSocketActions(io, socket);
 
-        socket.on('disconnect', (reason) => {
-            console.log(reason);
-        })
-    });
-}
-
-runSocketServer(PORT);
+    socket.on('disconnect', (reason) => {
+        console.log(`disconnect: ${reason}`);
+    })
+});
