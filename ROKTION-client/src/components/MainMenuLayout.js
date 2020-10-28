@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import UserIcon from './UserIcon';
 import ShareDocumentModal from './ShareDocumentModal';
 import {SketchPicker} from 'react-color';
+import userContext from './UserContext'
 import {
     Grid,
     Icon,
@@ -18,7 +19,6 @@ import {
     Modal,
     Header,
 } from 'semantic-ui-react';
-
 
 class MainMenuLayout extends Component {
     constructor(props){
@@ -42,12 +42,13 @@ class MainMenuLayout extends Component {
             showSharingModal:false,
             showDeleteModal:false,
             docIdOnSettingMode:-1,
-            tagFilter:props.tags.map(
+            tagFilter:this.props.tags.map(
                 tag=>(
                     {id:tag.id, filter:true}
                     )
                 ),
         };
+       
     }
 
     static getDerivedStateFromProps(nextProps, prevState){
@@ -122,7 +123,7 @@ class MainMenuLayout extends Component {
         //console.log(val, id)
         if(val === id || id === -1){
             //변경 정보 app.js에서 저장
-            this.props.changeDocumentSettings(id, this.state.newDocColor, this.state.newDocTitle)
+            this.context.changeDocumentSettings(id, this.state.newDocColor, this.state.newDocTitle)
             //설정 종료
             this.setState({
                 newDocTitle: "",
@@ -132,7 +133,7 @@ class MainMenuLayout extends Component {
         }
         else{
             //기본 설정 넣어주기
-            const doc = this.props.documents.find(doc=>doc.id===id)
+            const doc = this.context.documents.find(doc=>doc.id===id)
             this.setState({
                 newDocTitle: doc.title,
                 newDocColor: doc.color,
@@ -152,7 +153,7 @@ class MainMenuLayout extends Component {
         const name = this.state.newTagName;
         const color = this.state.newTagColor;
         if (/^[\S\s]+$/.test(name)){
-            this.props.addNewTag(name, color, true);
+            this.context.addNewTag(name, color, true);
             this.setState({
                 newTagName:"",
                 newTagColor:"",
@@ -161,16 +162,16 @@ class MainMenuLayout extends Component {
     }
 
     deleteTag = (id) => {
-        if(this.props.documents.every((doc) => (
+        if(this.context.documents.every((doc) => (
             doc.tags.has(id) ? false : true   
         ))){
-            this.props.deleteTag(id);
+            this.context.deleteTag(id);
         }
     }
 
     // <Label key={"Tag"+tag.id} color={tag.color}>{tag.name}</Label>
     render() {
-        const tagFilteredList = this.props.documents.filter(
+        const tagFilteredList = this.context.documents.filter(
             document => (
                 [...document.tags].some(
                     tag=>{
@@ -247,7 +248,7 @@ class MainMenuLayout extends Component {
                                                 type='submit'
                                                 content="색상변경"
                                                 onClick={()=>{
-                                                    this.props.changeDocumentSettings(document.id, this.state.newDocColor, this.state.newDocTitle);
+                                                    this.context.changeDocumentSettings(document.id, this.state.newDocColor, this.state.newDocTitle);
                                                 }}/>
                                             </Form>
                                         </Popup>
@@ -299,7 +300,7 @@ class MainMenuLayout extends Component {
                                                 as={Label}
                                                 key={"Tag"+tag.id}
                                                 onClick={()=>{
-                                                    this.props.toggleTagInDocument(document.id, tag.id);
+                                                    this.context.toggleTagInDocument(document.id, tag.id);
                                                 }}
                                                 style={{
                                                     opacity:document.tags.has(tag.id)?1:0.2,
@@ -437,7 +438,7 @@ class MainMenuLayout extends Component {
                         {this.props.tags.map(
                             tag => {
                                 if (this.state.tagDeleteMode){
-                                    const isTagUsed = this.props.documents.some((doc) => (
+                                    const isTagUsed = this.context.documents.some((doc) => (
                                         doc.tags.has(tag.id) ? true : false
                                     ));
                                     return(
@@ -605,11 +606,11 @@ class MainMenuLayout extends Component {
                         textAlign='right'
                         style={{paddingRight:"5px"}}>
                         <div>
-                            {this.props.userInfo.regiment}
+                            {this.context.userInfo.regiment}
                         </div>
                         <div>
-                            {this.props.userInfo.rank + ' '}
-                            {this.props.userInfo.name}
+                            {this.context.userInfo.rank + ' '}
+                            {this.context.userInfo.name}
                         </div>
                         <div style={{paddingTop:"5px"}}>
                             <Icon
@@ -622,7 +623,7 @@ class MainMenuLayout extends Component {
                                     cursor:"pointer"}}/>
                             <Icon.Group
                                 size='big'
-                                onClick={this.props.createNewDocument}
+                                onClick={this.context.createNewDocument}
                                 style={{
                                     opacity:.8,
                                     cursor:"pointer"}}>
@@ -638,7 +639,7 @@ class MainMenuLayout extends Component {
                             marginRight:"30px",
                             minWidth:"45px",
                             maxWidth:"45px"}}>
-                        <UserIcon size='huge' handleLogout={this.props.handleLogout}/>
+                        <UserIcon size='huge' handleLogout={this.context.handleLogout}/>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row style={{paddingTop:"0px", paddingBottom:"0px"}}>
@@ -666,8 +667,7 @@ class MainMenuLayout extends Component {
             <ShareDocumentModal
                 open={this.state.showSharingModal}
                 toggleModal={this.setSharingDocId}
-                docid={this.state.sharingDocId}
-                shareDocument={this.props.shareDocument}/>
+                docid={this.state.sharingDocId}/>
             <Modal
                 closeIcon
                 closeOnDimmerClick={true}
@@ -686,7 +686,7 @@ class MainMenuLayout extends Component {
                         content='삭제'
                         color='red'
                         onClick={()=>{
-                                this.props.deleteDocument(this.state.deleteDocid)
+                                this.context.deleteDocument(this.state.deleteDocid)
                                 this.setState({
                                     showDeleteModal:false,
                                     deleteDocid:-1,
@@ -701,4 +701,5 @@ class MainMenuLayout extends Component {
     }
 }
 
+MainMenuLayout.contextType = userContext;
 export default MainMenuLayout;

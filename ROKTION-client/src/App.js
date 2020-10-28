@@ -3,24 +3,37 @@ import SocketIO from 'socket.io-client';
 import DocumentPage from './components/DocumentPage';
 import MainMenuLayout from './components/MainMenuLayout';
 import LoginPage from './components/LoginPage';
-import {
-    Transition,
-  } from 'semantic-ui-react'
-
+import userContext from './components/UserContext';
 
 class App extends Component {
     constructor(props){
         super(props);
         this.state = {
             loginStatus: 0,
-            userInfo:{
-                regiment:null,
-                rank:null,
-                name:null,
-            },
+            userInfo:{},
             selectedDocumentId: -1,
+            documents:[],
             tags:[],
-            documents:[]
+            //임시 mention과 todolist (userInfo에 넣기)
+            mentionList:[],
+            todoList:[
+                { id:0, content:"hello"},
+                { id:1, content:"hello"},
+                { id:2, content:"hello"},
+                { id:3, content:"hello"},
+            ],
+            toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
+            handleLogout:this.onLogout,
+            createNewMention:this.createNewMention,
+            addPageAfter:this.addPageAfter,
+            removePage:this.removePage,
+            addNewTag:this.addNewTag,
+            deleteTag:this.deleteTag,
+            changeDocumentSettings:this.changeDocumentSettings,
+            toggleTagInDocument:this.toggleTagInDocument,
+            createNewDocument:this.createNewDocument,
+            deleteDocument:this.deleteDocument,
+            shareDocument:this.shareDocument,
           };
     }
 
@@ -54,7 +67,7 @@ class App extends Component {
                 alert('Wrong ID or password');
                 throw new Error(`Wrong ID or password`);
             }
-            //console.log(userData);
+            console.log(userData);
             this.setState({
                 userInfo: userData,
                 loginStatus: 1
@@ -629,31 +642,9 @@ class App extends Component {
                 //console.log(selectedDocument);
 
                 return (
-                    selectedDocument !== undefined ?
-                        <Transition onShow={()=>{console.log("mounted")}} transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
-                            <DocumentPage
-                            createNewMention={this.createNewMention}
-                            handleLogout={this.onLogout}
-                            information={this.state}
-                            toMainMenu={()=>{this.setState({selectedDocumentId:-1});}}
-                            addPageAfter={this.addPageAfter}
-                            removePage={this.removePage}
-                            />
-                        </Transition>:
-                        <Transition transitionOnMount={true} unmountOnHide={true} duration ={{hide:500, show:500}}>
-                            <MainMenuLayout
-                            handleLogout={this.onLogout}
-                            userInfo={this.state.userInfo}
-                            addNewTag={this.addNewTag}
-                            deleteTag={this.deleteTag}
-                            changeDocumentSettings={this.changeDocumentSettings}
-                            toggleTagInDocument={this.toggleTagInDocument}
-                            createNewDocument={this.createNewDocument}
-                            deleteDocument={this.deleteDocument}
-                            shareDocument={this.shareDocument}
-                            documents={this.state.documents}
-                            tags={this.state.tags}/>
-                        </Transition>
+                    <userContext.Provider value={this.state}>
+                    {selectedDocument !== undefined ? <DocumentPage/> : <MainMenuLayout tags={this.state.tags}/> } 
+                    </userContext.Provider> 
                 );
             default:
                 break;

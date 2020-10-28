@@ -19,6 +19,7 @@ import {
     Loader,
     Tab,
   } from 'semantic-ui-react';
+import userContext from './UserContext';
 
 
 
@@ -108,7 +109,7 @@ class DocumentPageLayout extends Component{
                                 </Icon.Group>
                                 <DocumentSettingIcon/>
                                 {false && <Icon size='large' name='ellipsis horizontal' style={{marginRight:'10px'}}/>}
-                                <UserIcon size='big' handleLogout={this.props.handleLogout}/>
+                                <UserIcon size='big'/>
                             </Container>
                         </Grid.Row>
                         <Grid.Row
@@ -150,8 +151,7 @@ class DocumentPageLayout extends Component{
                                 textAlign='left'>
                                 <DocumentPageContent 
                                     pageData={this.props.document.documentContent[this.state.selectedPage]} 
-                                    setSavedStatus={this.setSavedStatus}>
-                                </DocumentPageContent>
+                                    setSavedStatus={this.setSavedStatus}/>
                             </Container>
                         </Grid.Row>
                         <Grid.Row>
@@ -178,8 +178,10 @@ class DocumentPageLayout extends Component{
                                     totalPages={this.props.document.documentContent.length}/>
                             </Container>
                             <Grid.Column width={3} textAlign='right'>
+                                <userContext.Consumer> 
+                                { context => (
+                                <>
                                 <MentionUserPopup
-                                    createNewMention={this.props.createNewMention}
                                     docid={this.state.documentId}
                                     page={this.state.selectedPage}/>
                                 <Popup
@@ -195,7 +197,7 @@ class DocumentPageLayout extends Component{
                                             content='페이지 추가'
                                             icon='plus'
                                             onClick={() => {
-                                                this.props.addPageAfter(this.state.selectedPage)
+                                                context.addPageAfter(this.state.selectedPage)
                                                 .then(() => {
                                                     this.setState({
                                                         selectedPage: this.state.selectedPage+1
@@ -210,13 +212,16 @@ class DocumentPageLayout extends Component{
                                                 this.setState({
                                                     selectedPage: this.state.selectedPage-1
                                                 })
-                                                this.props.removePage(this.state.selectedPage)
+                                                context.removePage(this.state.selectedPage)
                                             }}/></Grid.Row>
                                         </Grid>
                                     }
                                     on='click'
                                     position='top right'
                                 />
+                                </>
+                                )}
+                                </userContext.Consumer>
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import userContext from './UserContext';
 import {
     Container,
     List,
@@ -80,34 +81,40 @@ class TodoPane extends Component {
                     height:"80vh"
                 }}>
                 <List>
-                {this.state.todoList.map(
-                    todo => (
-                        <List.Item key={todo.id}>
-                            <Segment>
-                            <Grid verticalAlign='middle'>
-                            <Grid.Row columns='equal'>
-                            <Grid.Column width={1}>
-                            <Icon
-                                todoId={todo.id}
-                                name='check'
-                                size='large'
-                                style={{
-                                    color:'gray',
-                                    opacity:".3",
-                                    cursor:"pointer",}}
-                                onClick={(_,data)=>{this.removeTodo(data.todoId)}}/>
-                            </Grid.Column>
-                            <Grid.Column style={{paddingLeft:'15px'}}>
-                            <div style={{lineHeight:"20px"}}>
-                            {todo.content}
-                            </div>
-                            </Grid.Column>
-                            </Grid.Row>
-                            </Grid>
-                            </Segment>
-                        </List.Item>
+                <userContext.Consumer>
+                { value => {
+                    console.log('value:',value)
+                    
+                    return value.todoList.map(
+                        todo => (
+                            <List.Item key={todo.id}>
+                                <Segment>
+                                <Grid verticalAlign='middle'>
+                                <Grid.Row columns='equal'>
+                                <Grid.Column width={1}>
+                                <Icon
+                                    todoId={todo.id}
+                                    name='check'
+                                    size='large'
+                                    style={{
+                                        color:'gray',
+                                        opacity:".3",
+                                        cursor:"pointer",}}
+                                    onClick={(_,data)=>{this.removeTodo(data.todoId)}}/>
+                                </Grid.Column>
+                                <Grid.Column style={{paddingLeft:'15px'}}>
+                                <div style={{lineHeight:"20px", overflowWrap:"break-word"}}>
+                                {todo.content}
+                                </div>
+                                </Grid.Column>
+                                </Grid.Row>
+                                </Grid>
+                                </Segment>
+                            </List.Item>
+                        )
                     )
-                )}
+                }}
+                </userContext.Consumer>
                 </List>
             </Container>
             </>

@@ -8,6 +8,7 @@ import {
     Header,
     Dropdown,
 } from 'semantic-ui-react'
+import userContext from './UserContext';
 
 class ShareDocumentModal extends Component {
     constructor(props){
@@ -107,14 +108,18 @@ class ShareDocumentModal extends Component {
                                     defaultValue={authorityOption[0].value}/>
                             }
                         />
+                        <userContext.Consumer>
+                        { context => (
                         <Button
                             color='teal'
                             content='공유'
                             style={{marginLeft:'3px', padding:"10px"}}
                             onClick={()=>{
                                 if(this.validateInput())
-                                this.props.shareDocument(this.state.targetUser, this.props.docid, this.state.authority)
+                                context.shareDocument(this.state.targetUser, this.props.docid, this.state.authority)
                             }}/>
+                        )}
+                        </userContext.Consumer>
                         </Container>
                         </Grid.Row>
                     </Modal.Description>
