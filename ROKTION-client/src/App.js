@@ -102,7 +102,7 @@ class App extends Component {
         })
         .then(res => {
             if (res.status === 200) {
-                this.socket.disconnect();
+                window.socket.disconnect();
                 console.log('Completely logoff');
             } else {
                 console.error(res.status);
@@ -584,8 +584,23 @@ class App extends Component {
     }
 
     createNewUser = (newUser) => {
-        // 음...
-        console.log(newUser);
+        return new Promise((resolve, reject) => {
+            fetch('/api/user/', {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newUser),
+            })
+            .then(res => {
+                if (res.status !== 201) {
+                    throw res.json();
+                } else {
+                    resolve();
+                }
+            })
+            .catch(e => {
+                reject(e);
+            })
+        })
     }
 
     shareDocument = (targetUser, docid, authority) => {
