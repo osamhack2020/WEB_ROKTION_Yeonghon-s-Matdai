@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import SocketIO from 'socket.io-client';
 import DocumentPage from './components/DocumentPage';
 import MainMenuLayout from './components/MainMenuLayout';
 import LoginPage from './components/LoginPage';
@@ -62,8 +63,23 @@ class App extends Component {
             this.getUserTags();
             return this.getDocumentList();
         })
+        .then(() => {
+            window.socket = SocketIO.connect(window.location.hostname, {
+                reconnection: false,
+            });
+            this.createSocketActions();
+            // 처음 소켓 연결 후 하는 동작들
+            window.socket.emit('linkData', {
+                tagId: this.state.userInfo.tagId,
+            });
+        })
         .catch(e => {
             console.error(e);
+            this.setState({
+                loginStatus: 0,
+            })
+            window.socket?.disconnect();
+            window.location.reload();
         }) 
     }
 
@@ -74,6 +90,7 @@ class App extends Component {
         })
         .then(res => {
             if (res.status === 200) {
+                this.socket.disconnect();
                 console.log('Completely logoff');
             } else {
                 console.error(res.status);
@@ -95,6 +112,53 @@ class App extends Component {
         })
         .catch(e => {
             console.error(e);
+        })
+    }
+
+    createSocketActions = () => {
+        // 기본적인 동작
+        window.socket.on('test', (jsonData) => {
+            console.log(JSON.parse(jsonData).message);
+        });
+
+        window.socket.on('updateDocInfo', (docData) => {
+            const docId = docData.docId;
+            const docIdx = this.state.findIndex(doc => doc.dbId == docId);
+
+            if (docIdx >= 0) {
+                fetch(`/api/docs/${docId}`, {
+                    method: 'GET'
+                })
+                .then(res => {
+                    if (res.status == 200) {
+                        return res.json();
+                    } else {
+                        throw res.json();
+                    }
+                })
+                .then(docInfo => {
+                    const newDocInfo = {
+                        ...this.state.documents[docIdx],
+                        title: docInfo.title,
+                        admin: docInfo.author,
+                        description: docInfo.description,
+                        // alert 임시용
+                        color: docInfo.titleColor,
+                    }
+                    newDocInfo.tags.delete(0);
+                    newDocInfo.tags.delete(1);
+                    newDocInfo.tags.delete(2);
+                    newDocInfo.tags.delete(3);
+                    newDocInfo.tags.add(docInfo.status);
+                    this.setState((state, _) => {
+                        const newDocs = state.documents;
+                        newDocs[docIdx] = newDocInfo;
+                        return {
+                            documents: newDocs,
+                        }
+                    })
+                })
+            }
         })
     }
 
@@ -135,7 +199,7 @@ class App extends Component {
                     color: docInfo.titleColor,
                     dbId: docInfo._id,
                     tags: new Set(newTags),
-                    onClick: () => {this.setState({selectedDocumentId: i})},
+                    onClick: () => {this.setState({selectedDocumentId: i}); },
                     documentContent: [],
                     isDocumentContentLoaded: -1, // -1: 미로딩, 0: 로딩중, 1: 로딩완료
                     pagesLength: docInfo.contents.length,
@@ -363,6 +427,13 @@ class App extends Component {
                     tagId: tagid,
                 }
             })
+        })
+        .then(res => {
+            if (res.status === 200 && action == 'default') {
+                window.socket.emit('updateDocInfo', {
+                    docId: doc.dbId,
+                })
+            }
         });
     }
 
@@ -386,6 +457,13 @@ class App extends Component {
                 title: title,
                 color: color,
             })
+        })
+        .then(res => {
+            if (res.status === 200) {
+                window.socket.emit('updateDocInfo', {
+                    docId: doc.dbId,
+                })
+            }
         });
     }
 
