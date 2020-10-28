@@ -15,13 +15,6 @@ class TodoPane extends Component {
         super(props)
         this.state = {
             newTodoContent: "",
-            id:4, // !!!!!!!!!!!!!!!!!!!!!!!!!!!! id와 todoList는 임시처리
-            todoList: [
-                { id:0, content:"hello"},
-                { id:1, content:"hello"},
-                { id:2, content:"hello"},
-                { id:3, content:"hello"},
-            ]
         };
     }
 
@@ -29,30 +22,6 @@ class TodoPane extends Component {
         this.setState({
             [e.target.name]:data.value,
         });
-    }
-
-    createNewTodo = () => {
-        let list = this.state.todoList
-        const val = this.state.id
-        const content = this.state.newTodoContent
-        if (content.length <= 0) return;
-
-        this.setState({
-            todoList: list.concat({id:val, content:content}),
-            id:val+1,
-            newTodoContent: "",
-        })
-    }
-
-    removeTodo = (id) => {
-        let list = this.state.todoList
-        const idx = list.findIndex(todo => (todo.id === id));
-        if (idx > -1){
-            list.splice(idx, 1);
-            this.setState({
-                todoList:list,
-            })
-        }
     }
 
     render() {
@@ -66,7 +35,15 @@ class TodoPane extends Component {
                     <Button
                         icon='plus'
                         content='메모 추가'
-                        onClick={this.createNewTodo}/>}
+                        onClick={() => {
+                            this.context.createNewTodo(this.state.newTodoContent)
+                            this.setState({
+                                newTodoContent:"",
+                            })
+                            }
+                        }
+                    />
+                }
                 labelPosition='right'
                 value={this.state.newTodoContent}
                 onChange={this.handleInputChange}
@@ -100,7 +77,7 @@ class TodoPane extends Component {
                                         color:'gray',
                                         opacity:".3",
                                         cursor:"pointer",}}
-                                    onClick={(_,data)=>{this.removeTodo(data.todoId)}}/>
+                                    onClick={(_,data)=>{this.context.removeTodo(data.todoId)}}/>
                                 </Grid.Column>
                                 <Grid.Column style={{paddingLeft:'15px'}}>
                                 <div style={{lineHeight:"20px", overflowWrap:"break-word"}}>
@@ -122,4 +99,5 @@ class TodoPane extends Component {
     }
 }
 
+TodoPane.contextType = userContext;
 export default TodoPane;

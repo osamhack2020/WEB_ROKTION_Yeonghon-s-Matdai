@@ -25,6 +25,8 @@ class App extends Component {
             toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
             handleLogout:this.onLogout,
             createNewMention:this.createNewMention,
+            createNewTodo:this.createNewTodo,
+            removeTodo:this.removeTodo,
             addPageAfter:this.addPageAfter,
             removePage:this.removePage,
             addNewTag:this.addNewTag,
@@ -602,7 +604,29 @@ class App extends Component {
         // 서버에서 targetUser 찾아서 mention 추가
         console.log(targetUser, newMention);
     }
+
+    createNewTodo = (content) => {
+        if (content.length<=0) return;
+        const todoList = this.state.todoList;
+
+        // 임시로 로컬하게 저장
+        this.setState({
+            todoList: todoList.concat({id:todoList.length+content, content:content})
+        })
+    }
     
+    removeTodo = (id) => {
+        // 임시로 로컬하게 삭제
+        let todoList = this.state.todoList
+        const idx = todoList.findIndex(todo => (todo.id === id));
+        if (idx > -1){
+            todoList.splice(idx, 1);
+            this.setState({
+                todoList:todoList,
+            })
+        }
+    }
+
     componentDidUpdate() {
         let {selectedDocumentId, documents} = this.state;
         let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
