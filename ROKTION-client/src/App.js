@@ -571,19 +571,22 @@ class App extends Component {
     }
 
     createNewUser = (newUser) => {
-        // 생성하려는 id의 유저가 있는지 확인
-        fetch('/api/user/', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newUser),
-        })
-        .then(res => {
-            if (res.status !== 201) {
-                throw res.json();
-            }
-        })
-        .catch(e => {
-            alert(e);
+        return new Promise((resolve, reject) => {
+            fetch('/api/user/', {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newUser),
+            })
+            .then(res => {
+                if (res.status !== 201) {
+                    throw res.json();
+                } else {
+                    resolve();
+                }
+            })
+            .catch(e => {
+                reject(e);
+            })
         })
     }
 
