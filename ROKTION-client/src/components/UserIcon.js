@@ -4,6 +4,7 @@ import {
     Icon,
     Menu,
 } from 'semantic-ui-react';
+import userContext from './UserContext';
 
 class UserIcon extends Component {
     render() {
@@ -31,11 +32,15 @@ class UserIcon extends Component {
                             fitted='horizontally'
                             name='사용자 검색'
                             onClick={()=>{console.log("사용자 검색");}}/>
+                        <userContext.Consumer>
+                        {context => (
                         <Menu.Item
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
                             name='로그아웃'
-                            onClick={this.props.handleLogout}/>
+                            onClick={context.handleLogout}/>
+                        )}
+                        </userContext.Consumer>
                     </Menu>
             </Popup>
         );

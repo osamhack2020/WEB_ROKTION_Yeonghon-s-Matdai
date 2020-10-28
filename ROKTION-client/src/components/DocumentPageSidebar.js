@@ -1,4 +1,5 @@
 import React from 'react'
+import userContext from './UserContext'
 import {
   Grid,
   Icon,
@@ -11,6 +12,7 @@ import {
   Accordion,
 } from 'semantic-ui-react'
 
+
 /*
 TODO: 최적화?
 TODO: 메인화면 내용구성 Props로 가져올 수 있게 하기
@@ -19,13 +21,9 @@ TODO: 메뉴 바 Label 위치조정
 
 // Accordion Title 부분 스타일 맞추기
 
-const DocumentPageSidebar = (props) => {
+const DocumentPageSidebar = () => {
   const [visible, setVisible] = React.useState(false)
   const [activeIndex, setActiveIndex] = React.useState(-1)
-  const documents = props.documents
-
-  let totalAlerts = 0;
-  documents.forEach(data => (totalAlerts += data.alert));
 
   const mainTagList = ['진행','예정','완료','문서','중요'].map(
     (tag, idx) => {
@@ -45,35 +43,38 @@ const DocumentPageSidebar = (props) => {
             active={activeIndex===idx}
             style={{paddingTop:'0px', paddingBottom:'0px'}}>
           <Menu size='massive' fluid vertical secondary>
-            {documents.map(
-              data => (
-                data.tags.has(idx) &&
-                <Menu.Item
-                  key={data.id}
-                  style={{paddingTop:"0px", paddingBottom:"0px", marginTop:"15px"}}
-                  onClick={()=>{data.onClick(); setVisible(false);}}>
-                  <Grid>
-                    <Grid.Row
-                      columns='equal'
-                      verticalAlign='middle'
-                      style={{paddingTop:'5px', paddingBottom:"5px", minHeight:"32px"}}>
-                      <Grid.Column
-                        textAlign='left'
-                        style={{lineHeight:'17px', paddingRight:'9px'}}>
-                          {data.title}
-                      </Grid.Column>
-                      <Grid.Column
-                        width={1}
-                        textAlign='center'
-                        style={{padding:'0px 49px 0px 0px'}}>
-                        {data.alert !== 0 && <Label size='mini' color='red'> {data.alert} </Label>}   
-                      </Grid.Column>
-                    </Grid.Row>
-                  </Grid>
-                </Menu.Item>
-              )
-            )
-            }
+            <userContext.Consumer>
+              { context => (
+                context.documents.map(
+                  data => (
+                    data.tags.has(idx) &&
+                    <Menu.Item
+                      key={data.id}
+                      style={{paddingTop:"0px", paddingBottom:"0px", marginTop:"15px"}}
+                      onClick={()=>{data.onClick(); setVisible(false);}}>
+                      <Grid>
+                        <Grid.Row
+                          columns='equal'
+                          verticalAlign='middle'
+                          style={{paddingTop:'5px', paddingBottom:"5px", minHeight:"32px"}}>
+                          <Grid.Column
+                            textAlign='left'
+                            style={{lineHeight:'17px', paddingRight:'9px'}}>
+                              {data.title}
+                          </Grid.Column>
+                          <Grid.Column
+                            width={1}
+                            textAlign='center'
+                            style={{padding:'0px 49px 0px 0px'}}>
+                            {data.alert !== 0 && <Label size='mini' color='red'> {data.alert} </Label>}   
+                          </Grid.Column>
+                        </Grid.Row>
+                      </Grid>
+                    </Menu.Item>
+                  )
+                )
+              )}
+            </userContext.Consumer>
           </Menu>
           </Accordion.Content>
         </Container>
@@ -103,11 +104,17 @@ const DocumentPageSidebar = (props) => {
         </Container>
         <Container
           style={{display:"block", textAlign:"center"}}>
-        {totalAlerts !== 0 && <Label
-                                  size='mini'
-                                  color='red'>
-                                    {totalAlerts}
-                                </Label>}
+          <userContext.Consumer>
+            { context => {
+              let totalAlerts = 0;
+              context.documents.forEach(data => (totalAlerts += data.alert));
+              
+              if (totalAlerts !== 0)
+                return(<Label size='mini' color='red'> {totalAlerts} </Label>)
+              else
+                return(<></>)
+            }}
+          </userContext.Consumer>
         </Container>                 
       </Sidebar>
 
@@ -142,12 +149,16 @@ const DocumentPageSidebar = (props) => {
           </Grid.Row>
           <Grid.Row>
             <Menu size='massive' fluid vertical secondary>
-              <Menu.Item
-                style={{textAlign:"center", fontSize:"20px", color:"white"}}
-                key={"ToMainMenu"}
-                onClick={props.toMainMenu}>
-                문서 목록
-              </Menu.Item>
+              <userContext.Consumer>
+                {context => (
+                <Menu.Item
+                  style={{textAlign:"center", fontSize:"20px", color:"white"}}
+                  key={"ToMainMenu"}
+                  onClick={context.toMainMenu}>
+                  문서 목록
+                </Menu.Item>
+                )}
+              </userContext.Consumer>
             </Menu>
             <Accordion
               inverted

@@ -7,6 +7,7 @@ import {
     Grid,
     Icon,
   } from 'semantic-ui-react'
+import userContext from './UserContext';
 
 class MentionUserPopup extends Component {
     constructor(props){
@@ -78,14 +79,18 @@ class MentionUserPopup extends Component {
                             onChange={this.handleInputChange}
                             style={{width:'150px'}}
                         />
+                        <userContext.Consumer>
+                        { context => (
                         <Button
                             color='teal'
                             content='언급'
                             style={{marginLeft:'3px', padding:"10px"}}
                             onClick={()=>{
                                 if(this.validateInput())
-                                this.props.createNewMention(this.state.targetUser, this.props.docid, this.props.page)
+                                context.createNewMention(this.state.targetUser, this.props.docid, this.props.page)
                             }}/>
+                        )}
+                        </userContext.Consumer>
                         </Container>
                         </Grid.Row>
                     </Grid>
