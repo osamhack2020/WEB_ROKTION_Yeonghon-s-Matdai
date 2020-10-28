@@ -92,7 +92,7 @@ router.post('/login', (req: Request, res: Response) => {
         console.error(e);
         res.status(400).send(e);
     })
-})
+});
 
 // 새로운 유저 생성
 // in: name, belongs, tagId, 

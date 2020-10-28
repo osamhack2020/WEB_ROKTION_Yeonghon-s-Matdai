@@ -16,11 +16,13 @@
     "@types/express": "^4.17.8",
     "@types/express-session": "^1.17.0",
     "@types/mongoose": "^5.7.36",
+    "@types/socket.io": "^2.1.11",
     "concurrently": "^5.3.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "mongoose": "^5.10.7",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "@types/morgan": "^1.9.1",
