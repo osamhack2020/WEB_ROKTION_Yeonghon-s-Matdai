@@ -136,8 +136,8 @@ class SignUpModal extends Component {
 
     createNewUser = () => {
         const newUser = {
-            id:this.state.id,
-            password:this.state.password,
+            tagId:this.state.id,
+            passwd:this.state.password,
             name:this.state.name,
             regiment:this.state.regiment,
             rank:this.state.rank,

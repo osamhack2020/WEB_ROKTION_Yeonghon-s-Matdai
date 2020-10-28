@@ -89,7 +89,7 @@ class App extends Component {
         })
         .then(res => {
             if (res.status === 200) {
-                this.socket.disconnect();
+                window.socket.disconnect();
                 console.log('Completely logoff');
             } else {
                 console.error(res.status);
@@ -571,8 +571,20 @@ class App extends Component {
     }
 
     createNewUser = (newUser) => {
-        // 음...
-        console.log(newUser);
+        // 생성하려는 id의 유저가 있는지 확인
+        fetch('/api/user/', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newUser),
+        })
+        .then(res => {
+            if (res.status !== 201) {
+                throw res.json();
+            }
+        })
+        .catch(e => {
+            alert(e);
+        })
     }
 
     shareDocument = (targetUser, docid, authority) => {
