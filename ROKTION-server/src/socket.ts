@@ -15,6 +15,7 @@ const createSocketActions = (io: SocketIO.Server, socket: SocketIO.Socket) => {
 
     // 내용 업데이트시 GET을 호출하도록
     socket.on('updateDocInfo', (docData) => { // docId: 문서의 ID
+        //console.log(`got updated, ${docData.docId}`);
         socket.broadcast.emit('updateDocInfo', docData);
     })
 

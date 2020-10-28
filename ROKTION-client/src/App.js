@@ -77,9 +77,8 @@ class App extends Component {
             console.error(e);
             this.setState({
                 loginStatus: 0,
-            })
-            window.socket?.disconnect();
-            window.location.reload();
+            });
+            if (window.socket) window.socket.disconnect();
         }) 
     }
 
@@ -123,14 +122,14 @@ class App extends Component {
 
         window.socket.on('updateDocInfo', (docData) => {
             const docId = docData.docId;
-            const docIdx = this.state.findIndex(doc => doc.dbId == docId);
+            const docIdx = this.state.findIndex(doc => doc.dbId === docId);
 
             if (docIdx >= 0) {
                 fetch(`/api/docs/${docId}`, {
                     method: 'GET'
                 })
                 .then(res => {
-                    if (res.status == 200) {
+                    if (res.status === 200) {
                         return res.json();
                     } else {
                         throw res.json();
@@ -429,7 +428,7 @@ class App extends Component {
             })
         })
         .then(res => {
-            if (res.status === 200 && action == 'default') {
+            if (res.status === 200 && action === 'default') {
                 window.socket.emit('updateDocInfo', {
                     docId: doc.dbId,
                 })
@@ -450,7 +449,9 @@ class App extends Component {
                 )
         })
 
-        fetch(`/api/docs/${docs.find(doc => doc.id === docid).dbId}`, {
+        const docDBId = docs.find(doc => doc.id === docid).dbId;
+
+        fetch(`/api/docs/${docDBId}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -461,7 +462,7 @@ class App extends Component {
         .then(res => {
             if (res.status === 200) {
                 window.socket.emit('updateDocInfo', {
-                    docId: doc.dbId,
+                    docId: docDBId,
                 })
             }
         });
