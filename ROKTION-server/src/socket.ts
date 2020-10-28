@@ -13,6 +13,11 @@ const createSocketActions = (io: SocketIO.Server, socket: SocketIO.Socket) => {
         // (socket as UserSocket).tagId 로 확인가능
     })
 
+    // 내용 업데이트시 GET을 호출하도록
+    socket.on('updateDocInfo', (docData) => { // docId: 문서의 ID
+        socket.broadcast.emit('updateDocInfo', docData);
+    })
+
     // 페이지 수정중 다른 사람이 수정 못하게
     socket.on('enterDocumentPage', (docData) => { // docId: 보고있는 문서 ID, pageIdx: 보고있는 페이지 번호
 
