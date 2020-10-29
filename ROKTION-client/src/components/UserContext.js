@@ -14,6 +14,7 @@ const userContext = React.createContext({
     handleLogout: ()=>{},
     toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
     createNewMention: ()=>{},
+    removeMention: ()=>{},
     createNewTodo: ()=>{},
     removeTodo: ()=>{},
     addPageAfter: ()=>{},
@@ -26,6 +27,7 @@ const userContext = React.createContext({
     deleteDocument: ()=>{},
     shareDocument: ()=>{},
     jumpTo: ()=>{},
+    jumpByDbId: ()=>{},
 });
 
 export default userContext;

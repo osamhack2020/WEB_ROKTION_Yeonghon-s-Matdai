@@ -29,8 +29,6 @@ class DocumentPageLayout extends Component{
     constructor(props){
         super(props)
         this.state = {
-            selectedPage: 0,
-            documentId: -1,
             savedStatusText: '?' 
         };
     }
@@ -68,7 +66,10 @@ class DocumentPageLayout extends Component{
     }
 
     render(){
-        const document = this.context.documents.find(doc=>doc.id===this.context.selectedDocumentId)
+        const selectedDocumentId = this.context.selectedDocumentId;
+        const selectedPage = this.context.selectedPage;
+        const document = this.context.documents.find(doc=>doc.id===selectedDocumentId)
+
         return(
             <Sidebar.Pusher className="pushableMainScreen" style={{overflow:'visible'}}>
                 <Grid stackable={false} stretched>
@@ -142,7 +143,7 @@ class DocumentPageLayout extends Component{
                                 className="contentContainer noLeftMargin"
                                 textAlign='left'>
                                 <DocumentPageContent 
-                                    pageData={document.documentContent[this.state.selectedPage]} 
+                                    pageData={document.documentContent[selectedPage]} 
                                     setSavedStatus={this.setSavedStatus}/>
                             </Container>
                         </Grid.Row>
@@ -152,13 +153,11 @@ class DocumentPageLayout extends Component{
                                 <Pagination
                                     onPageChange = {
                                         (_,data) => {
-                                            this.setState({
-                                                selectedPage:data.activePage-1,
-                                            });
+                                            this.context.jumpTo(selectedDocumentId, data.activePage-1)
                                         }
                                     }
                                     boundaryRange={0}
-                                    activePage={this.state.selectedPage+1}
+                                    activePage={selectedPage+1}
                                     ellipsisItem={null}
                                     firstItem={{ content: <Icon name='angle double left' />, icon: true }}
                                     lastItem={{ content: <Icon name='angle double right' />, icon: true }}
@@ -174,8 +173,8 @@ class DocumentPageLayout extends Component{
                                 { context => (
                                 <>
                                 <MentionUserPopup
-                                    docid={this.state.documentId}
-                                    page={this.state.selectedPage}/>
+                                    docid={selectedDocumentId}
+                                    page={selectedPage}/>
                                 <Popup
                                     trigger={
                                         <Button 
@@ -189,11 +188,9 @@ class DocumentPageLayout extends Component{
                                             content='페이지 추가'
                                             icon='plus'
                                             onClick={() => {
-                                                context.addPageAfter(this.state.selectedPage)
+                                                context.addPageAfter(selectedPage)
                                                 .then(() => {
-                                                    this.setState({
-                                                        selectedPage: this.state.selectedPage+1
-                                                    })
+                                                    this.context.jumpTo(selectedDocumentId, selectedPage+1)
                                                 });
                                             }}/></Grid.Row>
                                             <Grid.Row style={{paddingTop:"0px"}}><Button 
@@ -201,10 +198,8 @@ class DocumentPageLayout extends Component{
                                             content='페이지 삭제'
                                             icon='minus'
                                             onClick={() => {
-                                                this.setState({
-                                                    selectedPage: this.state.selectedPage-1
-                                                })
-                                                context.removePage(this.state.selectedPage)
+                                                this.context.jumpTo(selectedDocumentId, selectedPage-1)
+                                                this.context.removePage(selectedPage)
                                             }}/></Grid.Row>
                                         </Grid>
                                     }
