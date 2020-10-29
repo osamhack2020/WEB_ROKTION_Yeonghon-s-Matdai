@@ -88,9 +88,12 @@ class App extends Component {
             console.log(userData);
             this.setState({
                 userInfo: userData,
-                loginStatus: 1
+                loginStatus: 1,
             });
             //console.log(this.state.documents);
+            for (let i = 0; i < userData.memos.length; ++i) {
+                this.createNewTodo(userData.memos[i], false);
+            }
             this.getUserTags();
             return this.getDocumentList();
         })
@@ -747,13 +750,19 @@ class App extends Component {
         }
     }
 
-    createNewTodo = (content) => {
+    createNewTodo = (content, fetch = true) => {
         if (content.length<=0) return;
         const todoList = this.state.todoList;
 
         // 임시로 로컬하게 저장
         this.setState({
             todoList: todoList.concat({id:Math.random(), content:content})
+        });
+
+        if (fetch) fetch(`/api/user/${this.state.userInfo.tagId}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({memos: this.state.todoList}),
         })
     }
     
@@ -767,6 +776,12 @@ class App extends Component {
                 todoList:todoList,
             })
         }
+
+        fetch(`/api/user/${this.state.userInfo.tagId}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({memos: this.state.todoList}),
+        })
     }
 
     jumpTo = (docid, page) => {

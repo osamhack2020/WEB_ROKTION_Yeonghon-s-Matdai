@@ -248,6 +248,19 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                     }
                 }
             }
+            if (req.body.memos) {
+                // 메모(TODO) 수정
+                // in: memos
+                UserModel.findOne({ tagId: data.tagId })
+                .then(usr => {
+                    usr!.memos = req.body.memos;
+                    usr?.markModified('memos');
+                    usr?.save();
+                })
+                .catch(e => {
+                    throw e;
+                })
+            }
         }
         // 본인 또는 타인의 정보 수정 - alert, 등등?
         /// 뭐라도 하겠지 WIP
