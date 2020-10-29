@@ -150,7 +150,8 @@ class DocumentPageLayout extends Component{
                                 className="contentContainer noLeftMargin"
                                 textAlign='left'>
                                 <DocumentPageContent 
-                                    pageData={this.props.document.documentContent[this.state.selectedPage]} 
+                                    pageData={this.props.document.documentContent[this.state.selectedPage]}
+                                    isShared={this.props.document.isShared}
                                     setSavedStatus={this.setSavedStatus}/>
                             </Container>
                         </Grid.Row>

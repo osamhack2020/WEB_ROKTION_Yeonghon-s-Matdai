@@ -59,7 +59,6 @@ class ShareDocumentModal extends Component {
         else{
             this.setState({
                 targetUserError:false,
-                documentShared:true,
             })
             return true;
         }
@@ -117,7 +116,20 @@ class ShareDocumentModal extends Component {
                             style={{marginLeft:'3px', padding:"10px"}}
                             onClick={()=>{
                                 if(this.validateInput())
-                                context.shareDocument(this.state.targetUser, this.props.docid, this.state.authority)
+                                {
+                                    context.shareDocument(this.state.targetUser, this.props.docid, this.state.authority)
+                                    .then(() => {
+                                        this.setState({
+                                            documentShared:true,
+                                        })
+                                    })
+                                    .catch(e => {
+                                        this.setState({
+                                            targetUserError:true,
+                                        })
+                                        console.error(e);
+                                    });
+                                }
                             }}/>
                         )}
                         </userContext.Consumer>

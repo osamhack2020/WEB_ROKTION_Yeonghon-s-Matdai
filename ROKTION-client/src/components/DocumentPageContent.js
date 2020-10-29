@@ -130,7 +130,7 @@ class DocumentPageContent extends Component {
             });
         }
         var editorHandle = this.state.editorHandle;
-        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded;
+        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded || this.props.isShared;
     }
 
     render() {
@@ -141,7 +141,9 @@ class DocumentPageContent extends Component {
                 data={this.state.isLoaded ? this.props.pageData.content : '로딩중...'}
                 onInit={ editor => {
                     editor.editing.view.document.on('keydown', this.onSaveKeyDown);
-                    this.setState({ editorHandle: editor });
+                    this.setState({ 
+                        editorHandle: editor,
+                    });
                 } }
                 onChange={ ( event, editor ) => {
                     this.onContentChanged(editor);

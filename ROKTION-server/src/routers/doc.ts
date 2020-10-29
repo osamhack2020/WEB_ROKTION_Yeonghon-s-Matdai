@@ -204,7 +204,7 @@ router.put('/:id', (req: Request, res: Response) => {
                             throw new Error(`No user with tagId: ${req.body.shareOption.director}`);
                         }
                         if (req.body.shareOption.action === 'add') {
-                            perm.docInfo.shareOption.director.push(usr!.tagId);
+                            perm.docInfo.shareOption.director.push(usr.tagId);
                             usr.relatedDocs.shared.push({
                                 docId: perm.docInfo._id,
                                 docTags: [],
@@ -217,6 +217,8 @@ router.put('/:id', (req: Request, res: Response) => {
                             const didx = usr.relatedDocs.shared.findIndex(dv => dv.docId === perm.docInfo._id);
                             if (didx >= 0) usr.relatedDocs.shared.splice(didx, 1);
                         }
+                        perm.docInfo.markModified('shareOption.director');
+                        perm.docInfo.save();
                         usr.markModified('relatedDocs');
                         usr.save();
                     })
@@ -230,7 +232,7 @@ router.put('/:id', (req: Request, res: Response) => {
                             throw new Error(`No user with tagId: ${req.body.shareOption.editor}`);
                         }
                         if (req.body.shareOption.action === 'add') {
-                            perm.docInfo.shareOption.editor.push(usr!.tagId);
+                            perm.docInfo.shareOption.editor.push(usr.tagId);
                             usr.relatedDocs.shared.push({
                                 docId: perm.docInfo._id,
                                 docTags: [],
@@ -243,6 +245,8 @@ router.put('/:id', (req: Request, res: Response) => {
                             const didx = usr.relatedDocs.shared.findIndex(dv => dv.docId === perm.docInfo._id);
                             if (didx >= 0) usr.relatedDocs.shared.splice(didx, 1);
                         }
+                        perm.docInfo.markModified('shareOption.editor');
+                        perm.docInfo.save();
                         usr.markModified('relatedDocs');
                         usr.save();
                     })
@@ -256,7 +260,7 @@ router.put('/:id', (req: Request, res: Response) => {
                             throw new Error(`No user with tagId: ${req.body.shareOption.viewer}`);
                         }
                         if (req.body.shareOption.action === 'add') {
-                            perm.docInfo.shareOption.viewer.push(usr!.tagId);
+                            perm.docInfo.shareOption.viewer.push(usr.tagId);
                             usr.relatedDocs.shared.push({
                                 docId: perm.docInfo._id,
                                 docTags: [],
@@ -269,6 +273,8 @@ router.put('/:id', (req: Request, res: Response) => {
                             const didx = usr.relatedDocs.shared.findIndex(dv => dv.docId === perm.docInfo._id);
                             if (didx >= 0) usr.relatedDocs.shared.splice(didx, 1);
                         }
+                        perm.docInfo.markModified('shareOption.viewer');
+                        perm.docInfo.save();
                         usr.markModified('relatedDocs');
                         usr.save();
                     })
@@ -278,9 +284,7 @@ router.put('/:id', (req: Request, res: Response) => {
                 } else {
                     throw new Error('Undefined action');
                 }
-                perm.docInfo.markModified('shareOption');
             }
-            return perm.docInfo.save();
         } else {
             throw new Error('Permission denied');
         }
@@ -372,11 +376,11 @@ function checkPermission(session: Express.Session, docInfo: DocInfo | null) : Pr
             let pl: PermissionLevel = PermissionLevel.forbidden;
             if (docInfo.author == session.dbId) {
                 pl = PermissionLevel.owner;
-            } else if (docInfo.shareOption.director?.indexOf(session.tagId) > 0) {
+            } else if (docInfo.shareOption.director?.indexOf(session.tagId) >= 0) {
                 pl = PermissionLevel.director;
-            } else if (docInfo.shareOption.editor?.indexOf(session.tagId) > 0) {
+            } else if (docInfo.shareOption.editor?.indexOf(session.tagId) >= 0) {
                 pl = PermissionLevel.editor;
-            } else if (docInfo.shareOption.viewer?.indexOf(session.tagId) > 0) { 
+            } else if (docInfo.shareOption.viewer?.indexOf(session.tagId) >= 0) { 
                 pl = PermissionLevel.viewer;
             } else { 
                 pl = PermissionLevel.forbidden; 
