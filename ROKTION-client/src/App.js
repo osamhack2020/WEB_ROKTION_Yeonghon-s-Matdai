@@ -38,6 +38,7 @@ class App extends Component {
             toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
             handleLogout:this.onLogout,
             createNewMention:this.createNewMention,
+            removeMention:this.removeMention,
             createNewTodo:this.createNewTodo,
             removeTodo:this.removeTodo,
             addPageAfter:this.addPageAfter,
@@ -640,6 +641,18 @@ class App extends Component {
         })
 
         // 서버에서 targetUser 찾아서 mention 추가
+    }
+
+    removeMention = (id) => {
+        //임시로 로컬하게 삭제
+        let mentionList = this.state.mentionList;
+        const idx = mentionList.findIndex(mention => (mention.id === id));
+        if (idx > -1) {
+            mentionList.splice(idx,1);
+            this.setState({
+                mentionList: mentionList,
+            })
+        }
     }
 
     createNewTodo = (content) => {
