@@ -19,6 +19,14 @@ class MentionUserPopup extends Component {
         };
     }
 
+    resetState = () => {
+        this.setState({
+            targetUser:null,
+            targetUserError:false,
+            mentionSent:false,
+        })
+    }
+
     handleInputChange = (_,data) => {
         this.setState({
             targetUser:data.value,
@@ -96,6 +104,7 @@ class MentionUserPopup extends Component {
                     </Grid>
                 }
                 on='click'
+                onClose={this.resetState}
                 position='top right'
             />
         );
