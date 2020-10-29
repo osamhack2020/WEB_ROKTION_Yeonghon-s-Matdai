@@ -49,13 +49,6 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
 // in: 아이디(=군번, id), 비밀번호(pw)
 router.post('/login', (req: Request, res: Response) => {
     // 아이디가 존재하는지 확인
-    // 임시용!!!!!!시작
-    console.log(req.body);
-    req.body = {
-        id: '1',
-        pw: 'eotjd123'
-    }
-    // 임시용!!!!!!끝
     getTagId(req.body.id)
     .then(id => {
         return UserModel.findOne({ tagId: id })
@@ -95,31 +88,50 @@ router.post('/login', (req: Request, res: Response) => {
 });
 
 // 새로운 유저 생성
-// in: name, belongs, tagId, 
+// in: name, regiment, tagId, passwd
 router.post('/', (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body);
-    let newU = new UserModel({
-        name: req.body.name,
-        belongs: req.body.belongs,
-        recentLogin: new Date(),
-    });
-    getTagId(req.body.tagId)
+    //console.log(req.body);
+    getTagId(req.body.tagId, true)
     .then(tagId => {
-        newU.tagId = tagId;
-        crypto.randomBytes(64, (err, buf) => {
-            crypto.pbkdf2(req.body.passwd, buf.toString('base64'), 1231, 64, 'sha512', (err, key) => {
-                newU.passwd = key.toString('base64');
+        return new Promise<any>((res, rej) => {
+            crypto.randomBytes(64, (err, buf) => {
+                if (err) rej(err);
+                let passwdSalt = buf.toString('base64');
+                res({tagId, passwdSalt});
+            })
+        })
+    })
+    .then(data => {
+        return new Promise<any>((res, rej) => {
+            crypto.pbkdf2(req.body.passwd, data.passwdSalt.toString('base64'), 1231, 64, 'sha512', (err, key) => {
+                if (err) rej(err);
+                let passwd = key.toString('base64');
+                res({...data, passwd});
             });
-            newU.passwdSalt = buf.toString('base64');
+        })
+    })
+    .then(data => {
+        return new UserModel({
+            tagId: data.tagId,
+            passwd: data.passwd,
+            passwdSalt: data.passwdSalt,
+            name: req.body.name,
+            regiment: req.body.regiment,
+            rank: req.body.rank,
+            recentLogin: new Date(),
+            relatedDocs: {
+                created: [],
+                shared: [],
+            }
         });
     })
-    .then(() => { 
+    .then(newU => { 
         return newU.save();
     })
     .then(() => res.status(201).end())
     .catch(e => {
         console.error(e);
-        res.status(400).end();
+        res.status(400).json(e);
     });
 });
 
@@ -276,9 +288,20 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
 });
 
 // 문자열 군번값이 유효한지 확인해주는 친구...?
-function getTagId(id: string) : Promise<string> {
+function getTagId(id: string, checkDuplicated: boolean = false) : Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        resolve(id);
+        if (checkDuplicated) {
+            UserModel.findOne({ tagId: id })
+            .then(usr => {
+                if (usr === null) {
+                    resolve(id);
+                } else {
+                    reject(new Error(`User with id: ${id} is already exists`));
+                }
+            })
+        } else {
+            resolve(id);
+        }
     });
 }
 

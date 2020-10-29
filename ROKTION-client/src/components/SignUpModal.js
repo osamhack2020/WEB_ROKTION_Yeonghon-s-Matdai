@@ -136,8 +136,8 @@ class SignUpModal extends Component {
 
     createNewUser = () => {
         const newUser = {
-            id:this.state.id,
-            password:this.state.password,
+            tagId:this.state.id,
+            passwd:this.state.password,
             name:this.state.name,
             regiment:this.state.regiment,
             rank:this.state.rank,
@@ -145,7 +145,18 @@ class SignUpModal extends Component {
             email:this.state.email,
             phoneNumber:this.state.phoneNumber
         }
-        this.props.createNewUser(newUser);
+        // turn on loading
+        this.props.createNewUser(newUser)
+        .then(() => {
+            this.setState({
+                isSignedUp: true,
+                // turn off loading
+            });
+        })
+        .catch(e => {
+            console.error(e);
+            alert(e);
+        });
     }
 
     render() {
@@ -296,7 +307,6 @@ class SignUpModal extends Component {
                     onClick={() => {
                         if(this.validateUserData()){
                             this.createNewUser();
-                            this.setState({isSignedUp:true})
                         }
                     }}
                     />

@@ -609,7 +609,7 @@ class MainMenuLayout extends Component {
                             {this.context.userInfo.regiment}
                         </div>
                         <div>
-                            {this.context.userInfo.rank}
+                            {this.context.userInfo.rank + ' '}
                             {this.context.userInfo.name}
                         </div>
                         <div style={{paddingTop:"5px"}}>

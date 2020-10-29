@@ -78,12 +78,15 @@ const userSchema = new Schema({
     },
     relatedDocs: {
         type: Object,
+        required: true,
         created: {
             type: Array,
+            required: true,
             default: []
         },
         shared: {
             type: Array,
+            required: true,
             default: []
         },
     },

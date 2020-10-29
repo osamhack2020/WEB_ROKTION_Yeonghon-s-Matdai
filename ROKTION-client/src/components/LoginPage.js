@@ -14,7 +14,7 @@ class LoginPage extends Component {
         this.state = {
             //임시
             id:'1',
-            password:null,
+            password:'eotjd123',
         }
     }
 
