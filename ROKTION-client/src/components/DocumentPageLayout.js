@@ -6,6 +6,8 @@ import DocumentSettingIcon from './DocumentSettingIcon';
 import DocumentPageContent from './DocumentPageContent';
 import MentionUserPopup from './MentionUserPopup';
 import TodoPane from './TodoPane';
+import MentionPane from './MentionPane';
+import userContext from './UserContext';
 import {
     Sidebar,
     Grid,
@@ -19,7 +21,7 @@ import {
     Loader,
     Tab,
   } from 'semantic-ui-react';
-import userContext from './UserContext';
+
 
 
 
@@ -27,21 +29,8 @@ class DocumentPageLayout extends Component{
     constructor(props){
         super(props)
         this.state = {
-            selectedPage: 0,
-            documentId: -1,
             savedStatusText: '?' 
         };
-    }
-
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (nextProps.document.id !== prevState.documentId) {
-            return {
-                selectedPage: 0,
-                documentId: nextProps.document.id,
-            };
-        } else {
-            return {};
-        }
     }
 
     /**
@@ -77,6 +66,10 @@ class DocumentPageLayout extends Component{
     }
 
     render(){
+        const selectedDocumentId = this.context.selectedDocumentId;
+        const selectedPage = this.context.selectedPage;
+        const document = this.context.documents.find(doc=>doc.id===selectedDocumentId)
+
         return(
             <Sidebar.Pusher className="pushableMainScreen" style={{overflow:'visible'}}>
                 <Grid stackable={false} stretched>
@@ -121,7 +114,7 @@ class DocumentPageLayout extends Component{
                                 className="title noLeftMargin"
                                 textAlign='left'>
                                 <b style={{fontSize:40, lineHeight:'40px'}}>
-                                {this.props.document.title}</b>
+                                {document.title}</b>
                                 {this.state.savedStatusText}
                             </Container>
                             <Container
@@ -129,7 +122,7 @@ class DocumentPageLayout extends Component{
                                 textAlign='right'
                                 width={4}
                                 style={{top:'.4rem', fontSize:15}}>
-                                <b>지시 및 책임자: {this.props.document.admin}</b>
+                                <b>지시 및 책임자: {document.admin}</b>
                             </Container>
                         </Grid.Row>
                         <Grid.Row style={{paddingTop: '.5rem', paddingBottom: '0rem'}}>
@@ -150,8 +143,8 @@ class DocumentPageLayout extends Component{
                                 className="contentContainer noLeftMargin"
                                 textAlign='left'>
                                 <DocumentPageContent 
-                                    pageData={this.props.document.documentContent[this.state.selectedPage]}
-                                    isShared={this.props.document.isShared}
+                                    pageData={document.documentContent[selectedPage]} 
+                                    isShared={document.isShared}
                                     setSavedStatus={this.setSavedStatus}/>
                             </Container>
                         </Grid.Row>
@@ -161,13 +154,11 @@ class DocumentPageLayout extends Component{
                                 <Pagination
                                     onPageChange = {
                                         (_,data) => {
-                                            this.setState({
-                                                selectedPage:data.activePage-1,
-                                            });
+                                            this.context.jumpTo(selectedDocumentId, data.activePage-1)
                                         }
                                     }
                                     boundaryRange={0}
-                                    activePage={this.state.selectedPage+1}
+                                    activePage={selectedPage+1}
                                     ellipsisItem={null}
                                     firstItem={{ content: <Icon name='angle double left' />, icon: true }}
                                     lastItem={{ content: <Icon name='angle double right' />, icon: true }}
@@ -176,15 +167,15 @@ class DocumentPageLayout extends Component{
                                     siblingRange={3}
                                     pointing
                                     secondary
-                                    totalPages={this.props.document.documentContent.length}/>
+                                    totalPages={document.documentContent.length}/>
                             </Container>
                             <Grid.Column width={3} textAlign='right'>
                                 <userContext.Consumer> 
                                 { context => (
                                 <>
                                 <MentionUserPopup
-                                    docid={this.state.documentId}
-                                    page={this.state.selectedPage}/>
+                                    docid={selectedDocumentId}
+                                    page={selectedPage}/>
                                 <Popup
                                     trigger={
                                         <Button 
@@ -198,11 +189,9 @@ class DocumentPageLayout extends Component{
                                             content='페이지 추가'
                                             icon='plus'
                                             onClick={() => {
-                                                context.addPageAfter(this.state.selectedPage)
+                                                context.addPageAfter(selectedPage)
                                                 .then(() => {
-                                                    this.setState({
-                                                        selectedPage: this.state.selectedPage+1
-                                                    })
+                                                    this.context.jumpTo(selectedDocumentId, selectedPage+1)
                                                 });
                                             }}/></Grid.Row>
                                             <Grid.Row style={{paddingTop:"0px"}}><Button 
@@ -210,10 +199,8 @@ class DocumentPageLayout extends Component{
                                             content='페이지 삭제'
                                             icon='minus'
                                             onClick={() => {
-                                                this.setState({
-                                                    selectedPage: this.state.selectedPage-1
-                                                })
-                                                context.removePage(this.state.selectedPage)
+                                                this.context.jumpTo(selectedDocumentId, selectedPage-1)
+                                                this.context.removePage(selectedPage)
                                             }}/></Grid.Row>
                                         </Grid>
                                     }
@@ -237,7 +224,7 @@ class DocumentPageLayout extends Component{
                     }}
                     panes={[
                     { menuItem: '메모장', render: () => <Tab.Pane><TodoPane/></Tab.Pane> },
-                    { menuItem: '언급', render: () => <Tab.Pane>언급 커밍쑨</Tab.Pane> },
+                    { menuItem: '언급', render: () => <Tab.Pane><MentionPane/></Tab.Pane> },
                 ]}/>
                 </Grid.Column>
                 </Grid.Row>
@@ -247,4 +234,5 @@ class DocumentPageLayout extends Component{
     }
 }
 
+DocumentPageLayout.contextType = userContext;
 export default DocumentPageLayout;

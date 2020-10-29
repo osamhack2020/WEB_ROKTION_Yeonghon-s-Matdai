@@ -19,6 +19,14 @@ class MentionUserPopup extends Component {
         };
     }
 
+    resetState = () => {
+        this.setState({
+            targetUser:null,
+            targetUserError:false,
+            mentionSent:false,
+        })
+    }
+
     handleInputChange = (_,data) => {
         this.setState({
             targetUser:data.value,
@@ -86,8 +94,12 @@ class MentionUserPopup extends Component {
                             content='언급'
                             style={{marginLeft:'3px', padding:"10px"}}
                             onClick={()=>{
-                                if(this.validateInput())
-                                context.createNewMention(this.state.targetUser, this.props.docid, this.props.page)
+                                if(this.validateInput()){
+                                    const targetDoc = context.documents.find(doc => (doc.id === this.props.docid))
+                                    const docId = targetDoc.dbId;
+                                    const pageId = targetDoc.documentContent[this.props.page].dbId
+                                    context.createNewMention(this.state.targetUser, docId, pageId);
+                                }
                             }}/>
                         )}
                         </userContext.Consumer>
@@ -96,6 +108,7 @@ class MentionUserPopup extends Component {
                     </Grid>
                 }
                 on='click'
+                onClose={this.resetState}
                 position='top right'
             />
         );

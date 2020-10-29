@@ -12,19 +12,35 @@ class App extends Component {
             loginStatus: 0,
             userInfo:{},
             selectedDocumentId: -1,
+            selectedPage: 0,
             documents:[],
             tags:[],
             //임시 mention과 todolist (userInfo에 넣기)
-            mentionList:[],
-            todoList:[
-                { id:0, content:"hello"},
-                { id:1, content:"hello"},
-                { id:2, content:"hello"},
-                { id:3, content:"hello"},
+            mentionList:[
+                {
+                    id:0,
+                    mentioningUserRank:'소장',
+                    mentioningUserName:'방판칠',
+                    timeOfMention:new Date().toLocaleString(),
+                    docDbId: "5f9aa3b453761b0b733ab15b",
+                    pageDbId: 1,
+                },
+                {
+                    id:1,
+                    mentioningUserRank:'중령',
+                    mentioningUserName:'허영욱',
+                    timeOfMention:new Date().toLocaleString(),
+                    docDbId: "5f9aa3b453761b0b733ab15b",
+                    pageDbId: 0,
+                },
             ],
+            todoList:[],
             toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
             handleLogout:this.onLogout,
             createNewMention:this.createNewMention,
+            removeMention:this.removeMention,
+            createNewTodo:this.createNewTodo,
+            removeTodo:this.removeTodo,
             addPageAfter:this.addPageAfter,
             removePage:this.removePage,
             addNewTag:this.addNewTag,
@@ -34,6 +50,8 @@ class App extends Component {
             createNewDocument:this.createNewDocument,
             deleteDocument:this.deleteDocument,
             shareDocument:this.shareDocument,
+            jumpTo:this.jumpTo,
+            jumpByDbId:this.jumpByDbId,
           };
     }
 
@@ -523,12 +541,13 @@ class App extends Component {
         //기본 문서 생성
         //console.log(this.state.documents, this.state.tags)
         const docs = this.state.documents;
+        const id = docs.length;
         const newDoc = {
-            title: "새 문서" + docs.length,
+            title: "새 문서" + id,
             description: '',
-            alert: docs.length,
+            alert: id,
             //!!!!!!! 임시 !!!!!!!!
-            id: docs.length,
+            id: id,
             color: (() => {
                 var letters = '0123456789ABCDEF';
                 var color = '#';
@@ -538,7 +557,7 @@ class App extends Component {
                 return color;
               })(),
             tags: new Set([0]),
-            onClick: () => {this.setState({selectedDocumentId: docs.length})},
+            onClick: () => {this.context.jumpTo(id, 0)},
             isDocumentContentLoaded: -1,
             documentContent: [],
             pagesLength: 1,
@@ -665,17 +684,77 @@ class App extends Component {
         })
     }
 
-    createNewMention = (targetUser, docid, pageIndex) => {
+    createNewMention = (targetUser, docDbId, pageDbId) => {
+        const mentionList = this.state.mentionList;
         const newMention = {
-            //mentioningUser: 현재 유저의 id,
-            docid: docid,
-            pageIndex: pageIndex,
+            id:Math.random(),
+            mentioningUserRank:this.state.userInfo.rank,
+            mentioningUserName:this.state.userInfo.name,
+            timeOfMention: new Date().toLocaleString(),
+            docDbId: docDbId,
+            pageDbId: pageDbId,
         }
 
+        // 임시로 로컬하게 저장
+        this.setState({
+            mentionList: mentionList.concat(newMention),
+        })
+
         // 서버에서 targetUser 찾아서 mention 추가
-        console.log(targetUser, newMention);
+    }
+
+    removeMention = (id) => {
+        //임시로 로컬하게 삭제
+        let mentionList = this.state.mentionList;
+        const idx = mentionList.findIndex(mention => (mention.id === id));
+        if (idx > -1) {
+            mentionList.splice(idx,1);
+            this.setState({
+                mentionList: mentionList,
+            })
+        }
+    }
+
+    createNewTodo = (content) => {
+        if (content.length<=0) return;
+        const todoList = this.state.todoList;
+
+        // 임시로 로컬하게 저장
+        this.setState({
+            todoList: todoList.concat({id:Math.random(), content:content})
+        })
     }
     
+    removeTodo = (id) => {
+        // 임시로 로컬하게 삭제
+        let todoList = this.state.todoList
+        const idx = todoList.findIndex(todo => (todo.id === id));
+        if (idx > -1){
+            todoList.splice(idx, 1);
+            this.setState({
+                todoList:todoList,
+            })
+        }
+    }
+
+    jumpTo = (docid, page) => {
+        this.setState({
+            selectedDocumentId:docid,
+            selectedPage:page,
+        })
+    }
+
+    //필요없어졌는데 혹시 몰라서 남겨놓음
+    jumpByDbId = (docDbId, pageDbId) => {
+        const doc = this.state.documents.find(doc => (doc.dbId === docDbId))
+        if (doc === undefined) return -1;
+        const pageIndex = doc.documentContent.findIndex(page => (page.dbId === pageDbId))
+        if (pageIndex === -1) return -1;
+
+        this.jumpTo(doc.id, pageIndex);
+        return 0;
+    }
+
     componentDidUpdate() {
         let {selectedDocumentId, documents} = this.state;
         let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
@@ -685,6 +764,7 @@ class App extends Component {
     }
 
     render() {
+        console.log(this.state.documents)
         // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:
