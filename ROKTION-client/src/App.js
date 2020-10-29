@@ -307,6 +307,7 @@ class App extends Component {
                     idx: idx,
                     page: i,
                     dbId: document.dbId,
+                    pageId: page._id,
                 };
                 ++(docs[idx].isDocumentContentLoaded);
                 this.setState({
@@ -764,7 +765,7 @@ class App extends Component {
     }
 
     render() {
-        console.log(this.state.documents)
+        //console.log(this.state.documents)
         // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:
