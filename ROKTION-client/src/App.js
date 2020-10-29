@@ -221,6 +221,7 @@ class App extends Component {
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
+                    permission: 4,
                     description: docInfo.description,
                     // alert 임시용
                     alert: newAlert,
@@ -258,6 +259,7 @@ class App extends Component {
                 const newAlert = relatedDocs.shared[i - docsAlready].alert;
                 newState[i] = {
                     isShared: true,
+                    permission: relatedDocs.shared[i - docsAlready].permission,
                     title: docInfo.title,
                     admin: docInfo.author,
                     description: docInfo.description,
@@ -596,31 +598,60 @@ class App extends Component {
         })
     }
 
-    deleteDocument = (docid) => {
+    deleteDocument = (docid, perm) => {
         let docs = this.state.documents;
         const idx = docs.findIndex(doc => (doc.id === docid));
 
         if (idx > -1) {
-            fetch(`/api/docs/${docs[idx].dbId}`, {
-                method: 'DELETE',
-            })
-            .then(res => {
-                if (res.status === 200) {
-                    return;
-                } else {
-                    throw new Error(`Not deleted`);
-                }
-            })
-            .then(() => {
-                docs.splice(idx, 1);
-                this.setState({
-                    documents:docs,
+            if (perm === 4) {
+                fetch(`/api/docs/${docs[idx].dbId}`, {
+                    method: 'DELETE',
                 })
-                this.reindexingDocuments();
-            })
-            .catch(e => {
-                console.error(e);
-            })
+                .then(res => {
+                    if (res.status === 200) {
+                        return;
+                    } else {
+                        throw new Error(`Not deleted`);
+                    }
+                })
+                .then(() => {
+                    docs.splice(idx, 1);
+                    this.setState({
+                        documents:docs,
+                    })
+                    this.reindexingDocuments();
+                })
+                .catch(e => {
+                    console.error(e);
+                })
+            } else {
+                let auth;
+                switch(perm) {
+                    case 1:
+                        auth = 'viewer';
+                        break;
+                    case 2:
+                        auth = 'editor';
+                        break;
+                    case 3:
+                        auth = 'director';
+                        break;
+                    default:
+                        auth = '';
+                        break;
+                }
+                this.shareDocument(this.state.userInfo.tagId, docid, auth, 'del')
+                .then(() => {
+                    docs.splice(idx, 1);
+                    this.setState({
+                        documents:docs,
+                    })
+                    this.reindexingDocuments();
+                })
+                .catch(e => {
+                    console.error(e);
+                })
+            }
         } else {
             console.error(`Cannot find doc with ${docid}`);
         }
