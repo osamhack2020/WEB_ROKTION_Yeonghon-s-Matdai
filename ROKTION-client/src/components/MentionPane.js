@@ -14,15 +14,6 @@ class MentionPane extends Component {
         };
     }
 
-    validateAndGetDocumentTitle = (id) => {
-        const doc = this.context.documents.find(doc => (doc.id === id))
-        if (doc === undefined){
-            //this.removeMention();
-            return null;
-        }
-        else return doc.title
-    }
-
     render() {
         return (
             <>
@@ -36,9 +27,21 @@ class MentionPane extends Component {
                 { context => {
                     return context.mentionList.map(
                         mention => {
-                            const title = this.validateAndGetDocumentTitle(mention.docid);
-                            return title === null ? <></> :
-                                <List.Item key={mention.id} onClick={()=>{this.context.jumpTo(mention.docid, mention.pageIndex)}}>
+                            const doc = context.documents.find(doc => (doc.dbId === mention.docDbId));
+                            if (doc === undefined) return <></>; //문서 삭제됨
+                            //const pageIndex = doc.documentContent.findIndex(page => (page.dbId === mention.pageDbId))
+                            // if (pageIndex === -1) return <></>; // 페이지 삭제됨
+
+                            //page DbId 추가 전 임시!
+                            const pageIndex = 0;
+                            
+                            return(
+                                <List.Item
+                                    key={mention.id}
+                                    onClick={
+                                        ()=>{this.context.jumpTo(doc.id, pageIndex)}
+                                    }
+                                >
                                     <Segment style={{paddingTop:"5px", paddingBottom:"5px"}}>
                                         <Container textAlign='right'>
                                             <Icon
@@ -53,7 +56,7 @@ class MentionPane extends Component {
                                         </Container>
                                         <Container style={{cursor:"pointer"}}>
                                             <b>{mention.mentioningUserRank} {mention.mentioningUserName}</b>님이
-                                            <b> {title}</b>에 당신을 언급했습니다.
+                                            <b> {doc.title}</b>에 당신을 언급했습니다.
                                         </Container>
                                         <Container
                                             textAlign='right'
@@ -66,6 +69,7 @@ class MentionPane extends Component {
                                         </Container>
                                     </Segment>
                                 </List.Item>
+                            )
                         }
                     )
                 }}

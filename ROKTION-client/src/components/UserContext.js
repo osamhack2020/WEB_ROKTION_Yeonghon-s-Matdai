@@ -27,6 +27,7 @@ const userContext = React.createContext({
     deleteDocument: ()=>{},
     shareDocument: ()=>{},
     jumpTo: ()=>{},
+    jumpByDbId: ()=>{},
 });
 
 export default userContext;

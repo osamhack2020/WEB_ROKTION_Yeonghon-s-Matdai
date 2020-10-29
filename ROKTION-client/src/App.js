@@ -22,16 +22,16 @@ class App extends Component {
                     mentioningUserRank:'소장',
                     mentioningUserName:'방판칠',
                     timeOfMention:new Date().toLocaleString(),
-                    docid: 0,
-                    pageIndex: 1,
+                    docDbId: "5f9aa3b453761b0b733ab15b",
+                    pageDbId: 1,
                 },
                 {
                     id:1,
                     mentioningUserRank:'중령',
                     mentioningUserName:'허영욱',
                     timeOfMention:new Date().toLocaleString(),
-                    docid: 1,
-                    pageIndex: 0,
+                    docDbId: "5f9aa3b453761b0b733ab15b",
+                    pageDbId: 0,
                 },
             ],
             todoList:[],
@@ -51,6 +51,7 @@ class App extends Component {
             deleteDocument:this.deleteDocument,
             shareDocument:this.shareDocument,
             jumpTo:this.jumpTo,
+            jumpByDbId:this.jumpByDbId,
           };
     }
 
@@ -502,12 +503,13 @@ class App extends Component {
         //기본 문서 생성
         //console.log(this.state.documents, this.state.tags)
         const docs = this.state.documents;
+        const id = docs.length;
         const newDoc = {
-            title: "새 문서" + docs.length,
+            title: "새 문서" + id,
             description: '',
-            alert: docs.length,
+            alert: id,
             //!!!!!!! 임시 !!!!!!!!
-            id: docs.length,
+            id: id,
             color: (() => {
                 var letters = '0123456789ABCDEF';
                 var color = '#';
@@ -517,7 +519,7 @@ class App extends Component {
                 return color;
               })(),
             tags: new Set([0]),
-            onClick: () => {this.setState({selectedDocumentId: docs.length, selectedPage: 0,})},
+            onClick: () => {this.context.jumpTo(id, 0)},
             isDocumentContentLoaded: -1,
             documentContent: [],
             pagesLength: 1,
@@ -624,15 +626,15 @@ class App extends Component {
         console.log(targetUser, docid, authority);
     }
 
-    createNewMention = (targetUser, docid, pageIndex) => {
+    createNewMention = (targetUser, docDbId, pageDbId) => {
         const mentionList = this.state.mentionList;
         const newMention = {
             id:Math.random(),
             mentioningUserRank:this.state.userInfo.rank,
             mentioningUserName:this.state.userInfo.name,
             timeOfMention: new Date().toLocaleString(),
-            docid: docid,
-            pageIndex: pageIndex,
+            docDbId: docDbId,
+            pageDbId: pageDbId,
         }
 
         // 임시로 로컬하게 저장
@@ -682,6 +684,17 @@ class App extends Component {
             selectedDocumentId:docid,
             selectedPage:page,
         })
+    }
+
+    //필요없어졌는데 혹시 몰라서 남겨놓음
+    jumpByDbId = (docDbId, pageDbId) => {
+        const doc = this.state.documents.find(doc => (doc.dbId === docDbId))
+        if (doc === undefined) return -1;
+        const pageIndex = doc.documentContent.findIndex(page => (page.dbId === pageDbId))
+        if (pageIndex === -1) return -1;
+
+        this.jumpTo(doc.id, pageIndex);
+        return 0;
     }
 
     componentDidUpdate() {
