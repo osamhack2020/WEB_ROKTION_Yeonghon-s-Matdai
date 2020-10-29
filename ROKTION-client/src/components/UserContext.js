@@ -4,14 +4,18 @@ const userContext = React.createContext({
     loginStatus: 0,
     userInfo: {},
     selectedDocumentId: -1,
+    selectedPage: 0,
     documents: [],
     tags: [],
     //임시
     mentionList: [],
     todoList: [],
+    //임시
     handleLogout: ()=>{},
     toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
     createNewMention: ()=>{},
+    createNewTodo: ()=>{},
+    removeTodo: ()=>{},
     addPageAfter: ()=>{},
     removePage: ()=>{},
     addNewTag: ()=>{},
@@ -21,6 +25,7 @@ const userContext = React.createContext({
     createNewDocument: ()=>{},
     deleteDocument: ()=>{},
     shareDocument: ()=>{},
+    jumpTo: ()=>{},
 });
 
 export default userContext;
