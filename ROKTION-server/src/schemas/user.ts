@@ -8,6 +8,7 @@ export interface Tag {
 export interface DocView {
     docId: Types.ObjectId;
     docTags: Array<Number>;
+    permission?: Number;
     alert: Number;
 }
 

@@ -603,8 +603,28 @@ class App extends Component {
         })
     }
 
-    shareDocument = (targetUser, docid, authority) => {
-        console.log(targetUser, docid, authority);
+    shareDocument = (targetUser, docid, authority, action = 'add') => {
+        //console.log(targetUser, docid, authority);
+        const doc = this.state.documents.find(doc => doc.id === docid);
+        if (!doc) return;
+        const shareOption = {}
+        shareOption[authority] = targetUser;
+        shareOption.action = action;
+        //console.log(shareOption);
+        fetch(`/api/docs/${doc.dbId}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                shareOption: shareOption,
+            }),
+        })
+        .then(res => {
+            if (res.status === 200) {
+                return;
+            } else {
+                throw res.json();
+            }
+        })
     }
 
     createNewMention = (targetUser, docid, pageIndex) => {
