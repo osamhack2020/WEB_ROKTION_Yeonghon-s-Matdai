@@ -253,15 +253,27 @@ class MainMenuLayout extends Component {
                                             </Form>
                                         </Popup>
                                         :
-                                        <Icon
-                                            onClick={document.onClick}
-                                            name='square'
-                                            size='massive'
+                                        <Icon.Group
                                             style={{
-                                                cursor:"pointer",
-                                                color: document.color,
-                                            }}
-                                        />
+                                                cursor:"pointer"}}>
+                                            <Icon
+                                                onClick={document.onClick}
+                                                name='square'
+                                                size='massive'
+                                                style={{
+                                                    color: document.color,
+                                                }}
+                                            />
+                                            { document.isShared?
+                                                <Icon
+                                                onClick={document.onClick}
+                                                inverted
+                                                size='huge'
+                                                name='user'
+                                                style={{opacity:.8,}}/>:
+                                                <></> }
+                                        </Icon.Group>
+                                        
                                     }
                                 </Container>
                             </Grid.Column>

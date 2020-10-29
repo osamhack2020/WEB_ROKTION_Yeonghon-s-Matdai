@@ -288,15 +288,23 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
 });
 
 // 문자열 군번값이 유효한지 확인해주는 친구...?
-function getTagId(id: string, checkDuplicated: boolean = false) : Promise<string> {
+export function getTagId(id: string, checkDuplicated: boolean = false, checkHasUser: boolean = false) : Promise<string> {
     return new Promise<string>((resolve, reject) => {
         if (checkDuplicated) {
             UserModel.findOne({ tagId: id })
             .then(usr => {
-                if (usr === null) {
-                    resolve(id);
+                if (checkHasUser) {
+                    if (usr !== null) {
+                        resolve(id);
+                    } else {
+                        reject(new Error(`User with id: ${id} is not exists`));
+                    }
                 } else {
-                    reject(new Error(`User with id: ${id} is already exists`));
+                    if (usr === null) {
+                        resolve(id);
+                    } else {
+                        reject(new Error(`User with id: ${id} is already exists`));
+                    }
                 }
             })
         } else {
