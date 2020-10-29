@@ -13,8 +13,7 @@ class DocumentPage extends Component {
         return (
             <Sidebar.Pushable className="DocumentPage" style={{overflow:'visible'}}>
                 <DocumentPageSidebar/>
-                <DocumentPageLayout
-                    document={this.context.documents.find(doc=>doc.id===this.context.selectedDocumentId)}/>
+                <DocumentPageLayout/>
             </Sidebar.Pushable>
         );
     }

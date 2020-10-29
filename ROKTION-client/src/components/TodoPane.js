@@ -59,10 +59,8 @@ class TodoPane extends Component {
                 }}>
                 <List>
                 <userContext.Consumer>
-                { value => {
-                    console.log('value:',value)
-                    
-                    return value.todoList.map(
+                { context => {
+                    return context.todoList.map(
                         todo => (
                             <List.Item key={todo.id}>
                                 <Segment>
@@ -70,14 +68,14 @@ class TodoPane extends Component {
                                 <Grid.Row columns='equal'>
                                 <Grid.Column width={1}>
                                 <Icon
-                                    todoId={todo.id}
+                                    todoid={todo.id}
                                     name='check'
                                     size='large'
                                     style={{
                                         color:'gray',
                                         opacity:".3",
                                         cursor:"pointer",}}
-                                    onClick={(_,data)=>{this.context.removeTodo(data.todoId)}}/>
+                                    onClick={(_,data)=>{this.context.removeTodo(data.todoid)}}/>
                                 </Grid.Column>
                                 <Grid.Column style={{paddingLeft:'15px'}}>
                                 <div style={{lineHeight:"20px", overflowWrap:"break-word"}}>

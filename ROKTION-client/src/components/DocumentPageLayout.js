@@ -6,6 +6,8 @@ import DocumentSettingIcon from './DocumentSettingIcon';
 import DocumentPageContent from './DocumentPageContent';
 import MentionUserPopup from './MentionUserPopup';
 import TodoPane from './TodoPane';
+import MentionPane from './MentionPane';
+import userContext from './UserContext';
 import {
     Sidebar,
     Grid,
@@ -19,7 +21,7 @@ import {
     Loader,
     Tab,
   } from 'semantic-ui-react';
-import userContext from './UserContext';
+
 
 
 
@@ -31,17 +33,6 @@ class DocumentPageLayout extends Component{
             documentId: -1,
             savedStatusText: '?' 
         };
-    }
-
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (nextProps.document.id !== prevState.documentId) {
-            return {
-                selectedPage: 0,
-                documentId: nextProps.document.id,
-            };
-        } else {
-            return {};
-        }
     }
 
     /**
@@ -77,6 +68,7 @@ class DocumentPageLayout extends Component{
     }
 
     render(){
+        const document = this.context.documents.find(doc=>doc.id===this.context.selectedDocumentId)
         return(
             <Sidebar.Pusher className="pushableMainScreen" style={{overflow:'visible'}}>
                 <Grid stackable={false} stretched>
@@ -121,7 +113,7 @@ class DocumentPageLayout extends Component{
                                 className="title noLeftMargin"
                                 textAlign='left'>
                                 <b style={{fontSize:40, lineHeight:'40px'}}>
-                                {this.props.document.title}</b>
+                                {document.title}</b>
                                 {this.state.savedStatusText}
                             </Container>
                             <Container
@@ -129,7 +121,7 @@ class DocumentPageLayout extends Component{
                                 textAlign='right'
                                 width={4}
                                 style={{top:'.4rem', fontSize:15}}>
-                                <b>지시 및 책임자: {this.props.document.admin}</b>
+                                <b>지시 및 책임자: {document.admin}</b>
                             </Container>
                         </Grid.Row>
                         <Grid.Row style={{paddingTop: '.5rem', paddingBottom: '0rem'}}>
@@ -150,7 +142,7 @@ class DocumentPageLayout extends Component{
                                 className="contentContainer noLeftMargin"
                                 textAlign='left'>
                                 <DocumentPageContent 
-                                    pageData={this.props.document.documentContent[this.state.selectedPage]} 
+                                    pageData={document.documentContent[this.state.selectedPage]} 
                                     setSavedStatus={this.setSavedStatus}/>
                             </Container>
                         </Grid.Row>
@@ -175,7 +167,7 @@ class DocumentPageLayout extends Component{
                                     siblingRange={3}
                                     pointing
                                     secondary
-                                    totalPages={this.props.document.documentContent.length}/>
+                                    totalPages={document.documentContent.length}/>
                             </Container>
                             <Grid.Column width={3} textAlign='right'>
                                 <userContext.Consumer> 
@@ -236,7 +228,7 @@ class DocumentPageLayout extends Component{
                     }}
                     panes={[
                     { menuItem: '메모장', render: () => <Tab.Pane><TodoPane/></Tab.Pane> },
-                    { menuItem: '언급', render: () => <Tab.Pane>언급 커밍쑨</Tab.Pane> },
+                    { menuItem: '언급', render: () => <Tab.Pane><MentionPane/></Tab.Pane> },
                 ]}/>
                 </Grid.Column>
                 </Grid.Row>
@@ -246,4 +238,5 @@ class DocumentPageLayout extends Component{
     }
 }
 
+DocumentPageLayout.contextType = userContext;
 export default DocumentPageLayout;

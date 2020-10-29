@@ -12,16 +12,29 @@ class App extends Component {
             loginStatus: 0,
             userInfo:{},
             selectedDocumentId: -1,
+            selectedPage: 0,
             documents:[],
             tags:[],
             //임시 mention과 todolist (userInfo에 넣기)
-            mentionList:[],
-            todoList:[
-                { id:0, content:"hello"},
-                { id:1, content:"hello"},
-                { id:2, content:"hello"},
-                { id:3, content:"hello"},
+            mentionList:[
+                {
+                    id:0,
+                    mentioningUserRank:'소장',
+                    mentioningUserName:'방판칠',
+                    timeOfMention:new Date().toLocaleString(),
+                    docid: 0,
+                    pageIndex: 1,
+                },
+                {
+                    id:1,
+                    mentioningUserRank:'중령',
+                    mentioningUserName:'허영욱',
+                    timeOfMention:new Date().toLocaleString(),
+                    docid: 1,
+                    pageIndex: 0,
+                },
             ],
+            todoList:[],
             toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
             handleLogout:this.onLogout,
             createNewMention:this.createNewMention,
@@ -36,6 +49,7 @@ class App extends Component {
             createNewDocument:this.createNewDocument,
             deleteDocument:this.deleteDocument,
             shareDocument:this.shareDocument,
+            jumpTo:this.jumpTo,
           };
     }
 
@@ -502,7 +516,7 @@ class App extends Component {
                 return color;
               })(),
             tags: new Set([0]),
-            onClick: () => {this.setState({selectedDocumentId: docs.length})},
+            onClick: () => {this.setState({selectedDocumentId: docs.length, selectedPage: 0,})},
             isDocumentContentLoaded: -1,
             documentContent: [],
             pagesLength: 1,
@@ -595,14 +609,22 @@ class App extends Component {
     }
 
     createNewMention = (targetUser, docid, pageIndex) => {
+        const mentionList = this.state.mentionList;
         const newMention = {
-            //mentioningUser: 현재 유저의 id,
+            id:Math.random(),
+            mentioningUserRank:this.state.userInfo.rank,
+            mentioningUserName:this.state.userInfo.name,
+            timeOfMention: new Date().toLocaleString(),
             docid: docid,
             pageIndex: pageIndex,
         }
 
+        // 임시로 로컬하게 저장
+        this.setState({
+            mentionList: mentionList.concat(newMention),
+        })
+
         // 서버에서 targetUser 찾아서 mention 추가
-        console.log(targetUser, newMention);
     }
 
     createNewTodo = (content) => {
@@ -611,7 +633,7 @@ class App extends Component {
 
         // 임시로 로컬하게 저장
         this.setState({
-            todoList: todoList.concat({id:todoList.length+content, content:content})
+            todoList: todoList.concat({id:Math.random(), content:content})
         })
     }
     
@@ -627,6 +649,13 @@ class App extends Component {
         }
     }
 
+    jumpTo = (docid, page) => {
+        this.setState({
+            selectedDocumentId:docid,
+            selectedPage:page,
+        })
+    }
+
     componentDidUpdate() {
         let {selectedDocumentId, documents} = this.state;
         let selectedDocument = documents.find(doc => doc?.id === selectedDocumentId);
@@ -636,6 +665,7 @@ class App extends Component {
     }
 
     render() {
+        console.log(this.state.documents)
         // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:
