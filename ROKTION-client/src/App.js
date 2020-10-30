@@ -88,9 +88,12 @@ class App extends Component {
             console.log(userData);
             this.setState({
                 userInfo: userData,
-                loginStatus: 1
+                loginStatus: 1,
             });
             //console.log(this.state.documents);
+            for (let i = 0; i < userData.memos.length; ++i) {
+                this.createNewTodo(userData.memos[i], false);
+            }
             this.getUserTags();
             return this.getDocumentList();
         })
@@ -221,6 +224,7 @@ class App extends Component {
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
+                    permission: 4,
                     description: docInfo.description,
                     // alert 임시용
                     alert: newAlert,
@@ -258,6 +262,7 @@ class App extends Component {
                 const newAlert = relatedDocs.shared[i - docsAlready].alert;
                 newState[i] = {
                     isShared: true,
+                    permission: relatedDocs.shared[i - docsAlready].permission,
                     title: docInfo.title,
                     admin: docInfo.author,
                     description: docInfo.description,
@@ -307,6 +312,7 @@ class App extends Component {
                     idx: idx,
                     page: i,
                     dbId: document.dbId,
+                    pageId: page._id,
                 };
                 ++(docs[idx].isDocumentContentLoaded);
                 this.setState({
@@ -595,31 +601,60 @@ class App extends Component {
         })
     }
 
-    deleteDocument = (docid) => {
+    deleteDocument = (docid, perm) => {
         let docs = this.state.documents;
         const idx = docs.findIndex(doc => (doc.id === docid));
 
         if (idx > -1) {
-            fetch(`/api/docs/${docs[idx].dbId}`, {
-                method: 'DELETE',
-            })
-            .then(res => {
-                if (res.status === 200) {
-                    return;
-                } else {
-                    throw new Error(`Not deleted`);
-                }
-            })
-            .then(() => {
-                docs.splice(idx, 1);
-                this.setState({
-                    documents:docs,
+            if (perm === 4) {
+                fetch(`/api/docs/${docs[idx].dbId}`, {
+                    method: 'DELETE',
                 })
-                this.reindexingDocuments();
-            })
-            .catch(e => {
-                console.error(e);
-            })
+                .then(res => {
+                    if (res.status === 200) {
+                        return;
+                    } else {
+                        throw new Error(`Not deleted`);
+                    }
+                })
+                .then(() => {
+                    docs.splice(idx, 1);
+                    this.setState({
+                        documents:docs,
+                    })
+                    this.reindexingDocuments();
+                })
+                .catch(e => {
+                    console.error(e);
+                })
+            } else {
+                let auth;
+                switch(perm) {
+                    case 1:
+                        auth = 'viewer';
+                        break;
+                    case 2:
+                        auth = 'editor';
+                        break;
+                    case 3:
+                        auth = 'director';
+                        break;
+                    default:
+                        auth = '';
+                        break;
+                }
+                this.shareDocument(this.state.userInfo.tagId, docid, auth, 'del')
+                .then(() => {
+                    docs.splice(idx, 1);
+                    this.setState({
+                        documents:docs,
+                    })
+                    this.reindexingDocuments();
+                })
+                .catch(e => {
+                    console.error(e);
+                })
+            }
         } else {
             console.error(`Cannot find doc with ${docid}`);
         }
@@ -715,19 +750,27 @@ class App extends Component {
         }
     }
 
-    createNewTodo = (content) => {
+    createNewTodo = (content, doFetch = true) => {
         if (content.length<=0) return;
         const todoList = this.state.todoList;
 
         // 임시로 로컬하게 저장
         this.setState({
             todoList: todoList.concat({id:Math.random(), content:content})
-        })
+        });
+
+        if (doFetch) {
+            fetch(`/api/user/${this.state.userInfo.tagId}`, {
+                method: 'PUT',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({memos: this.state.todoList.map(todo => todo.content).concat(content)}),
+            })
+        };
     }
     
     removeTodo = (id) => {
         // 임시로 로컬하게 삭제
-        let todoList = this.state.todoList
+        let todoList = this.state.todoList;
         const idx = todoList.findIndex(todo => (todo.id === id));
         if (idx > -1){
             todoList.splice(idx, 1);
@@ -735,6 +778,12 @@ class App extends Component {
                 todoList:todoList,
             })
         }
+
+        fetch(`/api/user/${this.state.userInfo.tagId}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({memos: this.state.todoList.map(todo => todo.content)}),
+        })
     }
 
     jumpTo = (docid, page) => {
@@ -764,7 +813,7 @@ class App extends Component {
     }
 
     render() {
-        console.log(this.state.documents)
+        //console.log(this.state.documents)
         // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:
