@@ -750,7 +750,7 @@ class App extends Component {
         }
     }
 
-    createNewTodo = (content, fetch = true) => {
+    createNewTodo = (content, doFetch = true) => {
         if (content.length<=0) return;
         const todoList = this.state.todoList;
 
@@ -759,16 +759,18 @@ class App extends Component {
             todoList: todoList.concat({id:Math.random(), content:content})
         });
 
-        if (fetch) fetch(`/api/user/${this.state.userInfo.tagId}`, {
-            method: 'PUT',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({memos: this.state.todoList}),
-        })
+        if (doFetch) {
+            fetch(`/api/user/${this.state.userInfo.tagId}`, {
+                method: 'PUT',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({memos: this.state.todoList.map(todo => todo.content).concat(content)}),
+            })
+        };
     }
     
     removeTodo = (id) => {
         // 임시로 로컬하게 삭제
-        let todoList = this.state.todoList
+        let todoList = this.state.todoList;
         const idx = todoList.findIndex(todo => (todo.id === id));
         if (idx > -1){
             todoList.splice(idx, 1);
@@ -780,7 +782,7 @@ class App extends Component {
         fetch(`/api/user/${this.state.userInfo.tagId}`, {
             method: 'PUT',
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({memos: this.state.todoList}),
+            body: JSON.stringify({memos: this.state.todoList.map(todo => todo.content)}),
         })
     }
 
