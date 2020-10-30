@@ -13,7 +13,7 @@ const createSocketActions = (io: SocketIO.Server, socket: SocketIO.Socket) => {
         // (socket as UserSocket).tagId 로 확인가능
     })
 
-    // 내용 업데이트시 GET을 호출하도록
+    // 문서 정보 업데이트시 GET을 호출하도록
     socket.on('updateDocInfo', (docData) => { // docId: 문서의 ID
         //console.log(`got updated, ${docData.docId}`);
         socket.broadcast.emit('updateDocInfo', docData);
@@ -26,8 +26,10 @@ const createSocketActions = (io: SocketIO.Server, socket: SocketIO.Socket) => {
     socket.on('startPageEditing', (editing) => { // editingPage: 수정중인 페이지 번호
         // 혼자만 접속중이면 안보내도됨
     })
-    socket.on('endPageEditing', (editing) => { // editingPage: 수정을 완료한 페이지 번호
-
+    // 보고있는 사람들 수정불가 해제
+    socket.on('endPageEditing', (editing) => { // docId: 보고있는 문서 ID, editedPage: 수정을 완료한 페이지 번호
+        // 보고있는 사람들 GET요청 다시 하게
+        // 브로드캐스트로도 보내서 받으면 그 내용만 다시 GET
     })
 }
 
