@@ -221,6 +221,7 @@ class App extends Component {
                     documentContent: [],
                     isDocumentContentLoaded: -1, // -1: 미로딩, 0: 로딩중, 1: 로딩완료
                     pagesLength: docInfo.contents.length,
+                    shareOption: docInfo.shareOption,
                 }
                 this.setState({
                     documents: newState
@@ -809,24 +810,32 @@ class App extends Component {
         })
     }
 
-    jumpTo = (docid, page) => {
-        fetch(`/api/docs/${this.state.documents.find(doc => doc.id === docid).dbId}/${page}`, {
-            method: 'GET',
-        })
-        .then(res => {
-            if (res.status !== 200 && res.status !== 304) {
-                this.setState({
-                    selectedDocumentId:docid,
-                    selectedPage:0,
-                });
-                alert('존재하지 않는 페이지입니다.');
-            } else {
-                this.setState({
-                    selectedDocumentId:docid,
-                    selectedPage:page,
-                });
-            }
-        })
+    jumpTo = (docid, page, checkPageAvailable = false) => {
+        if (checkPageAvailable) {
+            // 페이지 존재여부 확인
+            fetch(`/api/docs/${this.state.documents.find(doc => doc.id === docid).dbId}/${page}`, {
+                method: 'GET',
+            })
+            .then(res => {
+                if (res.status !== 200 && res.status !== 304) {
+                    this.setState({
+                        selectedDocumentId:docid,
+                        selectedPage:0,
+                    });
+                    alert('존재하지 않는 페이지입니다.');
+                } else {
+                    this.setState({
+                        selectedDocumentId:docid,
+                        selectedPage:page,
+                    });
+                }
+            })
+        } else {
+            this.setState({
+                selectedDocumentId:docid,
+                selectedPage:page,
+            });
+        }
     }
 
     //필요없어졌는데 혹시 몰라서 남겨놓음

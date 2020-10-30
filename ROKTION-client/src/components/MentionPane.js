@@ -39,7 +39,7 @@ class MentionPane extends Component {
                                 <List.Item
                                     key={mention.id}
                                     onClick={
-                                        ()=>{this.context.jumpTo(doc.id, pageIndex)}
+                                        ()=>{this.context.jumpTo(doc.id, pageIndex, true)}
                                     }
                                 >
                                     <Segment style={{paddingTop:"5px", paddingBottom:"5px"}}>

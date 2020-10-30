@@ -12,7 +12,7 @@ export interface DocInfo extends Document {
     title: string;
     titleColor: string;
     description: string;
-    author: Types.ObjectId;
+    author: string;
     status: DocStatus;
     contents: Array<{
         pageId: Types.ObjectId,
@@ -52,7 +52,7 @@ const docInfoSchema = new Schema({
     title: String,
     titleColor: String,
     description: String,
-    author: Types.ObjectId,
+    author: String,
     status: {
         type: DocStatus,
         default: DocStatus.doing

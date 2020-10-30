@@ -59,7 +59,7 @@ router.post('/', async (req: Request, res: Response) => {
         title: req.body.title,
         titleColor: req.body.color,
         description: '',
-        author: authorId,
+        author: req.session?.tagId,
         status: 0,
         contents: [],
         shareOption: { },
@@ -378,7 +378,7 @@ function checkPermission(session: Express.Session, docInfo: DocInfo | null) : Pr
     return new Promise((resolve, reject) => {
         if (docInfo !== undefined && docInfo !== null && session.dbId !== undefined && session.dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
-            if (docInfo.author == session.dbId) {
+            if (docInfo.author == session.tagId) {
                 pl = PermissionLevel.owner;
             } else if (docInfo.shareOption.director?.indexOf(session.tagId) >= 0) {
                 pl = PermissionLevel.director;
