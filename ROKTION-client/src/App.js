@@ -31,7 +31,7 @@ class App extends Component {
                     mentioningUserName:'허영욱',
                     timeOfMention:new Date().toLocaleString(),
                     docDbId: "5f9aa3b453761b0b733ab15b",
-                    pageDbId: 0,
+                    pageDbId: 11,
                 },
             ],
             todoList:[],
@@ -787,9 +787,22 @@ class App extends Component {
     }
 
     jumpTo = (docid, page) => {
-        this.setState({
-            selectedDocumentId:docid,
-            selectedPage:page,
+        fetch(`/api/docs/${this.state.documents.find(doc => doc.id === docid).dbId}/${page}`, {
+            method: 'GET',
+        })
+        .then(res => {
+            if (res !== 200 && res !== 304) {
+                this.setState({
+                    selectedDocumentId:docid,
+                    selectedPage:0,
+                });
+                alert('존재하지 않는 페이지입니다.');
+            } else {
+                this.setState({
+                    selectedDocumentId:docid,
+                    selectedPage:page,
+                });
+            }
         })
     }
 

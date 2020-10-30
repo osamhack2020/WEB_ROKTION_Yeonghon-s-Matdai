@@ -56,7 +56,7 @@ class MentionPane extends Component {
                                         </Container>
                                         <Container style={{cursor:"pointer"}}>
                                             <b>{mention.mentioningUserRank} {mention.mentioningUserName}</b>님이
-                                            <b> {doc.title}</b>에 당신을 언급했습니다.
+                                            <b> {doc.title}:{mention.pageDbId}</b>에 당신을 언급했습니다.
                                         </Container>
                                         <Container
                                             textAlign='right'
