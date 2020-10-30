@@ -37,6 +37,7 @@ class MentionUserPopup extends Component {
 
     validateInput = () => {
         const targetUser = this.state.targetUser;
+        // 여기서 이미 문서가 공유된 군번인지 체크해야됨
         if(!/^[0-9]{2}-[0-9]{5,8}$/.test(targetUser)){
             this.setState({
                 targetUserError:true,
@@ -97,7 +98,7 @@ class MentionUserPopup extends Component {
                                 if(this.validateInput()){
                                     const targetDoc = context.documents.find(doc => (doc.id === this.props.docid))
                                     const docId = targetDoc.dbId;
-                                    const pageId = targetDoc.documentContent[this.props.page].dbId
+                                    const pageId = this.props.page;
                                     context.createNewMention(this.state.targetUser, docId, pageId);
                                 }
                             }}/>
