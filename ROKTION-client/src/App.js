@@ -15,25 +15,7 @@ class App extends Component {
             selectedPage: 0,
             documents:[],
             tags:[],
-            //임시 mention과 todolist (userInfo에 넣기)
-            mentionList:[
-                {
-                    id:0,
-                    mentioningUserRank:'소장',
-                    mentioningUserName:'방판칠',
-                    timeOfMention:new Date().toLocaleString(),
-                    docDbId: "5f9aa3b453761b0b733ab15b",
-                    pageDbId: "5f9aa3b453761b0b733ab15c",
-                },
-                {
-                    id:1,
-                    mentioningUserRank:'중령',
-                    mentioningUserName:'허영욱',
-                    timeOfMention:new Date().toLocaleString(),
-                    docDbId: "5f9a9e3d8260921cf2fffa5d",
-                    pageDbId: "5f9a9e3d8260921cf2fffa5e",
-                },
-            ],
+            mentionList:[],
             todoList:[],
             toMainMenu:()=>{this.setState({selectedDocumentId:-1});},
             handleLogout:this.onLogout,
@@ -52,7 +34,7 @@ class App extends Component {
             shareDocument:this.shareDocument,
             jumpTo:this.jumpTo,
             jumpByDbId:this.jumpByDbId,
-          };
+        };
     }
 
     onLogin = (id, pw) => {
@@ -93,6 +75,9 @@ class App extends Component {
             //console.log(this.state.documents);
             for (let i = 0; i < userData.memos.length; ++i) {
                 this.createNewTodo(userData.memos[i], false);
+            }
+            for (let i = 0; i < userData.mentions.length; ++i) {
+                this.getMention(userData.mentions[i].mentioningUser, userData.mentions[i].docDbId, userData.mentions[i].page, userData.mentions[i].timeOfMention);
             }
             this.getUserTags();
             return this.getDocumentList();
@@ -220,14 +205,14 @@ class App extends Component {
                 let newState = this.state.documents;
                 let newTags = relatedDocs.created[i].docTags;
                 newTags.push(docInfo.status);
-                const newAlert = relatedDocs.created[i].alert;
+                //const newAlert = relatedDocs.created[i].alert;
                 newState[i] = {
                     title: docInfo.title,
                     admin: docInfo.author,
                     permission: 4,
                     description: docInfo.description,
                     // alert 임시용
-                    alert: newAlert,
+                    alert: 0,
                     id: i,
                     color: docInfo.titleColor,
                     dbId: docInfo._id,
@@ -236,6 +221,7 @@ class App extends Component {
                     documentContent: [],
                     isDocumentContentLoaded: -1, // -1: 미로딩, 0: 로딩중, 1: 로딩완료
                     pagesLength: docInfo.contents.length,
+                    shareOption: docInfo.shareOption,
                 }
                 this.setState({
                     documents: newState
@@ -259,7 +245,7 @@ class App extends Component {
                 let newState = this.state.documents;
                 let newTags = relatedDocs.shared[i - docsAlready].docTags;
                 newTags.push(docInfo.status);
-                const newAlert = relatedDocs.shared[i - docsAlready].alert;
+                //const newAlert = relatedDocs.shared[i - docsAlready].alert;
                 newState[i] = {
                     isShared: true,
                     permission: relatedDocs.shared[i - docsAlready].permission,
@@ -267,7 +253,7 @@ class App extends Component {
                     admin: docInfo.author,
                     description: docInfo.description,
                     // alert 임시용
-                    alert: newAlert,
+                    alert: 0,
                     id: i,
                     color: docInfo.titleColor,
                     dbId: docInfo._id,
@@ -551,7 +537,7 @@ class App extends Component {
         const newDoc = {
             title: "새 문서" + id,
             description: '',
-            alert: id,
+            alert: 0,
             //!!!!!!! 임시 !!!!!!!!
             id: id,
             color: (() => {
@@ -719,23 +705,50 @@ class App extends Component {
         })
     }
 
-    createNewMention = (targetUser, docDbId, pageDbId) => {
+    getMention = async (fromWho, docDbId, page, date) => {
+        const resData = await fetch(`/api/user/${fromWho}`, {
+            method: 'GET',
+        });
+        const fromUser = await resData.json();
         const mentionList = this.state.mentionList;
         const newMention = {
-            id:Math.random(),
-            mentioningUserRank:this.state.userInfo.rank,
-            mentioningUserName:this.state.userInfo.name,
-            timeOfMention: new Date().toLocaleString(),
+            id: Math.random(),
+            mentioningUserRank: fromUser.rank,
+            mentioningUserName: fromUser.name,
+            timeOfMention: new Date(date).toLocaleString(),
             docDbId: docDbId,
-            pageDbId: pageDbId,
+            pageDbId: page,
         }
-
-        // 임시로 로컬하게 저장
         this.setState({
             mentionList: mentionList.concat(newMention),
-        })
+        });
+        console.log(newMention);
+    }
 
-        // 서버에서 targetUser 찾아서 mention 추가
+    createNewMention = (targetUser, docDbId, pageDbId) => {
+        // 서버에서 targetUser에 mention 추가
+        fetch(`/api/user/${targetUser}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                mention: {
+                    action: 'add',
+                    date: Date.now(),
+                    docId: docDbId,
+                    page: pageDbId,
+                }
+            }),
+        })
+        .then(res => {
+            if (res.status === 200) {
+                return;
+            } else {
+                throw res.json();
+            }
+        })
+        .catch(e => {
+            console.error(new Error(e));
+        })
     }
 
     removeMention = (id) => {
@@ -748,6 +761,17 @@ class App extends Component {
                 mentionList: mentionList,
             })
         }
+
+        fetch(`/api/user/${this.state.userInfo.tagId}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                mention: {
+                    action: 'del',
+                    idx: idx,
+                }
+            }),
+        })
     }
 
     createNewTodo = (content, doFetch = true) => {
@@ -786,12 +810,32 @@ class App extends Component {
         })
     }
 
-    jumpTo = (docid, page) => {
-        console.log('called to', docid, page)
-        this.setState({
-            selectedDocumentId:docid,
-            selectedPage:page,
-        })
+    jumpTo = (docid, page, checkPageAvailable = false) => {
+        if (checkPageAvailable) {
+            // 페이지 존재여부 확인
+            fetch(`/api/docs/${this.state.documents.find(doc => doc.id === docid).dbId}/${page}`, {
+                method: 'GET',
+            })
+            .then(res => {
+                if (res.status !== 200 && res.status !== 304) {
+                    this.setState({
+                        selectedDocumentId:docid,
+                        selectedPage:0,
+                    });
+                    alert('존재하지 않는 페이지입니다.');
+                } else {
+                    this.setState({
+                        selectedDocumentId:docid,
+                        selectedPage:page,
+                    });
+                }
+            })
+        } else {
+            this.setState({
+                selectedDocumentId:docid,
+                selectedPage:page,
+            });
+        }
     }
 
     //필요없어졌는데 혹시 몰라서 남겨놓음

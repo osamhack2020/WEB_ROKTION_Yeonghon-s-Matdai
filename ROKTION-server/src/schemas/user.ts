@@ -9,7 +9,13 @@ export interface DocView {
     docId: Types.ObjectId;
     docTags: Array<Number>;
     permission?: Number;
-    alert: Number;
+}
+
+export interface mention {
+    mentioningUser: String;
+    timeOfMention: Number;
+    docDbId: String; 
+    page: Number;
 }
 
 export interface User extends Document {
@@ -27,6 +33,7 @@ export interface User extends Document {
     };
     recentLogin: Date;
     memos: Array<string>;
+    mentions: Array<mention>;
 }
 
 const relatedDocsSchema = new Schema({
@@ -40,7 +47,14 @@ const relatedDocsSchema = new Schema({
         required: true,
         default: []
     },
-}, { _id: false })
+}, { _id: false });
+
+const mentionSchema = new Schema({
+    mentioningUser: String,
+    timeOfMention: Number,
+    docDbId: String, 
+    page: Number,
+}, { _id: false });
 
 const userSchema = new Schema({
     tagId: {
@@ -97,7 +111,11 @@ const userSchema = new Schema({
         type: Array,
         required: true,
         default: [],
-    }
+    },
+    mentions: {
+        type: [mentionSchema],
+        default: [],
+    },
 });
 
 export const UserModel = model<User>('User', userSchema);

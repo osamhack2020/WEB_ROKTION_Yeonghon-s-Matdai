@@ -59,7 +59,7 @@ router.post('/', async (req: Request, res: Response) => {
         title: req.body.title,
         titleColor: req.body.color,
         description: '',
-        author: authorId,
+        author: req.session?.tagId,
         status: 0,
         contents: [],
         shareOption: { },
@@ -84,7 +84,6 @@ router.post('/', async (req: Request, res: Response) => {
         author?.relatedDocs.created.splice(0, 0, {
             docId: newDocInfo._id,
             docTags: [],
-            alert: 0,
         });
         author?.markModified('relatedDocs');
         await newDoc.save();
@@ -211,7 +210,6 @@ router.put('/:id', (req: Request, res: Response) => {
                             docId: perm.docInfo._id,
                             docTags: [],
                             permission: 3,
-                            alert: 1,
                         });
                     } else if (req.body.shareOption.action === 'del' && perm.permissionLevel > 2) {
                         const uidx = perm.docInfo.shareOption.director.findIndex(tagId => tagId === usr!.tagId);
@@ -241,7 +239,6 @@ router.put('/:id', (req: Request, res: Response) => {
                             docId: perm.docInfo._id,
                             docTags: [],
                             permission: 2,
-                            alert: 1,
                         });
                     } else if (req.body.shareOption.action === 'del' && (perm.permissionLevel > 2 || req.body.shareOption.editor === req.session?.tagId)) {
                         const uidx = perm.docInfo.shareOption.editor.findIndex(tagId => tagId === usr!.tagId);
@@ -271,7 +268,6 @@ router.put('/:id', (req: Request, res: Response) => {
                             docId: perm.docInfo._id,
                             docTags: [],
                             permission: 1,
-                            alert: 1,
                         });
                     } else if (req.body.shareOption.action === 'del' && (perm.permissionLevel > 2 || req.body.shareOption.viewer === req.session?.tagId)) {
                         const uidx = perm.docInfo.shareOption.viewer.findIndex(tagId => tagId === usr!.tagId);
@@ -382,7 +378,7 @@ function checkPermission(session: Express.Session, docInfo: DocInfo | null) : Pr
     return new Promise((resolve, reject) => {
         if (docInfo !== undefined && docInfo !== null && session.dbId !== undefined && session.dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
-            if (docInfo.author == session.dbId) {
+            if (docInfo.author == session.tagId) {
                 pl = PermissionLevel.owner;
             } else if (docInfo.shareOption.director?.indexOf(session.tagId) >= 0) {
                 pl = PermissionLevel.director;

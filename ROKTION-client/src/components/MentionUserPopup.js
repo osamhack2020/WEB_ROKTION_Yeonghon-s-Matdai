@@ -14,7 +14,8 @@ class MentionUserPopup extends Component {
         super(props);
         this.state = {
             targetUser:null,
-            targetUserError:false,
+            targetUserTagIdError:false,
+            targetUserShareError:false,
             mentionSent:false,
         };
     }
@@ -22,7 +23,8 @@ class MentionUserPopup extends Component {
     resetState = () => {
         this.setState({
             targetUser:null,
-            targetUserError:false,
+            targetUserTagIdError:false,
+            targetUserShareError:false,
             mentionSent:false,
         })
     }
@@ -30,26 +32,41 @@ class MentionUserPopup extends Component {
     handleInputChange = (_,data) => {
         this.setState({
             targetUser:data.value,
-            targetUserError:false,
+            targetUserTagIdError:false,
+            targetUserShareError:false,
             mentionSent:false,
         });
     }
 
-    validateInput = () => {
+    validateInput = (targetDoc) => {
         const targetUser = this.state.targetUser;
         if(!/^[0-9]{2}-[0-9]{5,8}$/.test(targetUser)){
             this.setState({
-                targetUserError:true,
+                targetUserTagIdError:true,
+                targetUserShareError:false,
                 mentionSent:false,
             })
             return false;
         }
-        else{
+        else {
+            // 여기서 이미 문서가 공유된 군번인지 체크해야됨
+            if (targetDoc.admin === targetUser ||
+                targetDoc.shareOption.director.includes(targetUser) ||
+                targetDoc.shareOption.editor.includes(targetUser) ||
+                targetDoc.shareOption.viewer.includes(targetUser)) {
+                    this.setState({
+                        targetUserTagIdError:false,
+                        targetUserShareError:false,
+                        mentionSent:true,
+                    })
+                    return true;
+                }
             this.setState({
-                targetUserError:false,
-                mentionSent:true,
+                targetUserTagIdError:false,
+                targetUserShareError:true,
+                mentionSent:false,
             })
-            return true;
+            return false;
         }
     }
 
@@ -70,8 +87,10 @@ class MentionUserPopup extends Component {
                         <Grid.Row columns='equal'>
                         <Container as={Grid.Column} style={{fontSize:"17px"}} textAlign='center'>
                             {
-                            this.state.targetUserError ?
+                            this.state.targetUserTagIdError ?
                             "잘못된 군번입니다!" :
+                            this.state.targetUserShareError ?
+                            "공유되지 않은 유저입니다." :
                             this.state.mentionSent ?
                             <div>유저 {this.state.targetUser}을 <br/> 이 페이지로 언급했습니다!</div>:
                             <div>이 문서의 {this.props.page+1} 페이지에 <br/> 누구를 언급할래요?</div>
@@ -94,10 +113,10 @@ class MentionUserPopup extends Component {
                             content='언급'
                             style={{marginLeft:'3px', padding:"10px"}}
                             onClick={()=>{
-                                if(this.validateInput()){
-                                    const targetDoc = context.documents.find(doc => (doc.id === this.props.docid))
+                                const targetDoc = context.documents.find(doc => (doc.id === this.props.docid))
+                                if(this.validateInput(targetDoc)){
                                     const docId = targetDoc.dbId;
-                                    const pageId = targetDoc.documentContent[this.props.page].pageId
+                                    const pageId = this.props.page;
                                     context.createNewMention(this.state.targetUser, docId, pageId);
                                 }
                             }}/>

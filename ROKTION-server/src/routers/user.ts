@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import { UserModel, Tag } from "../schemas/user";
+import { UserModel, Tag, mention } from "../schemas/user";
 import crypto from 'crypto';
 import { DocInfoModel, DocStatus } from "../schemas/docInfo";
 
@@ -28,12 +28,34 @@ router.get('/logoff', (req: Request, res: Response) => {
 
 // id=tagId인 유저 정보 찾기
 router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
-    checkLogined(req.session!)
-    .then(() => {
-        return getTagId(req.params.id);
+    Promise.all([
+        checkLogined(req.session!),
+        getTagId(req.params.id)
+    ])
+    .then(value => {
+        // 로그인 한 유저가 수정하려는건지 확인
+        return {tagId: value[1], perm: value[0] === value[1]};
     })
-    .then(n => {
-        return UserModel.findOne({ tagId: n }, {_id: 0, passwd: 0, passwdSalt: 0});
+    .then(data => {
+        if (data.perm) {
+            // 본인일 경우
+            return UserModel.findOne({ tagId: data.tagId }, {
+                _id: 0, 
+                passwd: 0, 
+                passwdSalt: 0,
+            });
+        } else {
+            // 다른사람일 경우
+            return UserModel.findOne({ tagId: data.tagId }, {
+                _id: 0, 
+                passwd: 0, 
+                passwdSalt: 0,
+                tags: 0,
+                relatedDocs: 0,
+                memos: 0,
+                mentions: 0,
+            });
+        }
     })
     .then((user) => {
         //console.log(user!);
@@ -122,7 +144,7 @@ router.post('/', (req: Request, res: Response, next: NextFunction) => {
             relatedDocs: {
                 created: [],
                 shared: [],
-            }
+            },
         });
     })
     .then(newU => { 
@@ -144,12 +166,12 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     ])
     .then(value => {
         // 로그인 한 유저가 수정하려는건지 확인
-        return {tagId: value[0], perm: value[0] === value[1]};
+        return {tagId: value[1], perm: value[0] === value[1]};
     })
     .then(async data => {
         let active = false;
         if (data.perm) {
-            // 본인의 정보 수정
+            // 본인의 정보 수정 - passwd, tags, docTags, memos
             if (req.body.passwd) {
                 // 패스워드 변경시
                 crypto.randomBytes(64, (err, buf) => {
@@ -259,8 +281,32 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                 active = true;
             }
         }
-        // 본인 또는 타인의 정보 수정 - alert, 등등?
+        // 본인 혹은 타인의 정보 수정 - mention
         /// 뭐라도 하겠지 WIP
+        if (req.body.mention) {
+            // 유저 언급 - 호출자는 session에 있음
+            // in: date, docId, page, action('add', 'del'), idx(del일때 사용)
+            console.log(req.body.mention)
+            const usr = await UserModel.findOne({ tagId: data.tagId });
+            if (req.body.mention.action === 'add') {
+                // 언급 추가
+                usr!.mentions.push({
+                    mentioningUser: req.session?.tagId,
+                    timeOfMention: req.body.mention.date,
+                    docDbId: req.body.mention.docId,
+                    page: req.body.mention.page,
+                } as mention);
+                usr?.markModified('mentions');
+                await usr?.save();
+                active = true;
+            } else if (req.body.mention.action === 'del' && data.perm) {
+                // 언급 삭제 - 본인만 가능
+                usr!.mentions.splice(Number(req.body.idx), 1);
+                usr?.markModified('mentions');
+                await usr?.save();
+                active = true;
+            }
+        }
         
         // req가 유효했는지 체크
         if (active) {
