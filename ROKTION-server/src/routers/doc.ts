@@ -3,6 +3,7 @@ import mongoose, { Types } from "mongoose";
 import { Doc, DocModel } from "../schemas/doc";
 import { DocInfo, DocInfoModel } from "../schemas/docInfo";
 import { UserModel } from "../schemas/user";
+import { getTagId } from './user';
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ router.post('/:id', async (req: Request, res: Response) => {
     await newDoc.save();
     // id의 DocInfo를 찾아 contents의 올바른 위치에 삽입
     const docInfoById = await DocInfoModel.findById(req.params.id);
-    checkPermission(req.session?.dbId, docInfoById)
+    checkPermission(req.session!, docInfoById)
     .then(async (perm) => {
         if (docInfoById === undefined && docInfoById === null) {
             throw new Error('No document');
@@ -110,7 +111,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id/:pg', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(req.session?.dbId, docInfo);
+        return checkPermission(req.session!, docInfo);
     })
     .then(perm => {
         if (perm.permissionLevel >= 1) {
@@ -135,7 +136,7 @@ router.get('/:id/:pg', (req: Request, res: Response) => {
 router.get('/:id', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(req.session?.dbId, docInfo);
+        return checkPermission(req.session!, docInfo);
     })
     .then(perm => {
         if (perm.permissionLevel >= 1) {
@@ -155,7 +156,7 @@ router.get('/:id', (req: Request, res: Response) => {
 router.put('/:id/:pg', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(req.session?.dbId, docInfo);
+        return checkPermission(req.session!, docInfo);
     })
     .then(perm => {
         if (perm.permissionLevel >= 2) {
@@ -175,9 +176,10 @@ router.put('/:id/:pg', (req: Request, res: Response) => {
 // id의 문서의 옵션을 갱신하기
 // in: 갱신 내용들
 router.put('/:id', (req: Request, res: Response) => {
+    console.log(req.body);
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(req.session?.dbId, docInfo);
+        return checkPermission(req.session!, docInfo);
     })
     .then(perm => {
         if (perm.permissionLevel >= 3) {
@@ -193,21 +195,114 @@ router.put('/:id', (req: Request, res: Response) => {
                 // 색깔 변경
                 perm.docInfo.titleColor = req.body.color;
             }
-            if (req.body.shareOption) {
-                // 공유 옵션 변경
-                perm.docInfo.shareOption = req.body.shareOption;
+            perm.docInfo.save();
+        } 
+        if (req.body.shareOption) { 
+            // 공유 옵션 변경, 줄땐 tagId로, action: add, del
+            if (req.body.shareOption.director) {
+                UserModel.findOne({ tagId: req.body.shareOption.director })
+                .then(usr => {
+                    if (usr === null) {
+                        throw new Error(`No user with tagId: ${req.body.shareOption.director}`);
+                    }
+                    if (req.body.shareOption.action === 'add' && perm.permissionLevel > 2) {
+                        perm.docInfo.shareOption.director.push(usr.tagId);
+                        usr.relatedDocs.shared.push({
+                            docId: perm.docInfo._id,
+                            docTags: [],
+                            permission: 3,
+                            alert: 1,
+                        });
+                    } else if (req.body.shareOption.action === 'del' && perm.permissionLevel > 2) {
+                        const uidx = perm.docInfo.shareOption.director.findIndex(tagId => tagId === usr!.tagId);
+                        if (uidx >= 0) perm.docInfo.shareOption.director.splice(uidx, 1);
+                        const didx = usr.relatedDocs.shared.findIndex(dv => dv.docId === perm.docInfo._id);
+                        if (didx >= 0) usr.relatedDocs.shared.splice(didx, 1);
+                    } else {
+                        throw new Error('Permission denied / Invalid action');
+                    }
+                    perm.docInfo.markModified('shareOption.director');
+                    perm.docInfo.save();
+                    usr.markModified('relatedDocs');
+                    usr.save();
+                })
+                .catch(e => {
+                    throw e;
+                });
+            } else if (req.body.shareOption.editor) {
+                UserModel.findOne({ tagId: req.body.shareOption.editor })
+                .then(usr => {
+                    if (usr === null) {
+                        throw new Error(`No user with tagId: ${req.body.shareOption.editor}`);
+                    }
+                    if (req.body.shareOption.action === 'add' && perm.permissionLevel > 2) {
+                        perm.docInfo.shareOption.editor.push(usr.tagId);
+                        usr.relatedDocs.shared.push({
+                            docId: perm.docInfo._id,
+                            docTags: [],
+                            permission: 2,
+                            alert: 1,
+                        });
+                    } else if (req.body.shareOption.action === 'del' && (perm.permissionLevel > 2 || req.body.shareOption.editor === req.session?.tagId)) {
+                        const uidx = perm.docInfo.shareOption.editor.findIndex(tagId => tagId === usr!.tagId);
+                        if (uidx >= 0) perm.docInfo.shareOption.editor.splice(uidx, 1);
+                        const didx = usr.relatedDocs.shared.findIndex(dv => dv.docId === perm.docInfo._id);
+                        if (didx >= 0) usr.relatedDocs.shared.splice(didx, 1);
+                    } else {
+                        throw new Error('Permission denied / Invalid action');
+                    }
+                    perm.docInfo.markModified('shareOption.editor');
+                    perm.docInfo.save();
+                    usr.markModified('relatedDocs');
+                    usr.save();
+                })
+                .catch(e => {
+                    throw e;
+                });
+            } else if (req.body.shareOption.viewer) {
+                UserModel.findOne({ tagId: req.body.shareOption.viewer })
+                .then(usr => {
+                    if (usr === null) {
+                        throw new Error(`No user with tagId: ${req.body.shareOption.viewer}`);
+                    }
+                    if (req.body.shareOption.action === 'add' && perm.permissionLevel > 2) {
+                        perm.docInfo.shareOption.viewer.push(usr.tagId);
+                        usr.relatedDocs.shared.push({
+                            docId: perm.docInfo._id,
+                            docTags: [],
+                            permission: 1,
+                            alert: 1,
+                        });
+                    } else if (req.body.shareOption.action === 'del' && (perm.permissionLevel > 2 || req.body.shareOption.viewer === req.session?.tagId)) {
+                        const uidx = perm.docInfo.shareOption.viewer.findIndex(tagId => tagId === usr!.tagId);
+                        if (uidx >= 0) perm.docInfo.shareOption.viewer.splice(uidx, 1);
+                        const didx = usr.relatedDocs.shared.findIndex(dv => dv.docId === perm.docInfo._id);
+                        if (didx >= 0) usr.relatedDocs.shared.splice(didx, 1);
+                    } else {
+                        throw new Error('Permission denied / Invalid action');
+                    }
+                    perm.docInfo.markModified('shareOption.viewer');
+                    perm.docInfo.save();
+                    usr.markModified('relatedDocs');
+                    usr.save();
+                })
+                .catch(e => {
+                    throw e;
+                });
+            } else {
+                throw new Error('Undefined action');
             }
-            return perm.docInfo.save();
         } else {
             throw new Error('Permission denied');
         }
+
     })
     .then(() => {
         res.status(200).end();
     })
     .catch(e => {
         console.error(e);
-        res.status(400).end();
+        res.status(400).json(e);
     })
 })
 
@@ -215,7 +310,7 @@ router.put('/:id', (req: Request, res: Response) => {
 router.delete('/:id/:pg', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(req.session?.dbId, docInfo);
+        return checkPermission(req.session!, docInfo);
     })
     .then(async perm => {
         if (perm.permissionLevel >= 4) {
@@ -238,7 +333,7 @@ router.delete('/:id/:pg', (req: Request, res: Response) => {
 router.delete('/:id', (req: Request, res: Response) => {
     DocInfoModel.findById(req.params.id)
     .then(docInfo => {
-        return checkPermission(req.session?.dbId, docInfo);
+        return checkPermission(req.session!, docInfo);
     })
     .then(perm => {
         if (perm.permissionLevel >= 4) {
@@ -283,17 +378,17 @@ router.delete('/:id', (req: Request, res: Response) => {
 });
 
 // 문서 접근 권한 체크
-function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null) : Promise<Permission> {
+function checkPermission(session: Express.Session, docInfo: DocInfo | null) : Promise<Permission> {
     return new Promise((resolve, reject) => {
-        if (docInfo !== undefined && docInfo !== null && dbId !== undefined && dbId !== null) {
+        if (docInfo !== undefined && docInfo !== null && session.dbId !== undefined && session.dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
-            if (docInfo.author == dbId) {
+            if (docInfo.author == session.dbId) {
                 pl = PermissionLevel.owner;
-            } else if (docInfo.shareOption.director?.indexOf(dbId) > 0) {
+            } else if (docInfo.shareOption.director?.indexOf(session.tagId) >= 0) {
                 pl = PermissionLevel.director;
-            } else if (docInfo.shareOption.editor?.indexOf(dbId) > 0) {
+            } else if (docInfo.shareOption.editor?.indexOf(session.tagId) >= 0) {
                 pl = PermissionLevel.editor;
-            } else if (docInfo.shareOption.viewer?.indexOf(dbId) > 0) { 
+            } else if (docInfo.shareOption.viewer?.indexOf(session.tagId) >= 0) { 
                 pl = PermissionLevel.viewer;
             } else { 
                 pl = PermissionLevel.forbidden; 
@@ -303,7 +398,7 @@ function checkPermission(dbId: mongoose.Types.ObjectId, docInfo: DocInfo | null)
                 permissionLevel: pl,
             });
         } else {
-            reject(new Error(`Can\'t check permission, ${dbId}`));
+            reject(new Error(`Can\'t check permission, ${session.dbId}`));
         }
     });
 }

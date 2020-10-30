@@ -248,6 +248,16 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
                     }
                 }
             }
+            if (req.body.memos) {
+                // 메모(TODO) 수정
+                // in: memos
+                //console.log(req.body.memos);
+                const usr = await UserModel.findOne({ tagId: data.tagId });
+                usr!.memos = req.body.memos;
+                usr?.markModified('memos');
+                await usr?.save();
+                active = true;
+            }
         }
         // 본인 또는 타인의 정보 수정 - alert, 등등?
         /// 뭐라도 하겠지 WIP
@@ -261,6 +271,7 @@ router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
     })
     .then(() => res.status(200).end())
     .catch(e => {
+        console.error(e);
         res.status(400).json(e);
     });    
 });
@@ -288,15 +299,23 @@ router.delete('/:id', (req: Request, res: Response, next: NextFunction) => {
 });
 
 // 문자열 군번값이 유효한지 확인해주는 친구...?
-function getTagId(id: string, checkDuplicated: boolean = false) : Promise<string> {
+export function getTagId(id: string, checkDuplicated: boolean = false, checkHasUser: boolean = false) : Promise<string> {
     return new Promise<string>((resolve, reject) => {
         if (checkDuplicated) {
             UserModel.findOne({ tagId: id })
             .then(usr => {
-                if (usr === null) {
-                    resolve(id);
+                if (checkHasUser) {
+                    if (usr !== null) {
+                        resolve(id);
+                    } else {
+                        reject(new Error(`User with id: ${id} is not exists`));
+                    }
                 } else {
-                    reject(new Error(`User with id: ${id} is already exists`));
+                    if (usr === null) {
+                        resolve(id);
+                    } else {
+                        reject(new Error(`User with id: ${id} is already exists`));
+                    }
                 }
             })
         } else {

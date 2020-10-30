@@ -14,7 +14,7 @@ class ShareDocumentModal extends Component {
     constructor(props){
         super(props);
         this.state = {
-            authority:0,
+            authority:'viewer',
             targetUser:null,
             targetUserError:false,
             documentShared:false,
@@ -30,6 +30,7 @@ class ShareDocumentModal extends Component {
     }
 
     handleAuthorityChange = (_, data) => {
+        console.log(data);
         this.setState({
             authority:data.value,
             targetUserError:false,
@@ -39,7 +40,7 @@ class ShareDocumentModal extends Component {
 
     resetState = () => {
         this.setState({
-            authority:0,
+            authority:'viewer',
             targetUser:null,
             targetUserError:false,
             documentShared:false,
@@ -58,7 +59,6 @@ class ShareDocumentModal extends Component {
         else{
             this.setState({
                 targetUserError:false,
-                documentShared:true,
             })
             return true;
         }
@@ -66,9 +66,9 @@ class ShareDocumentModal extends Component {
 
     render() {
         const authorityOption = [
-            {key:'read', text:'열람',value:0},
-            {key:'write', text:'열람 및 수정',value:1},
-            {key:'admin', text:'관리자',value:2},
+            {key:'viewer', text:'열람',value:'viewer'},
+            {key:'editor', text:'열람 및 수정',value:'editor'},
+            {key:'director', text:'관리자',value:'director'},
         ]
 
         return (
@@ -116,7 +116,20 @@ class ShareDocumentModal extends Component {
                             style={{marginLeft:'3px', padding:"10px"}}
                             onClick={()=>{
                                 if(this.validateInput())
-                                context.shareDocument(this.state.targetUser, this.props.docid, this.state.authority)
+                                {
+                                    context.shareDocument(this.state.targetUser, this.props.docid, this.state.authority)
+                                    .then(() => {
+                                        this.setState({
+                                            documentShared:true,
+                                        })
+                                    })
+                                    .catch(e => {
+                                        this.setState({
+                                            targetUserError:true,
+                                        })
+                                        console.error(e);
+                                    });
+                                }
                             }}/>
                         )}
                         </userContext.Consumer>

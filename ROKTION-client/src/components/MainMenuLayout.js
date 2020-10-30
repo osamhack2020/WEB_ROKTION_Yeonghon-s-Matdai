@@ -39,6 +39,7 @@ class MainMenuLayout extends Component {
             titleSettingDocId:-1,
             sharingDocId:-1,
             deleteDocid:-1,
+            deleteDocPerm: 0,
             showSharingModal:false,
             showDeleteModal:false,
             docIdOnSettingMode:-1,
@@ -118,12 +119,12 @@ class MainMenuLayout extends Component {
         });
     }
 
-    setDocIdOnSettingMode = (id) => {
+    setDocIdOnSettingMode = (id, perm) => {
         const val = this.state.docIdOnSettingMode
         //console.log(val, id)
         if(val === id || id === -1){
             //변경 정보 app.js에서 저장
-            this.context.changeDocumentSettings(id, this.state.newDocColor, this.state.newDocTitle)
+            if (perm) this.context.changeDocumentSettings(id, this.state.newDocColor, this.state.newDocTitle)
             //설정 종료
             this.setState({
                 newDocTitle: "",
@@ -207,7 +208,7 @@ class MainMenuLayout extends Component {
                                     paddingLeft:"0px",
                                     paddingRight:"0px",}}>
                                 <Container textAlign='center'>
-                                    {this.state.docIdOnSettingMode === document.id ?
+                                    {this.state.docIdOnSettingMode === document.id && document.permission > 2 ?
                                         <Popup
                                             key={"AddTag"}
                                             on='click'
@@ -253,15 +254,27 @@ class MainMenuLayout extends Component {
                                             </Form>
                                         </Popup>
                                         :
-                                        <Icon
-                                            onClick={document.onClick}
-                                            name='square'
-                                            size='massive'
+                                        <Icon.Group
                                             style={{
-                                                cursor:"pointer",
-                                                color: document.color,
-                                            }}
-                                        />
+                                                cursor:"pointer"}}>
+                                            <Icon
+                                                onClick={document.onClick}
+                                                name='square'
+                                                size='massive'
+                                                style={{
+                                                    color: document.color,
+                                                }}
+                                            />
+                                            { document.isShared?
+                                                <Icon
+                                                onClick={document.onClick}
+                                                inverted
+                                                size='huge'
+                                                name='users'
+                                                style={{opacity:.8,}}/>:
+                                                <></> }
+                                        </Icon.Group>
+                                        
                                     }
                                 </Container>
                             </Grid.Column>
@@ -269,12 +282,13 @@ class MainMenuLayout extends Component {
                                 {this.state.docIdOnSettingMode === document.id ?
                                     <Input
                                         fluid
+                                        disabled={document.permission < 3}
                                         defaultValue={document.title}
                                         size='big'
                                         name='newDocTitle'
                                         action={{
                                             content:'변경완료',
-                                            onClick:()=>{ this.setDocIdOnSettingMode(document.id);},
+                                            onClick:()=>{ this.setDocIdOnSettingMode(document.id, document.permission > 2);},
                                         }}
                                         onChange={this.handleInputChange}
                                         style={{
@@ -352,21 +366,23 @@ class MainMenuLayout extends Component {
                                             name='정보변경'
                                             docid={document.id}
                                             onClick={(_,data)=>{this.setDocIdOnSettingMode(data.docid)}}/>
-                                        <Menu.Item
+                                        { document.permission > 2 ? <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", margin:"0px"}}
                                             fitted='horizontally'
                                             name='문서공유'
                                             docid={document.id}
-                                            onClick={(_,data)=>{this.setSharingDocId(data.docid)}}/>
+                                            onClick={(_,data)=>{this.setSharingDocId(data.docid)}}/> : <></> }
                                         <Menu.Item
                                             style={{padding:"8px 0px 8px 0px", color:"red", margin:"0px"}}
                                             fitted='horizontally'
                                             name='문서삭제'
-                                            docid={document.id}
+                                            doc={document}
                                             onClick={(_,data)=>{
                                                 this.setState({
                                                     showDeleteModal:true,
-                                                    deleteDocid:data.docid})
+                                                    deleteDocid:data.doc.id,
+                                                    deleteDocPerm: data.doc.permission,
+                                                    })
                                                 }
                                             }
                                         />
@@ -678,15 +694,15 @@ class MainMenuLayout extends Component {
                 style={{width:"525px", height:"150px", textAlign:'center'}}>
                 <Modal.Content>
                     <Modal.Description style={{paddingTop:"20px", paddingBottom:"20px"}}>
-                    <Header><h2>
-                        정말로 이 문서를 삭제합니까?    
+                        <Header><h2>
+                        { this.state.deleteDocPerm > 3 ? '정말로 이 문서를 삭제합니까?' : '정말로 이 문서를 공유받은 목록에서 삭제합니까?'}    
                     </h2></Header>
                     </Modal.Description>
                     <Button
                         content='삭제'
                         color='red'
                         onClick={()=>{
-                                this.context.deleteDocument(this.state.deleteDocid)
+                                this.context.deleteDocument(this.state.deleteDocid, this.state.deleteDocPerm)
                                 this.setState({
                                     showDeleteModal:false,
                                     deleteDocid:-1,

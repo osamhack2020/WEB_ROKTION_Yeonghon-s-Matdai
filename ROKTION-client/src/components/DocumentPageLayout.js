@@ -144,6 +144,7 @@ class DocumentPageLayout extends Component{
                                 textAlign='left'>
                                 <DocumentPageContent 
                                     pageData={document.documentContent[selectedPage]} 
+                                    isShared={document.isShared}
                                     setSavedStatus={this.setSavedStatus}/>
                             </Container>
                         </Grid.Row>

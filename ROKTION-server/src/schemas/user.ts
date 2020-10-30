@@ -8,6 +8,7 @@ export interface Tag {
 export interface DocView {
     docId: Types.ObjectId;
     docTags: Array<Number>;
+    permission?: Number;
     alert: Number;
 }
 
@@ -25,7 +26,21 @@ export interface User extends Document {
         shared: Array<DocView>,
     };
     recentLogin: Date;
+    memos: Array<string>;
 }
+
+const relatedDocsSchema = new Schema({
+    created: {
+        type: Array,
+        required: true,
+        default: []
+    },
+    shared: {
+        type: Array,
+        required: true,
+        default: []
+    },
+}, { _id: false })
 
 const userSchema = new Schema({
     tagId: {
@@ -76,21 +91,13 @@ const userSchema = new Schema({
             }
         ]
     },
-    relatedDocs: {
-        type: Object,
-        required: true,
-        created: {
-            type: Array,
-            required: true,
-            default: []
-        },
-        shared: {
-            type: Array,
-            required: true,
-            default: []
-        },
-    },
+    relatedDocs: relatedDocsSchema,
     recentLogin: Date,
+    memos: {
+        type: Array,
+        required: true,
+        default: [],
+    }
 });
 
 export const UserModel = model<User>('User', userSchema);
