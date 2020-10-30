@@ -44,21 +44,22 @@
     - 누구나, 언제 어디서나 접속할 수 있는 거대한 화이트보드가 있어서 그 곳에 전파사항을 적는다면? 
     - 실시간으로 변경되는 사항을 반영하면서 상황을 유연하게 공유할 수 있다면?
     
-### 이 모든 애로 및 건의사항, ROKTION이 조치해드리겠습니다.**
+### 이 모든 애로 및 건의사항, ROKTION이 조치해드리겠습니다.
 
 
-# 기능 설계
+## 기능 설계
 
 <!--목업 프레임워크 : 카카오 오븐-->
+<!--스크린샷 잔뜩-->
 [Kakao Oven](https://ovenapp.io/project/Oe2RQMVa1IWS8jOmZ4S615D2xeDnUJKu#MZCzh)
 
-# 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)
+## 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)
 
 <!--지원 브라우저, 권장 등-->
 
-# 기술 스택 (Technique Used)
+## 기술 스택 (Technique Used)
 
-## Server (back-end)
+### Server (back-end)
 
 <!--사용된 언어, 프레임워크 등-->
 - Typescript
@@ -66,7 +67,7 @@
 - Mongoose
 - Socket.io
 
-## Client (front-end)
+### Client (front-end)
 
 <!--프레임워크, 라이브러리 등-->
 - Typescript
