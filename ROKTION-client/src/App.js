@@ -519,7 +519,7 @@ class App extends Component {
                 return color;
               })(),
             tags: new Set([0]),
-            onClick: () => {this.context.jumpTo(id, 0)},
+            onClick: () => {this.jumpTo(id, 0)},
             isDocumentContentLoaded: -1,
             documentContent: [],
             pagesLength: 1,
@@ -680,6 +680,7 @@ class App extends Component {
     }
 
     jumpTo = (docid, page) => {
+        console.log('called to', docid, page)
         this.setState({
             selectedDocumentId:docid,
             selectedPage:page,
