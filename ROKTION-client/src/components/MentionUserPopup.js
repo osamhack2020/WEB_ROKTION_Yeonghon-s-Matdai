@@ -97,7 +97,7 @@ class MentionUserPopup extends Component {
                                 if(this.validateInput()){
                                     const targetDoc = context.documents.find(doc => (doc.id === this.props.docid))
                                     const docId = targetDoc.dbId;
-                                    const pageId = targetDoc.documentContent[this.props.page].dbId
+                                    const pageId = targetDoc.documentContent[this.props.page].pageId
                                     context.createNewMention(this.state.targetUser, docId, pageId);
                                 }
                             }}/>
