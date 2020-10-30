@@ -29,11 +29,6 @@ class MentionPane extends Component {
                         mention => {
                             const doc = context.documents.find(doc => (doc.dbId === mention.docDbId));
                             if (doc === undefined) return <></>; //문서 삭제됨
-                            //const pageIndex = doc.documentContent.findIndex(page => (page.dbId === mention.pageDbId))
-                            // if (pageIndex === -1) return <></>; // 페이지 삭제됨
-
-                            //page DbId 추가 전 임시!
-                            const pageIndex = 0;
                             
                             return(
                                 <List.Item

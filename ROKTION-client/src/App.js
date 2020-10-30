@@ -549,7 +549,7 @@ class App extends Component {
                 return color;
               })(),
             tags: new Set([0]),
-            onClick: () => {this.context.jumpTo(id, 0)},
+            onClick: () => {this.jumpTo(id, 0)},
             isDocumentContentLoaded: -1,
             documentContent: [],
             pagesLength: 1,
@@ -839,13 +839,19 @@ class App extends Component {
     }
 
     //필요없어졌는데 혹시 몰라서 남겨놓음
+    //와 하루만에 필요해졌어 ㄷㄷㄷ
     jumpByDbId = (docDbId, pageDbId) => {
         const doc = this.state.documents.find(doc => (doc.dbId === docDbId))
+        // 문서 삭제된 경우
         if (doc === undefined) return -1;
-        const pageIndex = doc.documentContent.findIndex(page => (page.dbId === pageDbId))
+        
+        const pages = doc.documentContent
+        // 문서 들어가기 전엔 documentContent가 비어있으므로 이 경우 서버에서 받아와야함
+        if (pages.length <= 0) this.getPageContents(doc, doc.id);
+        const pageIndex = pages.findIndex(page => (page.pageId === pageDbId))
+        // 페이지 삭제된 경우
         if (pageIndex === -1) return -1;
-
-        this.jumpTo(doc.id, pageIndex);
+        else this.jumpTo(doc.id, pageIndex);
         return 0;
     }
 
@@ -858,7 +864,7 @@ class App extends Component {
     }
 
     render() {
-        //console.log(this.state.documents)
+        console.log(this.state.documents)
         // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:

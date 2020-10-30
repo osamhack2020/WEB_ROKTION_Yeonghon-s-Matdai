@@ -51,7 +51,7 @@ const DocumentPageSidebar = () => {
                     <Menu.Item
                       key={data.id}
                       style={{paddingTop:"0px", paddingBottom:"0px", marginTop:"15px"}}
-                      onClick={()=>{data.onClick(); setVisible(false);}}>
+                      onClick={()=>{context.jumpTo(data.id, 0); setVisible(false);}}>
                       <Grid>
                         <Grid.Row
                           columns='equal'
