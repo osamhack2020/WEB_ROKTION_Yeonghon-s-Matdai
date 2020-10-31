@@ -126,7 +126,7 @@ class DocumentPageLayout extends Component{
                             <Container as={Grid.Column}
                                         className="progressBar noLeftMargin">
                                 <Progress percent={100}
-                                            color={document.color}
+                                            color='grey'
                                             size='small'/>
                             </Container>
                             </Grid.Row>
