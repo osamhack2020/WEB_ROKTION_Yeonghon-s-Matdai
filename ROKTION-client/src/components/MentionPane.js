@@ -34,7 +34,7 @@ class MentionPane extends Component {
                                 <List.Item
                                     key={mention.id}
                                     onClick={
-                                        ()=>{this.context.jumpByDbId(mention.docDbId, mention.pageDbId, true)}
+                                        ()=>{this.context.jumpTo(doc.id, mention.pageDbId, true)}
                                     }
                                 >
                                     <Segment style={{paddingTop:"5px", paddingBottom:"5px"}}>
