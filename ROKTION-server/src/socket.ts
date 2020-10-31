@@ -24,22 +24,16 @@ const createSocketActions = (io: SocketIO.Server, socket: SocketIO.Socket) => {
     })
 
     // 페이지 수정중 다른 사람이 수정 못하게
-    socket.on('enterDocumentPage', (docData) => { // docId: 보고있는 문서 ID, pageIdx: 보고있는 페이지 번호
-        socket.join(docData.docId);
-    })
     socket.on('startPageEditing', (editing) => { // docId: 보고있는 문서 ID, editingPage: 수정중인 페이지 번호
         // 혼자만 접속중이면 안보내도됨
-        socket.broadcast.to(editing.docId).emit('startPageEditing', editing.editingPage);
+        socket.broadcast.emit('startPageEditing', editing);
     })
     // 보고있는 사람들 수정불가 해제
     socket.on('endPageEditing', (edited) => { // docId: 보고있는 문서 ID, editedPage: 수정을 완료한 페이지 번호
         // 보고있는 사람들 수정불가 해제
-        socket.broadcast.to(edited.docId).emit('endPageEditing', edited.editedPage);
+        socket.broadcast.emit('endPageEditing', edited);
         // 브로드캐스트로도 보내서 받으면 그 내용만 다시 GET
         socket.broadcast.emit('pageEdited', edited);
-    })
-    socket.on('exitDocumentPage', (docData) => { // docId: 보고있는 문서 ID, pageIdx: 보고있는 페이지 번호
-        socket.leave(docData.docId);
     })
 }
 

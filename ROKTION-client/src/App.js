@@ -255,12 +255,24 @@ class App extends Component {
             }
         })
     
-        window.socket.on('startPageEditing', (page) => {
+        window.socket.on('startPageEditing', (editing) => {
+            const nextDocs = this.state.documents;
+            nextDocs.find(doc => doc.dbId === editing.docId)
+            .documentContent[editing.editingPage].isEditing = true;
 
+            this.setState({
+                documents: nextDocs,
+            })
         })
 
-        window.socket.on('endPageEditing', (page) => {
-            
+        window.socket.on('endPageEditing', (edited) => {
+            const nextDocs = this.state.documents;
+            nextDocs.find(doc => doc.dbId === edited.docId)
+            .documentContent[edited.editedPage].isEditing = false;
+
+            this.setState({
+                documents: nextDocs,
+            })
         })
 
         window.socket.on('pageEdited', (docData) => {
