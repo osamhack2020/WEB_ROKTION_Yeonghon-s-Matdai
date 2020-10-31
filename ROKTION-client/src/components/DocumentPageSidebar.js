@@ -1,5 +1,6 @@
 import React from 'react'
 import userContext from './UserContext'
+import logo from '../img/invertedFittedLogo.png';
 import {
   Grid,
   Icon,
@@ -10,6 +11,7 @@ import {
   Container,
   Label,
   Accordion,
+  Image,
 } from 'semantic-ui-react'
 
 
@@ -128,11 +130,17 @@ const DocumentPageSidebar = () => {
       >
         <Grid relaxed padded columns='equal' textAlign='center' style={{paddingTop:"15px"}}>
           <Grid.Row verticalAlign='middle'>
-            <Grid.Column width={10}>
-              <div style={{color:"white", fontSize:"25px"}}>ROKTION</div>
-              <div style={{color:"white", fontSize:"15px"}}>국군정보공유체계</div>
+            <Grid.Column width={11} verticalAlign='middle' style={{paddingRight:"0px"}}>                   
+              <Image
+                src={logo}
+                alt="Logo"
+                style={{
+                  width:"200px",
+                  marginLeft:"14px",
+                  marginTop:"3px"
+                }}/>
             </Grid.Column>
-            <Grid.Column>
+            <Grid.Column style={{paddingLeft:"0px"}}>
               <Button
                 onClick = {() => {setVisible(false)}}
                 basic
