@@ -689,7 +689,10 @@ class MainMenuLayout extends Component {
                 dimmer='inverted'
                 onClose={()=>{this.setState({showDeleteModal:false})}}
                 open={this.state.showDeleteModal}
-                style={{width:"525px", height:"150px", textAlign:'center'}}>
+                style={{
+                    width:this.state.deleteDocPerm > 3 ? "525px": "600px",
+                    height:"150px",
+                    textAlign:'center'}}>
                 <Modal.Content>
                     <Modal.Description style={{paddingTop:"20px", paddingBottom:"20px"}}>
                         <Header><h2>
