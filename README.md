@@ -1,6 +1,7 @@
 # ROKTION by 영혼의맞다이
 
-![LOGO](./img/fittedLogo.png)
+[![LOGO](./img/fittedLogo.png)](http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com)
+로고를 클릭하면 ROKTION에 접속 가능합니다! (09:00 ~ 24:00 만 가능)
 <!--팀명 로고 이미지, 팀소개, 프로젝트 설명 (or 동영상)-->
 
 # 프로젝트 설명 (Project Information)
@@ -36,12 +37,21 @@
     - 누구나, 언제 어디서나 접속할 수 있는 **거대한 화이트보드**가 있어서 그 곳에 전파사항을 적는다면? 
     - **실시간으로 변경되는 사항을 반영**하면서 상황을 유연하게 공유할 수 있다면?
 
+## 발표 자료 및 시연 영상
+
+Azure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)  
+http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/  
+계정 (20-201031 / osam12#$) 로 들어가시면, 발표자료와 사용설명서를 볼 수 있습니다!
+
+[발표 자료 - Google 프레젠테이션](https://docs.google.com/presentation/d/1bNLGSDXlM_uwEnEThKNWNk8AUwsHQF1pA1u1JGQ1Cg4/edit?usp=sharing)
+
+[시연 영상 - Youtube](https://www.youtube.com/hIOQNU6r0ro)
 
 ## 기능 설계
 
 <!--목업 프레임워크 : 카카오 오븐-->
 <!--스크린샷 잔뜩-->
-[Kakao Oven - 초기 기획](https://ovenapp.io/project/Oe2RQMVa1IWS8jOmZ4S615D2xeDnUJKu#MZCzh)
+[초기 기획 - Kakao Oven](https://ovenapp.io/project/Oe2RQMVa1IWS8jOmZ4S615D2xeDnUJKu#MZCzh)
 
 ![초기 화면](./img/1.png)
 ![메인 화면](./img/2.png)
@@ -50,6 +60,7 @@
 ## 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)
 
 <!--지원 브라우저, 권장 등-->
+크롬 사용을 권장합니다.
 
 ## 기술 스택 (Technique Used)
 
@@ -64,7 +75,7 @@
 ### Client (front-end)
 
 <!--프레임워크, 라이브러리 등-->
-- Typescript
+- Javascript
 - React
     - Create-React-App
     - react-color
@@ -99,8 +110,7 @@ $ sudo npm run dev
 ```
 
 Azure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)  
-http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/  
-계정 (20-201031 / osam12#$) 로 들어가시면, 발표자료와 사용설명서를 볼 수 있습니다!
+http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/
 
 # 팀 정보 (Team Infomation)
 
