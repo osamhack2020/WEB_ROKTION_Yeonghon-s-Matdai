@@ -3,6 +3,7 @@ import UserIcon from './UserIcon';
 import ShareDocumentModal from './ShareDocumentModal';
 import {SketchPicker} from 'react-color';
 import userContext from './UserContext'
+import logo from '../img/fittedLogo.png';
 import {
     Grid,
     Icon,
@@ -18,6 +19,7 @@ import {
     Menu,
     Modal,
     Header,
+    Image,
 } from 'semantic-ui-react';
 
 class MainMenuLayout extends Component {
@@ -610,13 +612,9 @@ class MainMenuLayout extends Component {
                 <Grid.Row
                     columns='equal'
                     style={{paddingBottom:"5px"}}>
-                    <Container
-                        as={Grid.Column}
-                        verticalAlign='middle'
-                        textAlign='left'>
-                        <div style={{fontSize:"25px"}}>ROKTION</div>
-                        <div style={{fontSize:"15px"}}>국군정보공유체계</div>
-                    </Container>
+                    <Grid.Column verticalAlign='middle'>                   
+                        <Image src={logo} alt="Logo" style={{width:"300px"}}/>
+                    </Grid.Column>
                     <Container
                         as={Grid.Column}
                         textAlign='right'

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import SignUpModal from './SignUpModal'
+import logo from '../img/fittedLogo.png';
 import {
     Container,
     Segment,
     Form,
     Button,
     List,
+    Image,
   } from 'semantic-ui-react'
 
 class LoginPage extends Component {
@@ -33,12 +35,11 @@ class LoginPage extends Component {
                     left:"50%",
                     top:"50%",
                     transform: "translate(-50%,-50%)",}}>
-                <div style={{textAlign:"center", fontSize:"25px"}}>
-                    <b>ROKTION 국군정보공유체계</b>
-                </div>
+                <Image src={logo} alt="Logo" style={{width:"400px"}}/>
                 <Segment style={{
                     maxWidth:"400px",
                     minWidth:"400px",
+                    marginTop:"0px",
                     paddingBottom:'4px',}}>
                     <Form>
                     <Form.Input
