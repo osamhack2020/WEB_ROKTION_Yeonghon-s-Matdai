@@ -93,10 +93,13 @@ class DocumentPageLayout extends Component{
                                 as={Grid.Column}
                                 textAlign='right'
                                 style={{paddingRight:'8px'}}>
-                                <Icon.Group size='big' style={{marginRight:'10px'}}>
-                                    <Icon name='file outline'/>
-                                    <Icon corner name='search'/> 
-                                </Icon.Group>
+                                {
+                                    /*
+                                    <Icon.Group size='big' style={{marginRight:'10px'}}>
+                                        <Icon name='file outline'/>
+                                        <Icon corner name='search'/> 
+                                    </Icon.Group>                                           */
+                                }
                                 <DocumentSettingIcon/>
                                 {false && <Icon size='large' name='ellipsis horizontal' style={{marginRight:'10px'}}/>}
                                 <UserIcon size='big'/>

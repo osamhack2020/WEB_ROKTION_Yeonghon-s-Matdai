@@ -21,17 +21,17 @@ class UserIcon extends Component {
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
                             name='사용자정보 변경'
-                            onClick={()=>{console.log("사용자정보 변경");}}/>
+                            onClick={()=>{alert('미완성입니다.');}}/>
                         <Menu.Item
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
                             name='비밀번호 변경'
-                            onClick={()=>{console.log("비밀번호 변경");}}/>
+                            onClick={()=>{alert('미완성입니다.');}}/>
                         <Menu.Item
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
                             name='사용자 검색'
-                            onClick={()=>{console.log("사용자 검색");}}/>
+                            onClick={()=>{alert('미완성입니다.');}}/>
                         <userContext.Consumer>
                         {context => (
                         <Menu.Item
