@@ -98,8 +98,9 @@ $ cd /ROKTION-server
 $ sudo npm run dev
 ```
 
-Azure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)
-http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/
+Azure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)  
+http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/  
+계정 (20-201031 / osam12#$) 로 들어가시면, 발표자료와 사용설명서를 볼 수 있습니다!
 
 # 팀 정보 (Team Infomation)
 
