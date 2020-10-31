@@ -40,45 +40,56 @@ const DocumentPageSidebar = () => {
             <Icon name='dropdown'/>
             {tag}
           </Accordion.Title>
-          <Accordion.Content
-            key={tag+'content'}
-            active={activeIndex===idx}
-            style={{paddingTop:'0px', paddingBottom:'0px'}}>
-          <Menu size='massive' fluid vertical secondary>
-            <userContext.Consumer>
-              { context => (
-                context.documents.map(
-                  data => (
-                    data.tags.has(idx) &&
-                    <Menu.Item
-                      key={data.id}
-                      style={{paddingTop:"0px", paddingBottom:"0px", marginTop:"15px"}}
-                      onClick={()=>{context.jumpTo(data.id, 0); setVisible(false);}}>
-                      <Grid>
-                        <Grid.Row
-                          columns='equal'
-                          verticalAlign='middle'
-                          style={{paddingTop:'5px', paddingBottom:"5px", minHeight:"32px"}}>
-                          <Grid.Column
-                            textAlign='left'
-                            style={{lineHeight:'17px', paddingRight:'9px'}}>
-                              {data.title}
-                          </Grid.Column>
-                          <Grid.Column
-                            width={1}
-                            textAlign='center'
-                            style={{padding:'0px 49px 0px 0px'}}>
-                            {data.alert !== 0 && <Label size='mini' color='red'> {data.alert} </Label>}   
-                          </Grid.Column>
-                        </Grid.Row>
-                      </Grid>
-                    </Menu.Item>
-                  )
-                )
-              )}
-            </userContext.Consumer>
-          </Menu>
-          </Accordion.Content>
+          <userContext.Consumer>
+            { context => {
+              const docList = context.documents.filter(doc => doc.tags.has(idx));
+              return (
+                <Accordion.Content
+                key={tag+'content'}
+                active={activeIndex===idx}
+                style={{
+                  paddingTop:'0px',
+                  minHeight:'0px',
+                  height:docList.length===0 ? "0px" : docList.length===1 && "35px",
+                  paddingBottom:"10px"}}>
+                  <Menu
+                    size='massive'
+                    fluid
+                    vertical
+                    secondary>
+                    {docList.map(
+                      data => (
+                        <Menu.Item
+                          key={data.id}
+                          style={{paddingTop:"0px", paddingBottom:"0px", marginTop:"15px"}}
+                          onClick={()=>{context.jumpTo(data.id, 0); setVisible(false);}}>
+                          <Grid>
+                            <Grid.Row
+                              columns='equal'
+                              verticalAlign='middle'
+                              style={{paddingTop:'5px', paddingBottom:"5px", minHeight:"32px"}}>
+                              <Grid.Column
+                                textAlign='left'
+                                style={{lineHeight:'17px', paddingRight:'9px'}}>
+                                  {data.title}
+                              </Grid.Column>
+                              <Grid.Column
+                                width={1}
+                                textAlign='center'
+                                style={{padding:'0px 49px 0px 0px'}}>
+                                {data.alert !== 0 && <Label size='mini' color='red'> {data.alert} </Label>}   
+                              </Grid.Column>
+                            </Grid.Row>
+                          </Grid>
+                        </Menu.Item>
+                      )
+                    )
+                  }
+                  </Menu>
+                </Accordion.Content>
+              )
+            }}
+          </userContext.Consumer>
         </Container>
       )
     }
