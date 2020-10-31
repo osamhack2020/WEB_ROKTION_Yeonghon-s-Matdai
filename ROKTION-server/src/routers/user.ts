@@ -93,7 +93,7 @@ router.post('/login', (req: Request, res: Response) => {
                     usr.recentLogin = new Date();
                     return usr.save();
                 } else {
-                    throw new Error(`Wrong password for ${usr.tagId}`);
+                    return new Error(`Wrong password for ${usr.tagId}`);
                 }
             })
         } else {
@@ -105,7 +105,7 @@ router.post('/login', (req: Request, res: Response) => {
     })
     .catch(e => {
         console.error(e);
-        res.status(400).send(e);
+        res.status(400).json(e);
     })
 });
 
