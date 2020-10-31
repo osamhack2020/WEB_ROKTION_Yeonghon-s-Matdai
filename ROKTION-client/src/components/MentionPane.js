@@ -14,7 +14,7 @@ class MentionPane extends Component {
         };
     }
 
-    render() {
+    render() { 
         return (
             <>
             <Container
@@ -34,7 +34,7 @@ class MentionPane extends Component {
                                 <List.Item
                                     key={mention.id}
                                     onClick={
-                                        ()=>{this.context.jumpTo(doc.id, pageIndex, true)}
+                                        ()=>{this.context.jumpByDbId(mention.docDbId, mention.pageDbId, true)}
                                     }
                                 >
                                     <Segment style={{paddingTop:"5px", paddingBottom:"5px"}}>

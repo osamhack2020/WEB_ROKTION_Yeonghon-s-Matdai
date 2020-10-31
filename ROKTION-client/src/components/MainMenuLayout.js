@@ -667,7 +667,7 @@ class MainMenuLayout extends Component {
                     style={{
                         overflow:'auto',
                         minHeight:"100px",
-                        maxHeight:"550px",
+                        maxHeight:"calc(100vh - 92px)",
                         paddingTop:"0px",
                         paddingLeft:"15px",}}>
                     <List
