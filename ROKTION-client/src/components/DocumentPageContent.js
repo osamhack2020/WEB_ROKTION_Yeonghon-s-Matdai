@@ -33,7 +33,7 @@ class DocumentPageContent extends Component {
         // e: 이벤트, 주로 e.target을 쓴다. e.target 하면 html 그대로나오는데 -> name, value
         // data: 호출한 객체 데이터
         const uploadWaitTime = 1000;
-        if (!this.state.isLoaded || this.props.sharedPermission < 2 || this.props.pageData.isEditing) {
+        if (!this.state.isLoaded || this.props.sharedPermission < 2 || (this.props.pageData !== undefined && this.props.pageData.isEditing)) {
             return;
         }
         if (this.props.pageData && this.state.currentPage !== this.props.pageData?.page) {
@@ -139,7 +139,7 @@ class DocumentPageContent extends Component {
             });
         }
         var editorHandle = this.state.editorHandle;
-        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded || this.props.sharedPermission < 2 || this.props.pageData.isEditing;
+        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded || this.props.sharedPermission < 2 || (this.props.pageData !== undefined && this.props.pageData.isEditing);
     }
 
     render() {
