@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './Layout.css'
 import CKEditor from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
@@ -164,6 +165,11 @@ class DocumentPageContent extends Component {
                 onFocus={ ( event, editor ) => {
                     //console.log( 'Focus.', editor );
                 } }
+
+                style={{
+                    height:"calc(100vh - 209.5px - 10.5px)",
+                    resizeEnabled:false,
+                }}
             />
         );
     }

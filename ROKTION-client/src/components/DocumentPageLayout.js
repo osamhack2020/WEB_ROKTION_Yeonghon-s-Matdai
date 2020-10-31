@@ -68,9 +68,9 @@ class DocumentPageLayout extends Component{
         const document = this.context.documents.find(doc=>doc.id===selectedDocumentId)
 
         return(
-            <Sidebar.Pusher className="pushableMainScreen" style={{overflow:'visible'}}>
+            <Sidebar.Pusher className="pushableMainScreen">
                 <Grid stackable={false} stretched>
-                <Grid.Row>
+                <Grid.Row stackable={false}>
                 <Grid.Column
                     style={{
                         paddingRight:"0px",

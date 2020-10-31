@@ -5,3 +5,8 @@
 .ui.container.noLeftMargin{
     margin-left: 0em!important;
 }
+
+.ck-editor__editable{
+    min-height: calc(100vh - 265px);
+    max-height: calc(100vh - 265px);
+}
