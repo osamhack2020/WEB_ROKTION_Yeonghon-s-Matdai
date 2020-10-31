@@ -12,9 +12,8 @@ class LoginPage extends Component {
     constructor(props){
         super(props);
         this.state = {
-            //임시
-            id:'1',
-            password:'eotjd123',
+            id:'',
+            password:'',
         }
     }
 
