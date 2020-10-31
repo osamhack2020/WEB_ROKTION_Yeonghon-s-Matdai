@@ -992,7 +992,7 @@ class App extends Component {
     }
 
     render() {
-        console.log(this.state.documents)
+        //console.log(this.state.documents)
         // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:
