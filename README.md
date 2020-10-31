@@ -41,7 +41,7 @@
 
 <!--목업 프레임워크 : 카카오 오븐-->
 <!--스크린샷 잔뜩-->
-[Kakao Oven](https://ovenapp.io/project/Oe2RQMVa1IWS8jOmZ4S615D2xeDnUJKu#MZCzh)
+[Kakao Oven - 초기 기획](https://ovenapp.io/project/Oe2RQMVa1IWS8jOmZ4S615D2xeDnUJKu#MZCzh)
 
 ## 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)
 
@@ -93,6 +93,9 @@ $ cd ../ROKTION-server && npm install
 $ cd /ROKTION-server
 $ sudo npm run dev
 ```
+
+Azure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)
+http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/
 
 # 팀 정보 (Team Infomation)
 
