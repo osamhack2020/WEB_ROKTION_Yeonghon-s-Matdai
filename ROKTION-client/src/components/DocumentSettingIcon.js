@@ -25,22 +25,22 @@ class DocumentSettingIcon extends Component {
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
                             name='제목 변경'
-                            onClick={()=>{console.log("제목 변경");}}/>
+                            onClick={()=>{alert('문서 목록에서 가능합니다.');}}/>
                         <Menu.Item
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
                             name='권한 설정'
-                            onClick={()=>{console.log("권한 설정");}}/>
+                            onClick={()=>{alert('문서 목록에서 가능합니다.');}}/>
                         <Menu.Item
                             style={{padding:"10px 0px 10px 0px", margin:"0px"}}
                             fitted='horizontally'
                             name='소유자 이전'
-                            onClick={()=>{console.log("소유자 이전");}}/>
+                            onClick={()=>{alert('미완성입니다.');}}/>
                         <Menu.Item
                             style={{padding:"10px 0px 10px 0px", margin:"0px", color:'red'}}
                             fitted='horizontally'
                             name='문서 삭제'
-                            onClick={()=>{console.log("문서 삭제");}}/>
+                            onClick={()=>{alert('문서 목록에서 가능합니다.');}}/>
                     </Menu>
             </Popup>
         );
