@@ -14,7 +14,7 @@ class MentionPane extends Component {
         };
     }
 
-    render() {
+    render() { 
         return (
             <>
             <Container
