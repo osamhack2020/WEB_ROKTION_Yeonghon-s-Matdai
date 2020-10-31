@@ -273,7 +273,10 @@ class MainMenuLayout extends Component {
                                                 inverted
                                                 size='huge'
                                                 name='users'
-                                                style={{opacity:.8,}}/>:
+                                                style={{
+                                                    opacity:.8,
+                                                    transform: "translate(-36px,-28px)",
+                                                }}/>:
                                                 <></> }
                                         </Icon.Group>
                                         

@@ -241,7 +241,7 @@ class App extends Component {
                                 this.setState({
                                     documents: newState
                                 }); 
-                                console.log(this.state.documents[i])
+                                //console.log(this.state.documents[i])
                             })
                             .catch(e => {
                                 console.error(e);
@@ -334,13 +334,13 @@ class App extends Component {
                 }
                 this.setState({
                     documents: newState
-                }); 
-                console.log(this.state.documents[i])
+                });
             })
             .catch(e => {
                 console.error(e);
             })
         }
+
         const docsAlready = relatedDocs.created.length;
         for (let i = docsAlready; i < relatedDocs.shared.length + docsAlready; ++i) {
             // 이거 비동기로 돌아감
@@ -375,7 +375,6 @@ class App extends Component {
                 this.setState({
                     documents: newState
                 }); 
-                console.log(this.state.documents[i])
             })
             .catch(e => {
                 console.error(e);
@@ -992,7 +991,7 @@ class App extends Component {
     }
 
     render() {
-        //console.log(this.state.documents)
+        //console.log(this.state.documents, this.state.selectedDocumentId)
         // 0:로그인화면   1:로그인됨 
         switch(this.state.loginStatus) {
             case 0:
