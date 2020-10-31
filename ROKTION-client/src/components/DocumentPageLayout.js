@@ -22,9 +22,6 @@ import {
     Tab,
   } from 'semantic-ui-react';
 
-
-
-
 class DocumentPageLayout extends Component{
     constructor(props){
         super(props)
@@ -125,14 +122,14 @@ class DocumentPageLayout extends Component{
                                 <b>지시 및 책임자: {document.admin}</b>
                             </Container>
                         </Grid.Row>
-                        <Grid.Row style={{paddingTop: '.5rem', paddingBottom: '0rem'}}>
+                            <Grid.Row style={{paddingTop: '.5rem', paddingBottom: '0rem'}}>
                             <Container as={Grid.Column}
                                         className="progressBar noLeftMargin">
-                                <Progress percent={80}
-                                            color='green'
+                                <Progress percent={100}
+                                            color='grey'
                                             size='small'/>
                             </Container>
-                        </Grid.Row>
+                            </Grid.Row>
                         <Grid.Row style={{paddingTop: '0rem', paddingBottom: '0rem'}}>
                             <Divider as={Grid.Column}/>
                         </Grid.Row>
