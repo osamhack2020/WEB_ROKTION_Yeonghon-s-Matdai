@@ -1,8 +1,8 @@
 # ROKTION by 영혼의맞다이
 
-[![LOGO](./img/fittedLogo.png)](http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com)
-로고를 클릭하면 ROKTION에 접속 가능합니다! (09:00 ~ 24:00 만 가능)
 <!--팀명 로고 이미지, 팀소개, 프로젝트 설명 (or 동영상)-->
+[![LOGO](./img/fittedLogo.png)](http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com)  
+로고를 클릭하면 ROKTION에 접속 가능합니다! (09:00 ~ 24:00 만 가능)
 
 # 프로젝트 설명 (Project Information)
 
