@@ -375,7 +375,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 // 문서 접근 권한 체크
 function checkPermission(session: Express.Session, docInfo: DocInfo | null) : Promise<Permission> {
     return new Promise((resolve, reject) => {
-        console.log(docInfo?.author, docInfo?.shareOption, session.tagId);
+        //console.log(docInfo?.author, docInfo?.shareOption, session.tagId);
         if (docInfo !== undefined && docInfo !== null && session.dbId !== undefined && session.dbId !== null) {
             let pl: PermissionLevel = PermissionLevel.forbidden;
             if (docInfo.author == session.tagId) {
@@ -389,7 +389,7 @@ function checkPermission(session: Express.Session, docInfo: DocInfo | null) : Pr
             } else { 
                 pl = PermissionLevel.forbidden; 
             }
-            console.log(pl);
+            //console.log(pl);
             resolve({
                 docInfo: docInfo!,
                 permissionLevel: pl,

@@ -183,6 +183,27 @@ class App extends Component {
                 })
             }
         })
+    
+        window.socket.on('startPageEditing', (page) => {
+
+        })
+
+        window.socket.on('endPageEditing', (page) => {
+            
+        })
+
+        window.socket.on('pageEdited', (docData) => {
+            const docId = docData.docId;
+            const docIdx = this.state.documents.findIndex(doc => doc.dbId === docId);
+
+            if (docIdx >= 0) {
+                const docs = this.state.documents;
+                docs[docIdx].isDocumentContentLoaded = -1;
+                this.setState({
+                    documents: docs
+                })
+            }
+        })
     }
 
     getUserTags = () => {
@@ -554,6 +575,7 @@ class App extends Component {
             alert: 0,
             //!!!!!!! 임시 !!!!!!!!
             id: id,
+            permission: 4,
             color: (() => {
                 var letters = '0123456789ABCDEF';
                 var color = '#';
