@@ -32,7 +32,7 @@ class DocumentPageContent extends Component {
         // e: 이벤트, 주로 e.target을 쓴다. e.target 하면 html 그대로나오는데 -> name, value
         // data: 호출한 객체 데이터
         const uploadWaitTime = 3000;
-        if (!this.state.isLoaded) {
+        if (!this.state.isLoaded || this.props.sharedPermission < 2) {
             return;
         }
         if (this.props.pageData && this.state.currentPage !== this.props.pageData?.page) {
@@ -62,7 +62,7 @@ class DocumentPageContent extends Component {
 
     updateContent = (page, content) => {
         //console.log('Update Content');
-        if (!this.state.isLoaded || this.state.isSaved) {
+        if (!this.state.isLoaded) {
             return;
         }
         if (page < 0) {
@@ -82,6 +82,10 @@ class DocumentPageContent extends Component {
         })
         .then(() => {
             this.props.pageData.updateLocalPageContents(this.props.pageData.idx, page, content);
+            window.socket.emit('endPageEditing', {
+                docId: this.props.pageData.dbId,
+                editedPage: this.props.pageData.page,
+            });
             /*
             return fetch(`/api/docs/${this.props.contentInfo.dbId}/${this.props.contentInfo.page}`, {
                 method: 'GET',
@@ -130,7 +134,7 @@ class DocumentPageContent extends Component {
             });
         }
         var editorHandle = this.state.editorHandle;
-        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded || this.props.isShared;
+        if (editorHandle !== null) editorHandle.isReadOnly = this.state.isSaving || !this.state.isLoaded || this.props.sharedPermission < 2;
     }
 
     render() {

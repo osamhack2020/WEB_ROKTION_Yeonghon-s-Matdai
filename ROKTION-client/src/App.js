@@ -139,9 +139,10 @@ class App extends Component {
             console.log(JSON.parse(jsonData).message);
         });
 
+        // docInfo 업데이트
         window.socket.on('updateDocInfo', (docData) => {
             const docId = docData.docId;
-            const docIdx = this.state.findIndex(doc => doc.dbId === docId);
+            const docIdx = this.state.documents.findIndex(doc => doc.dbId === docId);
 
             if (docIdx >= 0) {
                 fetch(`/api/docs/${docId}`, {
@@ -160,8 +161,12 @@ class App extends Component {
                         title: docInfo.title,
                         admin: docInfo.author,
                         description: docInfo.description,
-                        // alert 임시용
                         color: docInfo.titleColor,
+                        shareOption: docInfo.shareOption,
+                    }
+                    if (this.state.documents[docIdx].pagesLength !== docInfo.contents.length) {
+                        newDocInfo.pagesLength = docInfo.contents.length;
+                        newDocInfo.isDocumentContentLoaded = -1; // -1: 미로딩, 0: 로딩중, 1: 로딩완료
                     }
                     newDocInfo.tags.delete(0);
                     newDocInfo.tags.delete(1);
@@ -175,6 +180,27 @@ class App extends Component {
                             documents: newDocs,
                         }
                     })
+                })
+            }
+        })
+    
+        window.socket.on('startPageEditing', (page) => {
+
+        })
+
+        window.socket.on('endPageEditing', (page) => {
+            
+        })
+
+        window.socket.on('pageEdited', (docData) => {
+            const docId = docData.docId;
+            const docIdx = this.state.documents.findIndex(doc => doc.dbId === docId);
+
+            if (docIdx >= 0) {
+                const docs = this.state.documents;
+                docs[docIdx].isDocumentContentLoaded = -1;
+                this.setState({
+                    documents: docs
                 })
             }
         })
@@ -343,6 +369,9 @@ class App extends Component {
                 }
             })
             .then(() => {
+                window.socket.emit('updateDocInfo', {
+                    docId: this.state.documents[this.state.selectedDocumentId].dbId,
+                });
                 resolve();
             })
             .catch(e => {
@@ -372,6 +401,9 @@ class App extends Component {
                 }
             })
             .then(() => {
+                window.socket.emit('updateDocInfo', {
+                    docId: this.state.documents[this.state.selectedDocumentId].dbId,
+                });
                 resolve();
             })
             .catch(e => {
@@ -411,7 +443,7 @@ class App extends Component {
                         color: color,
                     }
                 })
-            });
+            })
         }
     }
 
@@ -525,6 +557,9 @@ class App extends Component {
                 window.socket.emit('updateDocInfo', {
                     docId: docDBId,
                 })
+                return;
+            } else {
+                throw res.json();
             }
         });
     }
@@ -540,6 +575,7 @@ class App extends Component {
             alert: 0,
             //!!!!!!! 임시 !!!!!!!!
             id: id,
+            permission: 4,
             color: (() => {
                 var letters = '0123456789ABCDEF';
                 var color = '#';
@@ -609,6 +645,7 @@ class App extends Component {
                         documents:docs,
                     })
                     this.reindexingDocuments();
+                    // 문서 삭제시 공유받은 사람들도 다 정리해줘야되는뎅
                 })
                 .catch(e => {
                     console.error(e);
@@ -636,6 +673,9 @@ class App extends Component {
                         documents:docs,
                     })
                     this.reindexingDocuments();
+                    window.socket.emit('updateDocInfo', {
+                        docId: docs[idx].dbId,
+                    });
                 })
                 .catch(e => {
                     console.error(e);
@@ -698,6 +738,9 @@ class App extends Component {
         })
         .then(res => {
             if (res.status === 200) {
+                window.socket.emit('updateDocInfo', {
+                    docId: doc.dbId,
+                })
                 return;
             } else {
                 throw res.json();
