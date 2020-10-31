@@ -18,6 +18,10 @@ const createSocketActions = (io: SocketIO.Server, socket: SocketIO.Socket) => {
         //console.log(`got updated, ${docData.docId}`);
         socket.broadcast.emit('updateDocInfo', docData);
     })
+    // 공유설정이나 언급이나 그런거 변경시
+    socket.on('updateUser', (userTagId) => {
+        socket.broadcast.emit('updateUser', userTagId);
+    })
 
     // 페이지 수정중 다른 사람이 수정 못하게
     socket.on('enterDocumentPage', (docData) => { // docId: 보고있는 문서 ID, pageIdx: 보고있는 페이지 번호

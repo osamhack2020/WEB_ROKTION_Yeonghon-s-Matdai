@@ -185,14 +185,17 @@ router.put('/:id', (req: Request, res: Response) => {
             if (req.body.author && perm.permissionLevel >= 4) {
                 // 관리자 이관
                 perm.docInfo.author = req.body.author;
+                perm.docInfo.save();
             }
             if (req.body.title) {
                 // 제목 변경
                 perm.docInfo.title = req.body.title;
+                perm.docInfo.save();
             }
             if (req.body.color) {
                 // 색깔 변경
                 perm.docInfo.titleColor = req.body.color;
+                perm.docInfo.save();
             }
             if (req.body.shareOption) { 
                 // 공유 옵션 변경, 줄땐 tagId로, action: add, del
@@ -287,7 +290,6 @@ router.put('/:id', (req: Request, res: Response) => {
                     throw new Error('Undefined action');
                 }
             }
-            perm.docInfo.save();
         } else {
             throw new Error('Permission Denied');
         }
@@ -380,11 +382,11 @@ function checkPermission(session: Express.Session, docInfo: DocInfo | null) : Pr
             let pl: PermissionLevel = PermissionLevel.forbidden;
             if (docInfo.author == session.tagId) {
                 pl = PermissionLevel.owner;
-            } else if (docInfo.shareOption.director?.indexOf(session.tagId) >= 0) {
+            } else if (docInfo.shareOption.director?.includes(session.tagId)) {
                 pl = PermissionLevel.director;
-            } else if (docInfo.shareOption.editor?.indexOf(session.tagId) >= 0) {
+            } else if (docInfo.shareOption.editor?.includes(session.tagId)) {
                 pl = PermissionLevel.editor;
-            } else if (docInfo.shareOption.viewer?.indexOf(session.tagId) >= 0) { 
+            } else if (docInfo.shareOption.viewer?.includes(session.tagId)) { 
                 pl = PermissionLevel.viewer;
             } else { 
                 pl = PermissionLevel.forbidden; 

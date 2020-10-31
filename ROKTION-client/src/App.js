@@ -83,6 +83,7 @@ class App extends Component {
             return this.getDocumentList();
         })
         .then(() => {
+            this.reindexingDocuments();
             window.socket = SocketIO.connect(window.location.hostname, {
                 reconnection: false,
             });
@@ -124,6 +125,8 @@ class App extends Component {
                     rank:null,
                     name:null,
                 },
+                todoList: [],
+                mentionList: [],
                 documents: [],
                 tags:[],
             });
@@ -180,6 +183,74 @@ class App extends Component {
                             documents: newDocs,
                         }
                     })
+                })
+            }
+        });
+
+        window.socket.on('updateUser', (userTagId) => {
+            if (this.state.userInfo.tagId === userTagId) {
+                fetch(`/api/user/${userTagId}`, {
+                    method: 'GET'
+                })
+                .then(res => {
+                    return res.json();
+                })
+                .then(userData => {
+                    const state = this.state;
+                    
+                    if (state.mentionList.length !== userData.mentions) {
+                        state.mentionList = [];
+                        for (let i = 0; i < userData.mentions.length; ++i) {
+                            this.getMention(userData.mentions[i].mentioningUser, userData.mentions[i].docDbId, userData.mentions[i].page, userData.mentions[i].timeOfMention);
+                        }
+                    }
+                    if (state.userInfo.relatedDocs.shared.length !== userData.relatedDocs.shared.length) {
+                        state.userInfo.relatedDocs.shared = userData.relatedDocs.shared;
+                        const relatedDocs = state.userInfo.relatedDocs;
+                        const docsAlready = relatedDocs.created.length;
+                        for (let i = docsAlready; i < relatedDocs.shared.length + docsAlready; ++i) {
+                            // 이거 비동기로 돌아감
+                            fetch(`/api/docs/${relatedDocs.shared[i - docsAlready].docId}`, {
+                                method: 'GET'
+                            })
+                            .then(res => {
+                                return res.json();
+                            })
+                            .then(docInfo => {
+                                let newState = this.state.documents;
+                                let newTags = relatedDocs.shared[i - docsAlready].docTags;
+                                newTags.push(docInfo.status);
+                                //const newAlert = relatedDocs.shared[i - docsAlready].alert;
+                                newState[i] = {
+                                    isShared: true,
+                                    permission: relatedDocs.shared[i - docsAlready].permission,
+                                    title: docInfo.title,
+                                    admin: docInfo.author,
+                                    description: docInfo.description,
+                                    // alert 임시용
+                                    alert: 0,
+                                    id: i,
+                                    color: docInfo.titleColor,
+                                    dbId: docInfo._id,
+                                    tags: new Set(newTags),
+                                    onClick: () => {this.setState({selectedDocumentId: i}); },
+                                    documentContent: [],
+                                    isDocumentContentLoaded: -1, // -1: 미로딩, 0: 로딩중, 1: 로딩완료
+                                    pagesLength: docInfo.contents.length,
+                                }
+                                this.setState({
+                                    documents: newState
+                                }); 
+                                console.log(this.state.documents[i])
+                            })
+                            .catch(e => {
+                                console.error(e);
+                            })
+                        }
+                    }
+                })
+                .catch(e => {
+                    console.error(e);
                 })
             }
         })
@@ -738,9 +809,10 @@ class App extends Component {
         })
         .then(res => {
             if (res.status === 200) {
+                window.socket.emit('updateUser', targetUser);
                 window.socket.emit('updateDocInfo', {
                     docId: doc.dbId,
-                })
+                });
                 return;
             } else {
                 throw res.json();
@@ -784,6 +856,7 @@ class App extends Component {
         })
         .then(res => {
             if (res.status === 200) {
+                window.socket.emit('updateUser', targetUser);
                 return;
             } else {
                 throw res.json();
