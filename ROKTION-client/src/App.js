@@ -658,6 +658,7 @@ class App extends Component {
             alert: 0,
             //!!!!!!! 임시 !!!!!!!!
             id: id,
+            admin: this.state.userInfo.tagId,
             permission: 4,
             color: (() => {
                 var letters = '0123456789ABCDEF';
@@ -690,7 +691,6 @@ class App extends Component {
             }
         })
         .then(data => {
-            newDoc.admin = data.author;
             newDoc.dbId = data.dbId;
             //console.log(newDoc);
             this.setState({

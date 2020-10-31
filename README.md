@@ -43,6 +43,10 @@
 <!--스크린샷 잔뜩-->
 [Kakao Oven - 초기 기획](https://ovenapp.io/project/Oe2RQMVa1IWS8jOmZ4S615D2xeDnUJKu#MZCzh)
 
+![초기 화면](./img/1.png)
+![메인 화면](./img/2.png)
+![문서 화면](./img/3.png)
+
 ## 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)
 
 <!--지원 브라우저, 권장 등-->
