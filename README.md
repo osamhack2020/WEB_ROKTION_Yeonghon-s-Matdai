@@ -45,7 +45,7 @@ http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/
 
 [발표 자료 - Google 프레젠테이션](https://docs.google.com/presentation/d/1bNLGSDXlM_uwEnEThKNWNk8AUwsHQF1pA1u1JGQ1Cg4/edit?usp=sharing)
 
-[시연 영상 - Youtube](https://youtu.be/hIOQNU6r0ro)
+[시연 영상 - Youtube](https://youtu.be/GNKmoEayTiM)
 
 
 ## 기능 설계
