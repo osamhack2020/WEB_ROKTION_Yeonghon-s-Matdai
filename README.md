@@ -1,8 +1,9 @@
 # ROKTION by 영혼의맞다이
 
 <!--팀명 로고 이미지, 팀소개, 프로젝트 설명 (or 동영상)-->
-[![LOGO](./img/fittedLogo.png)](http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com)  
-로고를 클릭하면 ROKTION에 접속 가능합니다! (09:00 ~ 24:00 만 가능)
+![LOGO](./img/fittedLogo.png)  
+~~로고를 클릭하면 ROKTION에 접속 가능합니다! (09:00 ~ 24:00 만 가능)~~  
+11월 2일 현재 권한 문제로 접속 불가능 상태입니다.
 
 # 프로젝트 설명 (Project Information)
 
@@ -39,9 +40,10 @@
 
 ## 발표 자료 및 시연 영상
 
-Azure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)  
+~~ure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)  
 http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/  
-계정 (20-201031 / osam12#$) 로 들어가시면, 발표자료와 사용설명서를 볼 수 있습니다!
+계정 (20-201031 / osam12#$) 로 들어가시면, 발표자료와 사용설명서를 볼 수 있습니다!~~  
+11월 2일 현재 권한 문제로 접속 불가능 상태입니다.
 
 [발표 자료 - Google 프레젠테이션](https://docs.google.com/presentation/d/1bNLGSDXlM_uwEnEThKNWNk8AUwsHQF1pA1u1JGQ1Cg4/edit?usp=sharing)
 
@@ -111,7 +113,8 @@ $ sudo npm run dev
 ```
 
 Azure VM를 이용해 호스팅중입니다. (09:00 ~ 24:00 만 사용가능)  
-http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/
+http://yeonghon-s-matdai.koreacentral.cloudapp.azure.com/  
+11월 2일 현재 권한문제로 접속 불가능합니다.
 
 # 팀 정보 (Team Infomation)
 
